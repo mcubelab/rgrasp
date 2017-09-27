@@ -1,0 +1,217 @@
+<?xml version="1.0" ?>
+<!-- Peter KT Yu April, 2015-->
+<robot name="irb_1600id" xmlns:xacro="http://ros.org/wiki/xacro">
+  <link name="base_link">
+  </link>
+  <link name="link_1">
+  </link>
+  <link name="link_2">
+  </link>
+  <link name="link_3">
+  </link>
+  <link name="link_4">
+  </link>
+  <link name="link_5">
+  </link>
+  <link name="link_6">
+  </link>
+  <link name="link_wrist">
+  </link>
+  <link name="hand_mount">
+  </link>
+<!--
+  <joint name="joint0" type="fixed">
+    <parent link="base_link"/>
+    <child link="complete"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+-->
+  <joint name="joint1" type="revolute">
+    <parent link="base_link"/>
+    <child link="link_1"/>
+    <limit effort="300" lower="-3.14159265359" upper="3.14159265359" velocity="4.36"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+  <joint name="joint2" type="revolute">
+    <parent link="link_1"/>
+    <child link="link_2"/>
+    <limit effort="300" lower="-1.57079632679" upper="2.61799387799" velocity="4.36"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="-1.57079632679 3.14159265359 0" xyz="0.150 0 .4865"/>
+  </joint>
+  <joint name="joint3" type="revolute">
+    <parent link="link_2"/>
+    <child link="link_3"/>
+    <limit effort="300" lower="-4.15388361975" upper="1.37881010908" velocity="4.36"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="3.14159265359 3.14159265359 3.14159265359" xyz="0 0.700 0"/>
+  </joint>
+  <joint name="joint4" type="revolute">
+    <parent link="link_3"/>
+    <child link="link_4"/>
+    <limit effort="300" lower="-2.70526034059" upper="2.70526034059" velocity="5.58"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="0 -1.57079632679 0" xyz="0 0.110 0"/> 
+  </joint>
+  <joint name="joint5" type="revolute">
+    <parent link="link_4"/>
+    <child link="link_5"/>
+    <limit effort="300" lower="-2.35619449019" upper="2.35619449019" velocity="5.58"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="-3.14159265359 1.57079632679 3.14159265359" xyz="0 0 0.64"/>
+  </joint>
+  <joint name="joint6" type="revolute">
+    <parent link="link_5"/>
+    <child link="link_6"/>
+    <limit effort="300" lower="-6.98131700798" upper="6.98131700798" velocity="7.33"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="1.57079632679 0 -1.57079632679" xyz="-0.2 0 0"/>
+  </joint>
+  <joint name="joint7" type="fixed">
+    <parent link="link_6"/>
+    <child link="link_wrist"/>
+    <limit effort="300" lower="-3.49065850399" upper="3.49065850399" velocity="7.33"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+  <joint name="joint_wristend" type="fixed">
+    <parent link="link_wrist"/>
+    <child link="hand_mount"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="0 0 0" xyz="0 0 0.12"/>
+  </joint>
+  
+  <joint name="joint_hand" type="fixed">
+    <parent link="hand_mount"/>
+    <child link="wsg50_base_link"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+  
+
+
+
+ <!-- BASE LINK -->
+ <link name="wsg50_base_link">
+
+ </link>
+
+
+  <!-- GRIPPER LEFT -->
+
+  <joint name="wsg_50_gripper_base_joint_gripper_left" type="prismatic">
+     <limit lower="-0.055" upper="-0.0027" effort="1.0" velocity="1.0"/>
+     <origin xyz="0 0 0" rpy="0 0 0" />      <!--origin xyz="-0.0067 0 0.049" rpy="0 0 0" /-->
+     <parent link="wsg50_base_link"/>
+     <child link="gripper_left" />
+     <axis xyz="1 0 0"/>
+     <limit effort="100" velocity="100"/>
+  </joint>
+
+  <link name="gripper_left">
+
+
+  </link>
+
+
+
+  <!-- LEFT FINGER -->
+
+  <joint name="guide_joint_finger_left" type="fixed">
+     <origin xyz="0 0 0.023" rpy="0 0 0" />
+     <parent link="gripper_left"/>
+     <child link="finger_left" />
+     <axis xyz="1 0 0"/>
+     <limit effort="100" velocity="100"/>
+  </joint>
+
+  <link name="finger_left">
+
+
+  </link>
+
+
+  <!-- GRIPPER RIGHT -->
+
+  <joint name="wsg_50_gripper_base_joint_gripper_right" type="prismatic">
+     <limit lower="0.0027" upper="0.055" effort="1.0" velocity="1.0"/>
+     <origin xyz="0 0 0" rpy="0 0 3.14159" />
+     <parent link="wsg50_base_link"/>
+     <child link="gripper_right" />
+     <axis xyz="-1 0 0"/>
+     <limit effort="100" velocity="100"/>
+  </joint>
+
+    <link name="gripper_right">
+
+
+  </link>
+
+  <!-- RIGHT FINGER -->
+
+  <joint name="guide_joint_finger_right" type="fixed">
+     <origin xyz="0 0 0.023" rpy="0 0 0" />
+     <parent link="gripper_right"/>
+     <child link="finger_right" />
+     <axis xyz="1 0 0"/>
+     <limit effort="100" velocity="100"/>
+  </joint>
+
+  <link name="finger_right">
+
+
+  </link>
+  
+
+  <!-- LEFT SUCTION -->
+
+  <joint name="joint_suction_left" type="revolute">
+     <origin xyz="0 -0.0147390663624 0.150365680456" rpy="0 0 0" />
+     <parent link="finger_left"/>
+     <child link="suction_left" />
+     <axis xyz="-1 0 0"/>
+     <limit effort="1" lower="0" upper="1.57079632679" velocity="1"/>
+  </joint>
+
+  <link name="suction_left">
+  </link>
+  
+  <!-- LEFT NAIL -->
+  <joint name="joint_nail_left" type="revolute">
+     <origin xyz="-0.014619381167 0 0.149102240801" rpy="0 0 0" />
+     <parent link="finger_left"/>
+     <child link="nail_left" />
+     <axis xyz="0 1 0"/>
+     <limit effort="1" lower="0" upper="3.14159265359" velocity="1"/>
+  </joint>
+
+  <link name="nail_left">
+  </link>
+  
+  <!-- RIGHT SUCTION -->
+
+  <joint name="joint_suction_right" type="revolute">
+     <origin xyz="0 0.0147390663624 0.150365680456" rpy="0 0 0" />
+     <parent link="finger_right"/>
+     <child link="suction_right" />
+     <axis xyz="1 0 0"/>
+     <limit effort="1" lower="0" upper="1.57079632679" velocity="1"/>
+  </joint>
+
+  <link name="suction_right">
+  </link>
+  
+  <!-- RIGHT NAIL -->
+  <joint name="joint_nail_right" type="revolute">
+     <origin xyz="-0.014619381167 0 0.149102240801" rpy="0 0 0" />
+     <parent link="finger_right"/>
+     <child link="nail_right" />
+     <axis xyz="0 1 0"/>
+     <limit effort="1" lower="0" upper="3.14159265359" velocity="1"/>
+  </joint>
+
+  <link name="nail_right">
+  </link>
+</robot>
+

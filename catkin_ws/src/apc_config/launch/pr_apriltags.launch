@@ -1,0 +1,125 @@
+<?xml version="1.0" ?>
+<launch>
+  <arg name="calib_realsense" default="false" />
+  <arg name="calib_shelf" default="false" />
+  <arg name="calib_tote" default="false" />
+  <arg name="calib_test" default="false" />
+  <arg name="track_obj" default="false" />
+  
+  <node if="$(arg calib_realsense)" pkg="pr_apriltags" type="pr_apriltags" name="pr_apriltags" ns="calib_realsense">
+    <param name="~default_tag_size" value="0.1923" />
+    <param name="~viewer" value="1" />
+    <rosparam command="delete" param="tag_data" />
+    <rosparam param="tag_data">
+      "2": 
+        size: 0.1923
+    </rosparam>
+    <rosparam param="tag_family">Tag25h9</rosparam>
+    <remap from="~image" to="/realsense/rgb/image"/>
+    <remap from="~camera_info" to="/realsense/rgb/camera_info"/>
+    <remap from="~marker_array" to="/pr_apriltags/marker_array"/>
+    <remap from="~detections" to="pr_apriltags/detections"/>
+  </node>
+  <node if="$(arg calib_shelf)" pkg="pr_apriltags" type="pr_apriltags" name="pr_apriltags" ns="apriltag_shelf">
+    <param name="~default_tag_size" value="0.1923" />
+    <param name="~viewer" value="0" />
+    
+    <rosparam command="delete" param="tag_data" />
+    <rosparam param="tag_data">
+      "4": 
+        size: 0.1923
+      "5": 
+        size: 0.1923
+    </rosparam>
+    <rosparam param="tag_family">Tag25h9</rosparam>
+    <remap from="~image" to="/realsense/rgb/image"/>
+    <remap from="~camera_info" to="/realsense/rgb/camera_info"/>
+    <remap from="~marker_array" to="/pr_apriltags/marker_array"/>
+    <remap from="~detections" to="pr_apriltags/detections"/>
+  </node>
+  <node if="$(arg calib_tote)" pkg="pr_apriltags" type="pr_apriltags" name="pr_apriltags" ns="apriltag_tote">
+    <param name="~default_tag_size" value="0.121" />
+    <param name="~viewer" value="0" />
+    
+    <rosparam command="delete" param="tag_data" />
+    <rosparam param="tag_data">
+      "0": 
+        size: 0.121
+    </rosparam>
+    <rosparam param="tag_family">Tag36h11</rosparam>
+    <remap from="~image" to="/realsense/rgb/image"/>
+    <remap from="~camera_info" to="/realsense/rgb/camera_info"/>
+    <remap from="~marker_array" to="/pr_apriltags/marker_array"/>
+    <remap from="~detections" to="pr_apriltags/detections"/>
+  </node>
+  <node if="$(arg track_obj)" pkg="pr_apriltags" type="pr_apriltags" name="pr_apriltags" ns="apriltag_obj">
+    <param name="~default_tag_size" value="0.06" />
+    <param name="~viewer" value="1" />
+    
+    <rosparam command="delete" param="tag_data" />
+    <rosparam param="tag_data">
+      "6": 
+        size: 0.048
+      "7": 
+        size: 0.048
+      "8": 
+        size: 0.048
+      "9": 
+        size: 0.048
+      "10": 
+        size: 0.048
+      "11": 
+        size: 0.048
+      "12": 
+        size: 0.048
+      "13": 
+        size: 0.048
+      "14": 
+        size: 0.048
+      "15": 
+        size: 0.039
+      "22": 
+        size: 0.039
+      "23": 
+        size: 0.039
+      "24": 
+        size: 0.039
+      "25": 
+        size: 0.039
+      "26": 
+        size: 0.039
+      "27": 
+        size: 0.039
+      "28": 
+        size: 0.039
+      "29": 
+        size: 0.039
+    </rosparam>
+    <rosparam param="tag_family">Tag16h5</rosparam>
+    <remap from="~image" to="/realsense/rgb/image"/>
+    <remap from="~camera_info" to="/realsense/rgb/camera_info"/>
+    <remap from="~marker_array" to="/pr_apriltags/marker_array"/>
+    <remap from="~detections" to="pr_apriltags/detections"/>
+  </node>
+  <node if="$(arg calib_test)" pkg="pr_apriltags" type="pr_apriltags" name="pr_apriltags" ns="apriltag_test">
+    <param name="~default_tag_size" value="0.068" />
+    <param name="~viewer" value="1" />
+    
+    <rosparam command="delete" param="tag_data" />
+<!--
+    <rosparam param="tag_data">
+      "0": 
+        size: 0.08255
+    </rosparam>
+-->
+    <rosparam param="tag_data">
+      "0": 
+        size: 0.068
+    </rosparam>
+    <rosparam param="tag_family">Tag36h11</rosparam>
+    <remap from="~image" to="/realsense/rgb/image"/>
+    <remap from="~camera_info" to="/realsense/rgb/camera_info"/>
+    <remap from="~marker_array" to="/pr_apriltags/marker_array"/>
+    <remap from="~detections" to="pr_apriltags/detections"/>
+  </node>
+</launch>

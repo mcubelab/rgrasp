@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+<launch>
+    <arg name="raspberry_machine" default="raspi-desktop" />
+    <machine name="raspberry_machine" address="$(arg raspberry_machine)" user="raspi" timeout="5.0" env-loader="/home/raspi/suction_env.sh" />
+    <node name="suction_server" pkg="suction" type="suction_server.py" machine="raspberry_machine" respawn="true" respawn_delay="0.1"/>
+  <arg name="image_set_width" default="640"/>
+  <arg name="image_set_height" default="480"/>
+
+  <arg name="camera_set_saveimage_folder" default="/home/raspi/suction_ws/data"/>
+  <arg name="camera_set_capture_hz" default="20.0"/>
+
+  <arg name="image_set_gain" default="3"/>
+  <arg name="image_set_exposure" default="0"/>
+
+  <arg name="camera_set_saveimage" default="false"/>
+  <arg name="camera_set_showimage" default="false"/>
+  <arg name="camera_set_publishimage" default="true"/>
+  <arg name="camera_set_processimage" default="true"/>
+    <node name="raspberry_camera" pkg="raspberry_camera" type="raspberry_camera" machine="raspberry_machine" output="screen">
+    <param name="image_set_width" type="int" value="$(arg image_set_width)"/>
+    <param name="image_set_height" type="int" value="$(arg image_set_height)"/>
+
+    <param name="camera_set_saveimage_folder" type="string" value="$(arg camera_set_saveimage_folder)"/>
+    <param name="camera_set_capture_hz" type="double" value="$(arg camera_set_capture_hz)"/>
+
+    <param name="image_set_gain" type="int" value="$(arg image_set_gain)"/>
+    <param name="image_set_exposure" type="int" value="$(arg image_set_exposure)"/>
+
+    <param name="camera_set_saveimage" type="bool" value="$(arg camera_set_saveimage)"/>
+    <param name="camera_set_showimage" type="bool" value="$(arg camera_set_showimage)"/>
+    <param name="camera_set_publishimage" type="bool" value="$(arg camera_set_publishimage)"/>
+    <param name="camera_set_processimage" type="bool" value="$(arg camera_set_processimage)"/>
+    </node>
+</launch>

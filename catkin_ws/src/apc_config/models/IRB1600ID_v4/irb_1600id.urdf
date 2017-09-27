@@ -1,0 +1,368 @@
+<?xml version="1.0" ?>
+<!-- Peter KT Yu April, 2015-->
+<robot name="irb_1600id" xmlns:xacro="http://ros.org/wiki/xacro">
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <mesh filename="package://apc_config/models/IRB1600ID/meshes/visual/base_link.stl"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="-0.381131 -0.255114 0"/>
+      <material name="abb_orange">
+        <color rgba="1 0.43 0 1"/>
+      </material>
+    </visual>
+  </link>
+  <link name="link_1">
+    <visual>
+      <geometry>
+        <mesh filename="package://apc_config/models/IRB1600ID/meshes/visual/link_1.stl"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="-0.264156 -0.1700739 0"/>
+      <material name="abb_orange">
+        <color rgba="1 0.43 0 1"/>
+      </material>
+    </visual>
+  </link>
+  <link name="link_2">
+    <visual>
+      <geometry>
+        <mesh filename="package://apc_config/models/IRB1600ID/meshes/visual/link_2.stl"/>
+      </geometry>
+      <origin rpy="-1.57079632679 3.14159265359 0" xyz="0.15 -0.4863865 -0.2525"/>
+      <material name="abb_orange">
+        <color rgba="1 0.43 0 1"/>
+      </material>
+    </visual>   
+  </link>
+  <link name="link_3">
+    <visual>
+      <geometry>
+        <mesh filename="package://apc_config/models/IRB1600ID/meshes/visual/link_3.stl"/>
+      </geometry>
+      <origin rpy="1.57079632679 0 3.14159265359" xyz="0.1825 -1.18649 -0.118"/>
+      <material name="abb_orange">
+        <color rgba="1 0.43 0 1"/>
+      </material>
+    </visual>    
+  </link>
+  <link name="link_4">
+    <visual>
+      <geometry>
+        <mesh filename="package://apc_config/models/IRB1600ID/meshes/visual/link_4.stl"/>
+      </geometry>
+      <origin rpy="-1.57079632679 -1.57079632679 0" xyz="-0.07019285 -1.2965 -0.1488"/>
+      <material name="abb_orange">
+        <color rgba="1 0.43 0 1"/>
+      </material>
+    </visual>
+  </link>
+  <link name="link_5">
+    <visual>
+      <geometry>
+        <mesh filename="package://apc_config/models/IRB1600ID/meshes/visual/link_5.stl"/>
+      </geometry>
+      <origin rpy="-1.57079632679 3.14159265359 0" xyz="0.790263 -1.29649 -0.0525337"/>
+      <material name="abb_orange">
+        <color rgba="1 0.43 0 1"/>
+      </material>
+    </visual>
+  </link>
+  
+  <link name="link_6">
+    <visual>
+      <geometry>
+        <mesh filename="package://apc_config/models/IRB1600ID/meshes/visual/link_6.stl"/>
+      </geometry>
+      <origin rpy="0 -1.57079632679 0" xyz="1.2965 -0.04 -0.99"/>
+      <material name="abb_black">
+        <color rgba="0 0 0 1"/>
+      </material>
+    </visual>
+  </link>
+  
+  <link name="link_wrist">
+    <visual>
+      <geometry>
+        <mesh filename="package://apc_config/models/wsg_50/meshes/arc2017/wrist_body_compressed.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin rpy="-1.57079632679 0 1.57079632679" xyz="0 0 0"/>
+      <material name="abb_black">
+        <color rgba="0.1 0.1 0.1 1"/>
+      </material>
+    </visual>
+  </link>
+  
+  <link name="hand_mount">
+  </link>
+  
+  <joint name="joint1" type="revolute">
+    <parent link="base_link"/>
+    <child link="link_1"/>
+    <limit effort="300" lower="-3.14159265359" upper="3.14159265359" velocity="4.36"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+  <joint name="joint2" type="revolute">
+    <parent link="link_1"/>
+    <child link="link_2"/>
+    <limit effort="300" lower="-1.57079632679" upper="2.61799387799" velocity="4.36"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="-1.57079632679 3.14159265359 0" xyz="0.150 0 .4865"/>
+  </joint>
+  <joint name="joint3" type="revolute">
+    <parent link="link_2"/>
+    <child link="link_3"/>
+    <limit effort="300" lower="-4.15388361975" upper="1.37881010908" velocity="4.36"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="3.14159265359 3.14159265359 3.14159265359" xyz="0 0.700 0"/>
+  </joint>
+  <joint name="joint4" type="revolute">
+    <parent link="link_3"/>
+    <child link="link_4"/>
+    <limit effort="300" lower="-2.70526034059" upper="2.70526034059" velocity="5.58"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="0 -1.57079632679 0" xyz="0 0.110 0"/> 
+  </joint>
+  <joint name="joint5" type="revolute">
+    <parent link="link_4"/>
+    <child link="link_5"/>
+    <limit effort="300" lower="-1.57079632679" upper="2.35619449019" velocity="5.58"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="-3.14159265359 1.57079632679 3.14159265359" xyz="0 0 0.64"/>
+  </joint>
+  <joint name="joint6" type="revolute">
+    <parent link="link_5"/>
+    <child link="link_6"/>
+    <limit effort="300" lower="-3.49065850399" upper="3.49065850399" velocity="7.33"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="1.57079632679 0 -1.57079632679" xyz="-0.2 0 0"/>
+  </joint>
+  <joint name="joint7" type="fixed">
+    <parent link="link_6"/>
+    <child link="link_wrist"/>
+    <limit effort="300" lower="-3.49065850399" upper="3.49065850399" velocity="7.33"/>
+    <axis xyz="0 1 0"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+  <joint name="joint_wristend" type="fixed">
+    <parent link="link_wrist"/>
+    <child link="hand_mount"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="0 0 0" xyz="0 0 0.12"/>
+  </joint>
+  
+  
+<!--
+  GRIPPER
+-->
+  <link name="wsg50_base_link">
+    <visual>
+      <geometry>
+        <mesh filename="package://apc_config/models/wsg_50/meshes/arc2017/gripper_compressed.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin rpy="-1.57079632679 0 1.57079632679" xyz="0 0 0"/>
+      <material name="grey">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <joint name="joint_hand" type="fixed">
+    <parent link="link_wrist"/>
+    <child link="wsg50_base_link"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+
+<!--
+  TOP FINGER
+-->
+  <link name="top_finger">
+      <visual>
+          <origin xyz="0.0 0 0" rpy="-1.57079632679 0 1.57079632679" />
+          <geometry>
+             <mesh filename="package://apc_config/models/wsg_50/meshes/arc2017/top_finger_compressed.stl" scale="0.001 0.001 0.001"/>
+          </geometry>
+          <material name="abb_black">
+<!--
+              <color rgba=".15 .15 .15 1"/>
+-->
+        </material>
+      </visual>
+  </link>
+  
+  <joint name="wsg_50_gripper_base_joint_gripper_left" type="prismatic">
+     <limit lower="-0.055" upper="0" effort="1.0" velocity="1.0"/>
+     <origin xyz="0 0 0" rpy="0 0 0" />    
+     <parent link="link_wrist"/>
+     <child link="top_finger" />
+     <axis xyz="1 0 0"/>
+  </joint>
+
+<!--
+  BOTTOM FINGER
+-->
+  <link name="bot_finger">
+      <visual>
+          <origin xyz="0.0 0 0" rpy="-1.57079632679 0 1.57079632679" />
+          <geometry>
+             <mesh filename="package://apc_config/models/wsg_50/meshes/arc2017/bot_finger_compressed.stl" scale="0.001 0.001 0.001"/>
+          </geometry>
+          <material name="abb_black">
+        </material>
+      </visual>
+  </link>
+  
+  <joint name="wsg_50_gripper_base_joint_gripper_right" type="prismatic">
+     <limit lower="0" upper="0.055" effort="1.0" velocity="1.0"/>
+     <origin xyz="0 0 0" rpy="0 0 0" />    
+     <parent link="link_wrist"/>
+     <child link="bot_finger" />
+     <axis xyz="1 0 0"/>
+  </joint>
+  
+<!--
+  TOP SPATULA
+-->
+  <link name="top_spatula">
+      <visual>
+          <origin xyz="0.0 0 0" rpy="-1.57079632679 0 1.57079632679" />
+          <geometry>
+             <mesh filename="package://apc_config/models/wsg_50/meshes/arc2017/top_spatula.stl" scale="0.001 0.001 0.001"/>
+          </geometry>
+          <material name="blue">
+              <color rgba="0 0 .85 1"/>
+        </material>
+      </visual>
+  </link>
+  
+  <joint name="top_spatula_joint" type="fixed">
+     <origin xyz="0 0 0" rpy="0 0 0" />    
+     <parent link="top_finger"/>
+     <child link="top_spatula" />
+     <axis xyz="-1 0 0"/>
+  </joint>
+<!--
+  BOTTOM SPATULA
+-->
+  <link name="bot_spatula_centered">
+      <visual>
+          <origin xyz="0.0 0 0" rpy="-1.57079632679 0 1.57079632679" />
+          <geometry>
+             <mesh filename="package://apc_config/models/wsg_50/meshes/arc2017/bot_spatula_centered.stl" scale="0.001 0.001 0.001"/>
+          </geometry>
+          <material name="blue">
+        </material>
+      </visual>
+  </link>
+  
+  <joint name="bot_spatula_joint" type="revolute">
+     <origin xyz="0.00730000 0 .367279" rpy="0 0 0" />    
+     <parent link="bot_finger"/>
+     <child link="bot_spatula_centered" />
+     <axis xyz="0 1 0"/>
+    <limit effort="1" lower="-.4" upper="0" velocity="1"/>
+  </joint>
+<!--
+  SCORPION BOT LINK
+  -->
+  <link name="scorpion_tail_bot_link">
+      <visual>
+          <origin xyz="0.0 0 0" rpy="-1.57079632679 0 1.57079632679" />
+          <geometry>
+             <mesh filename="package://apc_config/models/wsg_50/meshes/arc2017/bot_link_centered.stl" scale="0.001 0.001 0.001"/>
+          </geometry>
+          <material name="grey">
+        </material>
+      </visual>
+  </link>
+  
+  <joint name="scorpion_tail_bot_link_joint" type="revolute">
+     <origin xyz="0.05173285 0 0.109116" rpy="0 0 0" />    
+     <parent link="link_wrist"/>
+     <child link="scorpion_tail_bot_link" />
+     <axis xyz="0 1 0"/>
+    <limit effort="1" lower="-1.85" upper="0" velocity="1"/>
+  </joint>
+<!--
+  SCORPION TOP LINK
+  -->
+  <link name="scorpion_tail_top_link">
+      <visual>
+          <origin xyz="0.0 0 0" rpy="-1.57079632679 0 1.57079632679" />
+          <geometry>
+             <mesh filename="package://apc_config/models/wsg_50/meshes/arc2017/top_link_centered.stl" scale="0.001 0.001 0.001"/>
+          </geometry>
+          <material name="grey">
+        </material>
+      </visual>
+  </link>
+  
+  <joint name="scorpion_tail_top_link_joint" type="revolute">
+     <origin xyz="0.047938  0 0.079116" rpy="0 0 0" />    
+     <parent link="link_wrist"/>
+     <child link="scorpion_tail_top_link" />
+     <axis xyz="0 1 0"/>
+    <limit effort="1" lower="-1.81" upper="0" velocity="1"/>
+  </joint>
+<!--
+  SCORPION PLATFORM
+  -->
+  <link name="scorpion_tail_platform">
+      <visual>
+          <origin xyz="0.0 0 0" rpy="-1.57079632679 0 1.57079632679" />
+          <geometry>
+             <mesh filename="package://apc_config/models/wsg_50/meshes/arc2017/scorpion_platform_centered_compressed.stl" scale="0.001 0.001 0.001"/>
+          </geometry>
+          <material name="grey">
+        </material>
+      </visual>
+  </link>
+  
+  <joint name="scorpion_tail_platform_joint" type="revolute">
+     <origin xyz="-.060448 0 0.18913" rpy="0 0 0" />    
+     <parent link="scorpion_tail_top_link"/>
+     <child link="scorpion_tail_platform" />
+     <axis xyz="0 1 0"/>
+    <limit effort="1" lower="0" upper="1.81" velocity="1"/>
+  </joint>
+<!--
+  SUCTION CUP ELBOW
+  -->
+  <link name="suction_below_centered">
+      <visual>
+          <origin xyz="0.0 0 0" rpy="-1.57079632679 0 1.57079632679" />
+          <geometry>
+             <mesh filename="package://apc_config/models/wsg_50/meshes/arc2017/suction_below_compressed.stl" scale="0.001 0.001 0.001"/>
+          </geometry>
+          <material name="yellow">
+        <color rgba=".8 .8 0 1"/>
+        </material>
+      </visual>
+  </link>
+  
+  <joint name="suction_below_joint" type="fixed">
+     <origin xyz="0.0 0 0.0" rpy="0 0 0" />    
+     <parent link="scorpion_tail_platform"/>
+     <child link="suction_below_centered" />
+  </joint>
+<!--
+  SUCTION CUP
+  -->
+  <link name="suction_cup">
+      <visual>
+          <origin xyz="0.0 0 0" rpy="-1.57079632679 0 1.57079632679" />
+          <geometry>
+             <mesh filename="package://apc_config/models/wsg_50/meshes/arc2017/suction_cup_compressed.stl" scale="0.001 0.001 0.001"/>
+          </geometry>
+          <material name="blue">
+        </material>
+      </visual>
+  </link>
+  
+  <joint name="suction_cup_joint" type="fixed">
+     <origin xyz="0 0 0" rpy="0 0 0" />    
+     <parent link="scorpion_tail_platform"/>
+     <child link="suction_cup" />
+  </joint>
+
+</robot>

@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<launch>
+    <arg name="weight_sensor_machine" default="mcube-014" />
+    <machine name="weight_sensor_machine" address="$(arg weight_sensor_machine)" user="mcube" timeout="5.0" env-loader="/home/mcube/arc/software/config/arc_environment.sh" />
+    <node name="weight_sensor_rosout_node" pkg="weight_sensor" type="rosout_printer.py" respawn="true" respawn_delay="0.1" output="screen"/>
+    <node name="weight_sensor_node" pkg="weight_sensor" type="ws_publisher.py" machine="weight_sensor_machine" respawn="true" respawn_delay="0.1" output="screen"/>
+</launch>

@@ -1,0 +1,6 @@
+<launch>
+    <rosparam command="load" file="$(find robot_node)/parameters/mcubeRobotParams.yaml"/>
+    <node pkg="robot_node" type="robot_node" name="robot_node1" output="screen" args="1"/>   <!--with robot number args="1"-->
+    <node pkg="robot_node" type="robot_node" name="robot_node2" output="screen" args="2"/>
+
+</launch>

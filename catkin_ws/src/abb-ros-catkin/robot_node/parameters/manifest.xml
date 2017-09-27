@@ -1,0 +1,11 @@
+<package>
+  <description brief="parameters">
+     parameters
+  </description>
+  <author>Robbie Paolini</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/launch</url>
+</package>
+
+

@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<launch>
+<!--
+    <arg name="realsense_machine1" default="localhost" />
+-->
+    <arg name="realsense_machine2" default="mcube-011" />
+    <arg name="display" default="false" />
+    <arg name="save_data" default="false" />
+    <arg name="correct_depth" default="true" />
+
+<!--
+    <machine name="$(arg realsense_machine1)" address="$(arg realsense_machine1)" user="mcube" timeout="2.0" env-loader="$(env ARC_BASE)/software/config/arc_environment.sh" />
+-->
+<!--
+    <machine name="$(arg realsense_machine2)" address="$(arg realsense_machine2)" user="mcube" timeout="2.0" env-loader="$(env ARC_BASE)/software/config/arc_environment.sh" />
+-->
+<!--
+    <node name="rosout_printer_realsense" pkg="realsense_camera" type="rosout_printer.py" output="screen" respawn="false" respawn_delay="1"/>
+-->
+    
+    <node name="stream1" pkg="realsense_camera" type="stream" output="screen" ns="arc_1" respawn="false" respawn_delay="1">
+        <param name="display" value="$(arg display)" />
+        <param name="save_data" value="$(arg save_data)" />
+        <param name="correct_depth" value="$(arg correct_depth)" />
+    </node>
+<!--
+    <node name="stream2" pkg="realsense_camera" type="stream" output="screen" ns="arc_2" machine="$(arg realsense_machine2)" respawn="false" respawn_delay="1">
+        <param name="display" value="$(arg display)" />
+        <param name="save_data" value="$(arg save_data)" />
+        <param name="correct_depth" value="$(arg correct_depth)" />
+    </node>
+-->
+
+    <rosparam command="load" file="$(find apc_config)/cameras_per_bin.yaml" />
+</launch>

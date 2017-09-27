@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Settings>
+<Clients>
+<Client Convention="CDP" Name="Host1" />
+<Client Convention="CDP" Name="Host2" />
+</Clients>
+</Settings>

@@ -1,0 +1,81 @@
+/obj:
+  avery_binder:
+    placeability: [1, 0, 1]
+  balloons:
+    placeability: [0, 0, 1]
+  band_aid_tape:
+    placeability: [0, 0, 1]
+  bath_sponge:
+    placeability: [1, 1, 1]
+  black_fashion_gloves:
+    placeability: [0, 0, 1]
+  burts_bees_baby_wipes:
+    placeability: [0, 0, 1]
+  colgate_toothbrush_4pk:
+    placeability: [0, 0, 1]
+  composition_book:
+    placeability: [0, 0, 1]
+  crayons:
+    placeability: [0, 0, 1]
+  duct_tape:
+    placeability: [1, 1, 0]
+  epsom_salts:
+    placeability: [1, 0, 1]
+  expo_eraser:
+    placeability: [1, 1, 1]
+  fiskars_scissors:
+    placeability: [0, 0, 1]
+  flashlight:
+    placeability: [1, 1, 1]
+  glue_sticks:
+    placeability: [1, 0, 1]
+  hand_weight:
+    placeability: [1, 1, 1]
+  hanes_socks:
+    placeability: [0, 0, 1]
+  hinged_ruled_index_cards:
+    placeability: [0, 0, 1]
+  ice_cube_tray:
+    placeability: [0, 0, 1]
+  irish_spring_soap:
+    placeability: [1, 1, 1]
+  laugh_out_loud_jokes:
+    placeability: [0, 0, 1]
+  marbles:
+    placeability: [1, 1, 0]
+  measuring_spoons:
+    placeability: [0, 0, 1]
+  mesh_cup:
+    placeability: [1, 0, 0]
+  mouse_traps:
+    placeability: [0, 0, 1]
+  pie_plates:
+    placeability: [0, 0, 1]
+  plastic_wine_glass:
+    placeability: [0, 1, 1]
+  poland_spring_water:
+    placeability: [1, 1, 1]
+  reynolds_wrap:
+    placeability: [0, 1, 1]
+  robots_dvd:
+    placeability: [0, 0, 1]
+  robots_everywhere:
+    placeability: [0, 0, 1]
+  scotch_sponges:
+    placeability: [0, 1, 1]
+  speed_stick:
+    placeability: [1, 0, 1]
+  table_cloth:
+    placeability: [0, 0, 1]
+  tennis_ball_container:
+    placeability: [1, 1, 1]
+  ticonderoga_pencils:
+    placeability: [0, 0, 1]
+  tissue_box:
+    placeability: [1, 1, 1]
+  toilet_brush:
+    placeability: [0, 1, 1]
+  white_facecloth:
+    placeability: [0, 1, 1]
+  windex:
+    placeability: [0, 0, 1]

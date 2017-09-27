@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<launch>
+    <arg name="labjack_machine" default="mcube-014" />
+    <machine name="labjack_machine" address="$(arg labjack_machine)" user="mcube" timeout="5.0" env-loader="/home/mcube/arc/software/config/arc_environment.sh" />
+    <node name="labjack_node" pkg="labjack" type="labjack_node.py" machine="labjack_machine" respawn="true" respawn_delay="0.1"/>
+</launch>

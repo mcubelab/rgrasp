@@ -1,0 +1,13 @@
+MCube6.03 (192.168.1.2): 50204 - Motion supervision	6/18/2016 8:13:18 PM	Event Log	
+MCube6.03 (192.168.1.2): 10024 - Collision triggered	6/18/2016 8:13:18 PM	Event Log	
+MCube6.03 (192.168.1.2): 10125 - Program stopped [2]	6/18/2016 8:13:18 PM	Event Log	
+MCube6.03 (192.168.1.2): 10026 - Collision retraction	6/18/2016 8:13:20 PM	Event Log	
+MCube6.03 (192.168.1.2): 10025 - Collision confirmed	6/18/2016 8:13:22 PM	Event Log	
+MCube6.03 (192.168.1.2): 10052 - Regain start	6/18/2016 8:13:22 PM	Event Log	
+MCube6.03 (192.168.1.2): 50204 - Motion supervision	6/18/2016 8:13:22 PM	Event Log	
+MCube6.03 (192.168.1.2): 40210 - Interrupt removed from queue	6/18/2016 8:13:22 PM	Event Log	
+MCube6.03 (192.168.1.2): 10024 - Collision triggered	6/18/2016 8:13:22 PM	Event Log	
+MCube6.03 (192.168.1.2): 10053 - Regain ready	6/18/2016 8:13:22 PM	Event Log	
+MCube6.03 (192.168.1.2): 20142 - Start rejected	6/18/2016 8:13:22 PM	Event Log	
+MCube6.03 (192.168.1.2): 10026 - Collision retraction	6/18/2016 8:13:23 PM	Event Log	
+MCube6.03 (192.168.1.2): 10025 - Collision confirmed	6/18/2016 8:13:33 PM	Event Log	

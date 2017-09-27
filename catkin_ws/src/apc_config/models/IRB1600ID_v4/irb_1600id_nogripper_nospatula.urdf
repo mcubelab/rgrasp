@@ -1,0 +1,124 @@
+<?xml version="1.0" ?>
+<!-- Peter KT Yu April, 2015-->
+<robot name="irb_1600id" xmlns:xacro="http://ros.org/wiki/xacro">
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <mesh filename="package://apc_config/models/IRB1600ID/meshes/visual/base_link.stl"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="-0.381131 -0.255114 0"/>
+      <material name="abb_orange">
+        <color rgba="1 0.43 0 1"/>
+      </material>
+    </visual>
+  </link>
+  <link name="link_1">
+    <visual>
+      <geometry>
+        <mesh filename="package://apc_config/models/IRB1600ID/meshes/visual/link_1.stl"/>
+      </geometry>
+      <origin rpy="0 0 0" xyz="-0.264156 -0.1700739 0"/>
+      <material name="abb_orange">
+        <color rgba="1 0.43 0 1"/>
+      </material>
+    </visual>
+  </link>
+  <link name="link_2">
+    <visual>
+      <geometry>
+        <mesh filename="package://apc_config/models/IRB1600ID/meshes/visual/link_2.stl"/>
+      </geometry>
+      <origin rpy="-1.57079632679 3.14159265359 0" xyz="0.15 -0.4863865 -0.2525"/>
+      <material name="abb_orange">
+        <color rgba="1 0.43 0 1"/>
+      </material>
+    </visual>   
+  </link>
+  <link name="link_3">
+    <visual>
+      <geometry>
+        <mesh filename="package://apc_config/models/IRB1600ID/meshes/visual/link_3.stl"/>
+      </geometry>
+      <origin rpy="1.57079632679 0 3.14159265359" xyz="0.1825 -1.18649 -0.118"/>
+      <material name="abb_orange">
+        <color rgba="1 0.43 0 1"/>
+      </material>
+    </visual>    
+  </link>
+  <link name="link_4">
+    <visual>
+      <geometry>
+        <mesh filename="package://apc_config/models/IRB1600ID/meshes/visual/link_4.stl"/>
+      </geometry>
+      <origin rpy="-1.57079632679 -1.57079632679 0" xyz="-0.07019285 -1.2965 -0.1488"/>
+      <material name="abb_orange">
+        <color rgba="1 0.43 0 1"/>
+      </material>
+    </visual>
+  </link>
+  <link name="link_5">
+    <visual>
+      <geometry>
+        <mesh filename="package://apc_config/models/IRB1600ID/meshes/visual/link_5.stl"/>
+      </geometry>
+      <origin rpy="-1.57079632679 3.14159265359 0" xyz="0.790263 -1.29649 -0.0525337"/>
+      <material name="abb_orange">
+        <color rgba="1 0.43 0 1"/>
+      </material>
+    </visual>
+  </link>
+  <link name="link_6">
+    <visual>
+      <geometry>
+        <mesh filename="package://apc_config/models/IRB1600ID/meshes/visual/link_6.stl"/>
+      </geometry>
+      <origin rpy="0 -1.57079632679 0.0" xyz="1.2965 -0.04 -0.99"/>
+      <material name="abb_black">
+        <color rgba="0 0 0 1"/>
+      </material>
+    </visual>
+  </link>
+  
+  <joint name="joint1" type="revolute">
+    <parent link="base_link"/>
+    <child link="link_1"/>
+    <limit effort="300" lower="-3.14159265359" upper="3.14159265359" velocity="4.36"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+  <joint name="joint2" type="revolute">
+    <parent link="link_1"/>
+    <child link="link_2"/>
+    <limit effort="300" lower="-1.57079632679" upper="2.61799387799" velocity="4.36"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="-1.57079632679 3.14159265359 0" xyz="0.150 0 .4865"/>
+  </joint>
+  <joint name="joint3" type="revolute">
+    <parent link="link_2"/>
+    <child link="link_3"/>
+    <limit effort="300" lower="-4.15388361975" upper="1.37881010908" velocity="4.36"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="3.14159265359 3.14159265359 3.14159265359" xyz="0 0.700 0"/>
+  </joint>
+  <joint name="joint4" type="revolute">
+    <parent link="link_3"/>
+    <child link="link_4"/>
+    <limit effort="300" lower="-2.70526034059" upper="2.70526034059" velocity="5.58"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="0 -1.57079632679 0" xyz="0 0.110 0"/> 
+  </joint>
+  <joint name="joint5" type="revolute">
+    <parent link="link_4"/>
+    <child link="link_5"/>
+    <limit effort="300" lower="-1.57079632679" upper="2.35619449019" velocity="5.58"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="-3.14159265359 1.57079632679 3.14159265359" xyz="0 0 0.64"/>
+  </joint>
+  <joint name="joint6" type="revolute">
+    <parent link="link_5"/>
+    <child link="link_6"/>
+    <limit effort="300" lower="-3.49065850399" upper="3.49065850399" velocity="7.33"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="1.57079632679 0 -1.57079632679" xyz="-0.2 0 0"/>
+  </joint>
+</robot>

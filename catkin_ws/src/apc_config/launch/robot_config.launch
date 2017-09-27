@@ -1,0 +1,70 @@
+<?xml version="1.0" ?>
+<launch>
+  <arg name="gui" default="false" />
+  <arg name="have_robot" default="true" />
+  <arg name="have_gripper" default="true" />
+  <arg name="do_fitting" default="false" />
+  <arg name="toviz" default="false" />
+  <arg name="use_raspberry" default ="false" />
+  <arg name="irb_1600id_v4" default="false" />
+  <arg name="use_labjack" default = "false" />
+  <arg name="fast_virtual" default = "false" />
+
+  <param if="$(arg irb_1600id_v4)" name="robot_description" textfile="$(find apc_config)/models/IRB1600ID_v4/irb_1600id.urdf" />
+  
+  <rosparam unless="$(arg have_robot)" command="load" file="$(find apc_config)/robot_config_norobot_joint.yaml" />
+  <rosparam command="load" file="$(find apc_config)/shelf_pose.yaml" />
+  <rosparam command="load" file="$(find apc_config)/tote_pose.yaml" />
+  <rosparam command="load" file="$(find apc_config)/bin0_pose.yaml" />
+  <rosparam command="load" file="$(find apc_config)/bin1_pose.yaml" />
+  <rosparam command="load" file="$(find apc_config)/bin2_pose.yaml" />
+  <rosparam command="load" file="$(find apc_config)/bin3_pose.yaml" />
+  <rosparam command="load" file="$(find apc_config)/bin4_pose.yaml" />
+  <rosparam command="load" file="$(find apc_config)/bin5_pose.yaml" />
+  <rosparam command="load" file="$(find apc_config)/bin6_pose.yaml" />
+  <rosparam command="load" file="$(find apc_config)/bin7_pose.yaml" />
+  <rosparam command="load" file="$(find apc_config)/bin8_pose.yaml" />
+  <rosparam command="load" file="$(find apc_config)/vision_pose_picking.yaml" />
+  <rosparam command="load" file="$(find apc_config)/vision_pose_suction.yaml" />
+  <rosparam command="load" file="$(find apc_config)/drop_pose.yaml" />
+  <rosparam command="load" file="$(find apc_config)/vision_pose_picking.yaml" />
+  <rosparam command="load" file="$(find apc_config)/vac_level.yaml" />
+  <rosparam command="load" file="$(find apc_config)/system_dimensions.yaml" />
+  <rosparam command="load" file="$(find apc_config)/storage_corners.yaml" />
+  <rosparam command="load" file="$(find apc_config)/box_corners.yaml" />
+  <rosparam command="load" file="$(find apc_config)/object_properties.yaml" />
+  <rosparam command="load" file="$(find apc_config)/object_placing.yaml" />
+
+
+  <node pkg="tf" type="static_transform_publisher" name="baselink_broadcaster" args="0 0 0 0 0 0 map base_link 50" />
+
+  <node unless="$(arg have_robot)" name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
+    <param name="rate" value="100"/>
+    <param name="use_gui" value="$(arg gui)"/>
+    <param if="$(arg have_gripper)" name="robot_description" textfile="$(find apc_config)/models/IRB1600ID_v4/irb_1600id_nogripper_nospatula.urdf"/>
+    <rosparam unless="$(arg have_robot)" command="load" file="$(find apc_config)/source_list_param.yaml" />
+  </node>
+
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" />
+
+  <node if="$(arg do_fitting)" pkg="manual_fit" type="manual_fit_obj_interactive.py" name="manual_fit_obj_interactive" output="screen" />
+  
+  
+  <include if="$(arg use_raspberry)" file="$(find apc_config)/launch/raspberry.launch" />
+  <include if="$(arg use_labjack)" file="$(find apc_config)/launch/labjack.launch" />
+        
+  <rosparam if="$(arg use_raspberry)" param="use_raspberry">true</rosparam>
+  <rosparam unless="$(arg use_raspberry)" param="use_raspberry">false</rosparam>
+  <rosparam if="$(arg fast_virtual)" param="fast_virtual">true</rosparam>
+  <rosparam unless="$(arg fast_virtual)" param="fast_virtual">false</rosparam>
+  <node name="suction_publisher" pkg="apc_planning" type="suction_publisher_flow.py" respawn="true" />
+  <rosparam if="$(arg have_robot)" param="have_robot">true</rosparam>
+  <rosparam unless="$(arg have_robot)" param="have_robot">false</rosparam>
+  <rosparam if="$(arg have_gripper)" param="have_gripper">true</rosparam>
+  <rosparam unless="$(arg have_gripper)" param="have_gripper">false</rosparam>
+  <rosparam if="$(arg toviz)" param="toviz">true</rosparam>
+  <rosparam unless="$(arg toviz)" param="toviz">false</rosparam>
+  
+  
+</launch>

@@ -1,0 +1,63 @@
+<?xml version="1.0" ?>
+<!-- Peter KT Yu April, 2015-->
+<robot name="irb_1600id" xmlns:xacro="http://ros.org/wiki/xacro">
+  <link name="base_link">
+  </link>
+  <link name="link_1">
+  </link>
+  <link name="link_2">
+  </link>
+  <link name="link_3">
+  </link>
+  <link name="link_4">
+  </link>
+  <link name="link_5">
+  </link>
+  <link name="link_6">
+  </link>
+  <joint name="joint1" type="revolute">
+    <parent link="base_link"/>
+    <child link="link_1"/>
+    <limit effort="300" lower="-3.14159265359" upper="3.14159265359" velocity="4.36"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+  <joint name="joint2" type="revolute">
+    <parent link="link_1"/>
+    <child link="link_2"/>
+    <limit effort="300" lower="-1.57079632679" upper="2.61799387799" velocity="4.36"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="-1.57079632679 3.14159265359 0" xyz="0.150 0 .4865"/>
+  </joint>
+  <joint name="joint3" type="revolute">
+    <parent link="link_2"/>
+    <child link="link_3"/>
+    <limit effort="300" lower="-4.15388361975" upper="1.37881010908" velocity="4.36"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="3.14159265359 3.14159265359 3.14159265359" xyz="0 0.700 0"/>
+  </joint>
+  <joint name="joint4" type="revolute">
+    <parent link="link_3"/>
+    <child link="link_4"/>
+    <limit effort="300" lower="-2.70526034059" upper="2.70526034059" velocity="5.58"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="0 -1.57079632679 0" xyz="0 0.110 0"/> 
+  </joint>
+  <joint name="joint5" type="revolute">
+    <parent link="link_4"/>
+    <child link="link_5"/>
+    <limit effort="300" lower="-1.57079632679" upper="2.35619449019" velocity="5.58"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="-3.14159265359 1.57079632679 3.14159265359" xyz="0 0 0.64"/>
+  </joint>
+  <joint name="joint6" type="revolute">
+    <parent link="link_5"/>
+    <child link="link_6"/>
+    <limit effort="300" lower="-6.98131700798" upper="6.98131700798" velocity="7.33"/>
+    <axis xyz="0 0 1"/>
+    <origin rpy="1.57079632679 0 -1.57079632679" xyz="-0.2 0 0"/>
+  </joint>
+  
+
+</robot>
+

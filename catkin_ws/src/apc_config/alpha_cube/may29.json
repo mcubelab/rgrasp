@@ -1,0 +1,39 @@
+{
+    "grasping": {
+        "bias": 4.0, 
+        "gripper_clutter_front": -12.0, 
+        "gripper_clutter_top": 0, 
+        "gripper_02_front": -1
+    },
+    "suction-down" : {    
+        "bias": 4.0, 
+        "gripper_clutter_front": -8.0, 
+        "gripper_clutter_top": -15.0,
+        "gripper_02_front": -1
+    },
+    "suction-front" : {    
+        "bias": 4.0, 
+        "clutter_front": -8.0, 
+        "clutter_top": 0,
+        "02_front": -1
+    },
+    "suction-side" : {    
+        "bias": 4.0, 
+        "gripper_clutter_front": -8.0, 
+        "gripper_clutter_top": 0,
+        "gripper_02_front": -1
+    },
+    "suction-front" : {    
+        "bias": 7.0, 
+        "clutter_front": -12.0, 
+        "clutter_top": 0,
+        "02_front": -1
+    },
+    "scooping" : {
+        "bias": 5.0, 
+        "clutter_front": -8.0, 
+        "clutter_behind" : -100.0,
+        "clutter_top": 0,
+        "02_front": -1
+    }
+}

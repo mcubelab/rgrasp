@@ -1,0 +1,168 @@
+{
+	"obj": [
+	{
+	"id": "Band_Aid_Tape",
+	"height": "15"
+	},
+	{
+	"id": "Expo_Eraser",
+	"height": "15"
+	},
+	{
+	"id": "Fiskars_Scissors",
+	"height": "15"
+	},
+	{
+	"id": "Black_Fashion_Gloves",
+	"height": "15"
+	},
+	{
+	"id": "Flashlight",
+	"height": "15"
+	},
+	{
+	"id": "Balloons",
+	"height": "15"
+	},
+	{
+	"id": "Robots_DVD",
+	"height": "15"
+	},
+	{
+	"id": "White_Facecloth",
+	"height": "15"
+	},
+	{
+	"id": "Scotch_Sponges",
+	"height": "15"
+	},
+	{
+	"id": "Colgate_Toothbrush_4PK",
+	"height": "15"
+	},
+	{
+	"id": "Measuring_Spoons",
+	"height": "15"
+	},
+	{
+	"id": "Ticonderoga_Pencils",
+	"height": "15"
+	},
+	{
+	"id": "Bath_Sponge",
+	"height": "15"
+	},
+	{
+	"id": "Laugh_Out_Loud_Jokes",
+	"height": "15"
+	},
+	{
+	"id": "Mouse_Traps",
+	"height": "15"
+	},
+	{
+	"id": "Mesh_Cup",
+	"height": "15"
+	},
+	{
+	"id": "Plastic_Wine_Glass",
+	"height": "15"
+	},
+	{
+	"id": "Hinged_Ruled_Index_Cards",
+	"height": "15"
+	},
+	{
+	"id": "Pie_Plates",
+	"height": "15"
+	},
+	{
+	"id": "Glue_Sticks",
+	"height": "10"
+	},
+	{
+	"id": "Ice_Cube_Tray",
+	"height": "10"
+	},
+	{
+	"id": "Robots_Everywhere",
+	"height": "10"
+	},
+	{
+	"id": "Irish_Spring_Soap",
+	"height": "10"
+	},
+	{
+	"id": "Toilet_Brush",
+	"height": "10"
+	},
+	{
+	"id": "Crayons",
+	"height": "10"
+	},
+	{
+	"id": "Table_Cloth",
+	"height": "10"
+	},
+	{
+	"id": "Duct_Tape",
+	"height": "10"
+	},
+	{
+	"id": "Tissue_Box",
+	"height": "10"
+	},
+	{
+	"id": "Tennis_Ball_Container",
+	"height": "10"
+	},
+	{
+	"id": "Speed_Stick",
+	"height": "5"
+	},
+	{
+	"id": "Composition_Book",
+	"height": "5"
+	},
+	{
+	"id": "Hanes_Socks",
+	"height": "5"
+	},
+	{
+	"id": "Avery_Binder",
+	"height": "5"
+	},
+	{
+	"id": "Marbles",
+	"height": "5"
+	},
+	{
+	"id": "Reynolds_Wrap",
+	"height": "5"
+	},
+	{
+	"id": "Burts_Bees_Baby_Wipes",
+	"height": "2"
+	},
+	{
+	"id": "Poland_Spring_Water",
+	"height": "2"
+	},
+	{
+	"id": "Windex",
+	"height": "1"
+	},
+	{
+	"id": "Epsom_Salts",
+	"height": "1"
+	},
+	{
+	"id": "Hand_Weight",
+	"height": "1"
+	},
+	{
+	"id": "no_item",
+	"height": "15"
+	}
+	]
+}

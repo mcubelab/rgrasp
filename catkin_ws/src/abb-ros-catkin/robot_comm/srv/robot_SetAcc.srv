@@ -1,0 +1,7 @@
+# Service to Set the max Acceleration of the robot.
+
+float64 acc  # mm/s^2
+float64 deacc  # mm/s^2
+---
+int64 ret
+string msg

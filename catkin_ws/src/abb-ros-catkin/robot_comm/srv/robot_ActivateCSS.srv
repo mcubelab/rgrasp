@@ -1,0 +1,13 @@
+int32 refFrame
+float64 refOrient_q0
+float64 refOrient_qx
+float64 refOrient_qy
+float64 refOrient_qz
+int32 softDir
+float64 stiffness
+float64 stiffnessNonSoftDir
+int32 allowMove
+float64 ramp
+---
+int64 ret
+string msg

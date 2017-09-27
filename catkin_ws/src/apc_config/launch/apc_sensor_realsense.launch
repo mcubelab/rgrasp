@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<launch>
+    <arg name="machine" default="localhost" />
+    <arg name="camera" default="realsense" />
+    <node name="realsense_node" pkg="apc_sensor" type="capture" output="screen" machine="$(arg machine)" respawn="true" respawn_delay="0.1" ns="$(arg camera)"/>
+
+
+
+</launch>

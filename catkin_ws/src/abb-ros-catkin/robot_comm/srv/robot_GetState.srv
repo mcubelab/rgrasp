@@ -1,0 +1,30 @@
+# Service to get the current state of the robot.
+
+---
+float64 tcp  # mm/s
+float64 ori  # deg/s
+int64 zone
+int64 vacuum
+float64 workx
+float64 worky
+float64 workz
+float64 workq0
+float64 workqx
+float64 workqy
+float64 workqz
+float64 toolx
+float64 tooly
+float64 toolz
+float64 toolq0
+float64 toolqx
+float64 toolqy
+float64 toolqz
+float64 toolm
+float64 toolcgx
+float64 toolcgy
+float64 toolcgz
+float64 toolix
+float64 tooliy
+float64 tooliz
+int64 ret
+string msg

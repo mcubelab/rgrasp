@@ -1,0 +1,159 @@
+{
+    "bin_contents": {
+        "bin_A": [
+<<<<<<< HEAD
+            "kyjen_squeakin_eggs_plush_puppies", 
+            "command_hooks", 
+            "mommys_helper_outlet_plugs", 
+            "mark_twain_huckleberry_finn", 
+            "crayola_64_ct", 
+            "kleenex_tissue_box"
+        ], 
+        "bin_B": [
+            "laugh_out_loud_joke_book", 
+            "munchkin_white_hot_duck_bath_toy", 
+            "rolodex_jumbo_pencil_cup", 
+            "paper_mate_12_count_mirado_black_warrior", 
+            "kong_air_dog_squeakair_tennis_ball", 
+            "mead_index_cards"
+        ], 
+        "bin_C": [
+            "safety_works_safety_glasses", 
+            "dr_browns_bottle_brush", 
+            "kong_duck_dog_toy", 
+            "feline_greenies_dental_treats", 
+            "oreo_mega_stuf"
+        ], 
+        "bin_D": [
+            "hanes_tube_socks", 
+            "stanley_66_052", 
+            "sharpie_accent_tank_style_highlighters", 
+            "cheezit_big_original"
+        ], 
+        "bin_E": [
+            "expo_dry_erase_board_eraser", 
+            "kong_sitting_frog_dog_toy", 
+            "genuine_joe_plastic_stir_sticks", 
+            "highland_6539_self_stick_notes", 
+            "elmers_washable_no_run_school_glue", 
+            "kleenex_paper_towels", 
+            "first_years_take_and_toss_straw_cup"
+        ], 
+        "bin_F": [
+            "safety_first_outlet_plugs", 
+            "champion_copper_plus_spark_plug"
+        ], 
+        "bin_G": [], 
+        "bin_H": [], 
+        "bin_I": []
+=======
+            "sharpie_accent_tank_style_highlighters", 
+            "kong_sitting_frog_dog_toy", 
+            "ticonderoga_12_pencils"
+        ], 
+        "bin_B": [
+            "hanes_tube_socks", 
+            "creativity_chenille_stems", 
+            "munchkin_white_hot_duck_bath_toy"
+        ], 
+        "bin_C": [
+            "mommys_helper_outlet_plugs", 
+            "dove_beauty_bar", 
+            "feline_greenies_dental_treats"
+        ], 
+        "bin_D": [
+            "kleenex_paper_towels", 
+            "champion_copper_plus_spark_plug", 
+            "staples_index_cards"
+        ], 
+        "bin_E": [
+            "soft_white_lightbulb", 
+            "oreo_mega_stuf", 
+            "paper_mate_12_count_mirado_black_warrior"
+        ], 
+        "bin_F": [
+            "elmers_washable_no_run_school_glue", 
+            "rolodex_jumbo_pencil_cup", 
+            "highland_6539_self_stick_notes"
+        ], 
+        "bin_G": [
+            "command_hooks", 
+            "safety_first_outlet_plugs", 
+            "kong_duck_dog_toy"
+        ], 
+        "bin_H": [
+            "kong_air_dog_squeakair_tennis_ball", 
+            "crayola_64_ct", 
+            "laugh_out_loud_joke_book"
+        ], 
+        "bin_I": [
+            "mead_index_cards", 
+            "expo_dry_erase_board_eraser", 
+            "kyjen_squeakin_eggs_plush_puppies"
+        ]
+>>>>>>> 56f6eb0c576fda77801af54496310863dcbab86e
+    }, 
+    "tote_contents": [], 
+    "work_order": [
+        {
+            "bin": "bin_A", 
+<<<<<<< HEAD
+            "item": "kyjen_squeakin_eggs_plush_puppies"
+        }, 
+        {
+            "bin": "bin_B", 
+            "item": "laugh_out_loud_joke_book"
+        }, 
+        {
+            "bin": "bin_C", 
+            "item": "safety_works_safety_glasses"
+        }, 
+        {
+            "bin": "bin_D", 
+            "item": "hanes_tube_socks"
+        }, 
+        {
+            "bin": "bin_E", 
+            "item": "expo_dry_erase_board_eraser"
+        }, 
+        {
+            "bin": "bin_F", 
+            "item": "safety_first_outlet_plugs"
+=======
+            "item": "sharpie_accent_tank_style_highlighters"
+        }, 
+        {
+            "bin": "bin_B", 
+            "item": "hanes_tube_socks"
+        }, 
+        {
+            "bin": "bin_C", 
+            "item": "mommys_helper_outlet_plugs"
+        }, 
+        {
+            "bin": "bin_D", 
+            "item": "kleenex_paper_towels"
+        }, 
+        {
+            "bin": "bin_E", 
+            "item": "soft_white_lightbulb"
+        }, 
+        {
+            "bin": "bin_F", 
+            "item": "elmers_washable_no_run_school_glue"
+        }, 
+        {
+            "bin": "bin_G", 
+            "item": "command_hooks"
+        }, 
+        {
+            "bin": "bin_H", 
+            "item": "kong_air_dog_squeakair_tennis_ball"
+        }, 
+        {
+            "bin": "bin_I", 
+            "item": "mead_index_cards"
+>>>>>>> 56f6eb0c576fda77801af54496310863dcbab86e
+        }
+    ]
+}

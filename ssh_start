@@ -1,0 +1,24 @@
+#!/usr/bin/expect -f
+spawn ssh rpi@192.168.37.5
+expect "assword:" { send "raspberry\r"}
+
+#source suction_ws/devel/setup.bash
+#./suction.sh &
+#rosrun suction adc_topic.py &
+
+
+#expect ":~$ " {send "source suction_ws/devel/setup.bash\r"}
+#expect "$" {send "./suction.sh &\r"}
+#expect "$" {send "rosrun suction adc_topic.py\r"}
+
+expect "rpi:" { send "raspberry\r"}
+
+interact
+
+
+
+#./adc.sh &
+#./suction.sh &
+#cd ~ &
+#. ~/suction_ws/devel/setup.bash
+#rosrun suction adc_topic.py

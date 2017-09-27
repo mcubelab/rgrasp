@@ -1,0 +1,19 @@
+/camera/bin0_passive_near: {machine: 'arc_1', serial: '612203002922'}
+/camera/bin0_passive_far: {machine: 'arc_1', serial: '614203000465'}
+/camera/bin0_active_near: {machine: 'arc_1', serial: '612203004573'}
+/camera/bin0_active_far: {machine: 'arc_1', serial: '616205005772'}
+
+/camera/bin1_passive_near: {machine: 'arc_1', serial: '616205001219'}
+/camera/bin1_passive_far: {machine: 'arc_1', serial: '61420501085'}
+/camera/bin1_active_near: {machine: 'arc_1', serial: '616205004776'}
+/camera/bin1_active_far: {machine: 'arc_1', serial: '614203003651'}
+
+/camera/bin2_passive_near: {machine: 'arc_1', serial: '612205002211'}
+/camera/bin2_passive_far: {machine: 'arc_1', serial: '612203004574'}
+/camera/bin2_active_near: {machine: 'arc_1', serial: '614205001856'} 
+/camera/bin2_active_far: {machine: 'arc_1', serial: '613201001839'}
+
+/camera/bin3_passive_near: {machine: 'arc_1', serial: '617205001931'}
+/camera/bin3_passive_far: {machine: 'arc_1', serial: '612201002220'}
+/camera/bin3_active_near: {machine: 'arc_1', serial: '616203002024'}
+/camera/bin3_active_far: {machine: 'arc_1', serial: '614204001012'}

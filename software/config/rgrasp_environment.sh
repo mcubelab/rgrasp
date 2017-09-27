@@ -1,7 +1,7 @@
 #!/bin/bash
-# edit ARCDATA_BASE=$HOME/arcdata to your arc data directory
+# edit RGRASPDATA_BASE=$HOME/rgraspdata to your arc data directory
 
-echo "Setting arc environment"
+echo "Setting rgrasp environment"
 
 thisFile=$_
 if [ $BASH ] 
@@ -10,32 +10,32 @@ then
   thisFile=${BASH_SOURCE[0]}
 fi
 
-set_arc_base()
+set_RGRASP_BASE()
 {
   # use cd and pwd to get an absolute path
   configParentDir="$(cd "$(dirname "$thisFile")/.." && pwd)"
 
   # different cases for software/config or software/build/config
   case "$(basename $configParentDir)" in
-    "software") export ARC_BASE=$(dirname $configParentDir);;
-    "build") export ARC_BASE=$(dirname $(dirname $configParentDir));;
-    *) echo "Warning: ARC environment file is stored in unrecognized location: $thisFile";;
+    "software") export RGRASP_BASE=$(dirname $configParentDir);;
+    "build") export RGRASP_BASE=$(dirname $(dirname $configParentDir));;
+    *) echo "Warning: RGRASP environment file is stored in unrecognized location: $thisFile";;
   esac
-  export ARCDATA_BASE=$ARC_BASE/../arcdata
-  export PATH=$PATH:$ARC_BASE/software/build/bin
+  export RGRASPDATA_BASE=$RGRASP_BASE/../rgraspdata
+  export PATH=$PATH:$RGRASP_BASE/software/build/bin
 }
 
-setup_arc()
+setup_rgrasp()
 {
-  export PATH=$PATH:$ARC_BASE/software/build/bin
+  export PATH=$PATH:$RGRASP_BASE/software/build/bin
   export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-  export LD_LIBRARY_PATH=$ARC_BASE/software/build/lib:$ARC_BASE/software/build/lib64:$LD_LIBRARY_PATH
-  export CLASSPATH=$CLASSPATH:/usr/local/share/java/lcm.jar:$ARC_BASE/software/build/share/java/lcmtypes_arc_lcmtypes.jar
-  export CLASSPATH=$CLASSPATH:$ARC_BASE/software/build/share/java/drake.jar:$ARC_BASE/software/build/share/java/bot2-lcmgl.jar
-  export PKG_CONFIG_PATH=$ARC_BASE/software/build/lib/pkgconfig:$ARC_BASE/software/build/lib64/pkgconfig:$PKG_CONFIG_PATH
+  export LD_LIBRARY_PATH=$RGRASP_BASE/software/build/lib:$RGRASP_BASE/software/build/lib64:$LD_LIBRARY_PATH
+  export CLASSPATH=$CLASSPATH:/usr/local/share/java/lcm.jar:$RGRASP_BASE/software/build/share/java/lcmtypes_arc_lcmtypes.jar
+  export CLASSPATH=$CLASSPATH:$RGRASP_BASE/software/build/share/java/drake.jar:$RGRASP_BASE/software/build/share/java/bot2-lcmgl.jar
+  export PKG_CONFIG_PATH=$RGRASP_BASE/software/build/lib/pkgconfig:$RGRASP_BASE/software/build/lib64/pkgconfig:$PKG_CONFIG_PATH
 
   # python path
-  export PYTHONPATH=$PYTHONPATH:$ARC_BASE/software/build/lib/python2.7/site-packages:$ARC_BASE/software/build/lib/python2.7/dist-packages
+  export PYTHONPATH=$PYTHONPATH:$RGRASP_BASE/software/build/lib/python2.7/site-packages:$RGRASP_BASE/software/build/lib/python2.7/dist-packages
   # enable some warnings by default
   export CXXFLAGS="$CXXFLAGS -Wreturn-type -Wuninitialized"
   export CFLAGS="$CFLAGS -Wreturn-type -Wuninitialized"
@@ -84,12 +84,12 @@ setup_clion()
 
 set_ros()
 {
-  if [ -f $ARC_BASE/catkin_ws/devel/setup.bash ]; then
-    source $ARC_BASE/catkin_ws/devel/setup.bash
+  if [ -f $RGRASP_BASE/catkin_ws/devel/setup.bash ]; then
+    source $RGRASP_BASE/catkin_ws/devel/setup.bash
   else
     source /opt/ros/kinetic/setup.bash
   fi
-  export ROS_PACKAGE_PATH=$HOME/arc/ros_ws/:$ROS_PACKAGE_PATH
+  export ROS_PACKAGE_PATH=$HOME/rgrasp/ros_ws/:$ROS_PACKAGE_PATH
 }
 
 utf8_2_ascii() {
@@ -104,12 +104,12 @@ utf8_2_ascii() {
 }
 
 # some useful commands
-alias cdarc='cd $ARC_BASE'
-alias cdarcdata='cd $ARCDATA_BASE'
-alias matlabarc='cd $ARC_BASE/software; matlab -nodesktop -nodisplay -nosplash -r "tic; addpath_pods; addpath_drake; toc; cd ../software/planning/ik_server/; ikTrajServerSocket;"'
+alias cdrgrasp='cd $RGRASP_BASE'
+alias cdrgraspdata='cd $RGRASPDATA_BASE'
+alias matlabarc='cd $RGRASP_BASE/software; matlab -nodesktop -nodisplay -nosplash -r "tic; addpath_pods; addpath_drake; toc; cd ../software/planning/ik_server/; ikTrajServerSocket;"'
 
 alias gitsub='git submodule update --init --recursive'
-alias gitpull='git -C $ARC_BASE pull'
+alias gitpull='git -C $RGRASP_BASE pull'
 
 alias rebash='source ~/.bashrc'
 alias open='gnome-open'
@@ -125,9 +125,9 @@ alias gohome2='rosservice call robot1_SetJoints "{j1: 0, j2: -40, j3: 33.5843266
 alias gozero='rosservice call robot1_SetJoints "{j1: 0, j2: 0, j3: 0, j4: 0, j5: 0, j6: 0}"'
 
 alias teleop='rosrun teleop teleop'
-alias pythonarc='ipython -i -c "run $ARC_BASE/catkin_ws/src/apc_config/python/pythonarc.py"'
+alias pythonarc='ipython -i -c "run $RGRASP_BASE/catkin_ws/src/apc_config/python/pythonarc.py"'
 
-alias pman='bot-procman-sheriff -l $ARC_BASE/software/config/arc.pmd'
+alias pman='bot-procman-sheriff -l $RGRASP_BASE/software/config/rgrasp.pmd'
 
 alias roslocal='export ROS_MASTER_URI=http://localhost:11311'
 
@@ -138,7 +138,7 @@ alias setcart='rosservice call -- robot1_SetCartesian'
 alias gocart='rosrun apc_planning go.py'
 alias gojoint='rosrun apc_planning go_joint.py'
 
-alias catmake='cd $ARC_BASE/catkin_ws; catkin_make; cd -;'
+alias catmake='cd $RGRASP_BASE/catkin_ws; catkin_make; cd -;'
 
 alias lcmlocal='sudo ifconfig lo multicast; sudo route add -net 224.0.0.0 netmask 240.0.0.0 dev lo'
 
@@ -146,7 +146,7 @@ alias runarcvirtual='time rosrun arc_planning heuristic.py --jfilename multi_obj
 alias runarc='time rosrun arc_planning heuristic.py --jfilename arc.json -s -v | tee /tmp/$(date +%Y%m%d_%H%M%S)'
 alias rungrasp='rosrun apc_planning grasping17.py'
 alias runflush='rosrun apc_planning flush_grasping17.py'
-alias profstow='python -m cProfile -o $ARC_BASE/output/planner_prof_$time.txt planner17.py -j item_location_file.json -t '"'"'all\'"'"' -l 5  -d baseline --duration 900'
+alias profstow='python -m cProfile -o $RGRASP_BASE/output/planner_prof_$time.txt planner17.py -j item_location_file.json -t '"'"'all\'"'"' -l 5  -d baseline --duration 900'
 
 alias eon='rosservice call /robot1_IOSignal 1 1'
 alias eoff='rosservice call /robot1_IOSignal 1 0'
@@ -235,8 +235,8 @@ if [ -f $HOME/software/torch/install/bin/torch-activate ]; then
   source $HOME/software/torch/install/bin/torch-activate
 fi
 
-set_arc_base
-setup_arc
+set_RGRASP_BASE
+setup_rgrasp
 set_ros
 set_bash
 setup_clion

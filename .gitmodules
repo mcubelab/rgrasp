@@ -19,3 +19,6 @@
 [submodule "catkin_ws/src/abb-ros-catkin"]
 	path = catkin_ws/src/abb-ros-catkin
 	url = https://github.com/mcubelab/abb-ros-catkin.git
+[submodule "passive_vision"]
+	path = passive_vision
+	url = https://github.com/mcubelab/passive_vision

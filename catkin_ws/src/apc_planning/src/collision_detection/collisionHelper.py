@@ -1,7 +1,7 @@
 #~ from ik.ik import *
 import sys
 import os
-arc_path = os.environ['ARC_BASE'] + '/catkin_ws/src/apc_planning/src'
+arc_path = os.environ['RGRASP_BASE'] + '/catkin_ws/src/apc_planning/src'
 sys.path.append(arc_path)
 import rospy
 import numpy as np

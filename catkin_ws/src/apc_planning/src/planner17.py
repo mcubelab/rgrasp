@@ -30,9 +30,9 @@ import os
 from collision_detection.collisionHelper import collisionCheck
 import suction
 from sensor_msgs.msg import Image as RosImage
-import shelf_helper
+#import shelf_helper
 import webpages
-from collision_free_placing import collision_free_placing, go_arc_safe
+#from collision_free_placing import collision_free_placing, go_arc_safe
 import json
 
 try:
@@ -2158,16 +2158,16 @@ class TaskPlanner(object):
                                 bin_id=placedObj.container, suction_position_target_list = [drop_pose], obj_ID = self.pickedLabel,
                                 rel_pose=self.rel_pose,BoxBody=self.BoxBody,place_pose=drop_pose,viz_pub=self.viz_array_pub,
                                 is_drop=self.is_drop, update_command=update_command, go_faster_flag=self.go_faster_flag)
-            if self.PlacingPlanner.box_placing:
-                go_arc_safe(isSuction=True)
-        else:
+#            if self.PlacingPlanner.box_placing:
+#                go_arc_safe(isSuction=True)
+#        else:
             placing_output=grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, objId=self.pickedLabel,
                                  binId=placedObj.container, flag=2, withPause=self.withPause,
                                  rel_pose=self.rel_pose, BoxBody=self.BoxBody, place_pose=drop_pose,
                                  viz_pub=self.viz_array_pub, is_drop = self.is_drop, update_command=update_command)
-            if self.PlacingPlanner.box_placing:
-                go_arc_safe(isSuction=False)
+#            if self.PlacingPlanner.box_placing:
+#                go_arc_safe(isSuction=False)
         e.db('In the end, the placing was done in bin: ', placedObj.container, ' in the pose: ', placing_output['final_object_pose'][0:3], ' instead of pose: ', placedObj.pose)
         self.webpage.updateValue('PlacingLocation', placedObj.container)
         placedObj.pose = placing_output['final_object_pose'][0:3]
@@ -2266,7 +2266,7 @@ class TaskPlanner(object):
         # Send task name to reset website timer after interactive placing
         self.webpage.updateValue('TaskName', 'Picking')
         #Extend the shelf
-        shelf_helper.open_shelf(withPause=self.withPause)
+#        shelf_helper.open_shelf(withPause=self.withPause)
         #Back to ARC position
         goToHome.goToARC(slowDown=self.goHomeSlow)
 

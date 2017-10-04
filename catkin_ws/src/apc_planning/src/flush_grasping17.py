@@ -10,7 +10,7 @@ import roslib; roslib.load_manifest("robot_comm")
 from robot_comm.srv import *
 import tf
 import tf.transformations as tfm
-from collision_free_placing import collision_free_plan, collision_free_placing, go_arc_safe
+#from collision_free_placing import collision_free_plan, collision_free_placing, go_arc_safe
 from ik.ik import generatePlan, EvalPlan, WeightGuard, GraspingGuard, executePlanForward, fastik
 from ik.helper import get_joints, get_tcp_pose, mat2quat, get_params_yaml, reference_frames, get_object_properties, vision_transform_precise_placing, vision_transform_precise_placing_with_visualization, pose_transform_precise_placing
 from ik.roshelper import pose2list, poseTransform
@@ -196,8 +196,8 @@ def flush_grasp(objInput,
     if flag == 1:
         rospy.loginfo('[Picking] Enter flag 1')
         #~execute collision free plan
-        if isExecute:#~ and not is_in_bin(listener, bin_id = binId):
-            q_initial = collision_free_placing(binId, listener, obj_ID=objId, BoxBody=None, isSuction = False,with_object = True,hand_orientation=delta_vision_pose[3:7],projected_target_position = vision_pos[0:3], isReturn = True)
+#        if isExecute:#~ and not is_in_bin(listener, bin_id = binId):
+#            q_initial = collision_free_placing(binId, listener, obj_ID=objId, BoxBody=None, isSuction = False,with_object = True,hand_orientation=delta_vision_pose[3:7],projected_target_position = vision_pos[0:3], isReturn = True)
             
         plan, qf, plan_possible = generatePlan(q_initial, vision_pos[0:3], delta_vision_pose[3:7], tip_hand_transform, 'faster', plan_name = 'go_active_vision')
         if plan_possible:
@@ -256,11 +256,11 @@ def flush_grasp(objInput,
         ######################
         #~move safe to placing section
         rospy.logdebug('[Picking] Collision free placing to binId %s and position %s', binId, predrop_pos)
-        if isExecute:
-            q_initial = collision_free_placing(binId, listener, obj_ID=objId, BoxBody=BoxBody, isSuction = False,with_object = True, hand_orientation=drop_pose[3:7],projected_target_position = predrop_pos, isReturn = True)
+#        if isExecute:
+#            q_initial = collision_free_placing(binId, listener, obj_ID=objId, BoxBody=BoxBody, isSuction = False,with_object = True, hand_orientation=drop_pose[3:7],projected_target_position = predrop_pos, isReturn = True)
 
-        if update_command is not None:
-            update_command.execute()
+#        if update_command is not None:
+#            update_command.execute()
 
         map_bin_id_to_ws_id = {0:0,1:1,2:2,3:3,4:0,5:0,6:4,7:4,8:5}
         #~fast motion to bin surface
@@ -333,8 +333,8 @@ def flush_grasp(objInput,
     ## GENERATE PLANS OF PRIMITIVE ##
     #################################
     #~ Start from home position
-    if isExecute:
-        q_initial = collision_free_placing(binId, listener, isSuction = False, with_object = False, hand_orientation=[0,1,0,0], projected_target_position = bin_pose[0:3], isReturn = True)
+#    if isExecute:
+#        q_initial = collision_free_placing(binId, listener, isSuction = False, with_object = False, hand_orientation=[0,1,0,0], projected_target_position = bin_pose[0:3], isReturn = True)
     
     if  grasp_possible:
        #~Move to a location above the bin 

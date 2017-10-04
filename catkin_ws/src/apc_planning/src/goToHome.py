@@ -28,51 +28,52 @@ import math
 import tf.transformations as tfm
 import gripper
 from ik.roshelper import coordinateFrameTransform
-from ik.helper import pauseFunc, visualizeFunc, getObjCOM, openGripper, closeGripper
+import ik.helper #import pauseFunc, openGripper, closeGripper
 import threading
 import spatula
 import scorpion
 import suction
 from ik.roshelper import ROS_Wait_For_Msg
-from ik.ik import IK, IKJoint, Plan, generatePlan, executePlanForward, setSpeedByName, setSpeed, setAcc
+import ik.ik
+#from ik.ik import IK, IKJoint, Plan, generatePlan, executePlanForward, setSpeedByName, setSpeed, ik.ik.setAcc
 
 def goToHome(isExecute = True, withPause = False, slowDown = False):
 
-    setAcc(4,4)
+    ik.ik.setAcc(4,4)
     if slowDown:
-        setSpeedByName(speedName = 'fastest')
+        ik.ik.setSpeedByName(speedName = 'fastest')
     else:
         setSpeed(1200,600)
     
     
     home_joint_pose = [-0.005744439031, -0.6879946105, 0.5861570764, 0.09693312715, 0.1061231983, -0.1045031463]
-    planner = IKJoint(target_joint_pos=home_joint_pose)
+    planner = ik.ik.IKJoint(target_joint_pos=home_joint_pose)
     plan = planner.plan()
     print ('[goToHome]')
     
     plan.visualize()
     if isExecute:
-        pauseFunc(withPause)
+        ik.helper.pauseFunc(withPause)
         plan.execute()
     
     return True
     
 def goToARC(isExecute = True, withPause = False, slowDown = False):
     
-    setAcc(4,4)
+    ik.ik.setAcc(4,4)
     if slowDown:
-        setSpeedByName(speedName = 'fastest')
+        ik.ik.setSpeedByName(speedName = 'fastest')
     else:
-        setSpeed(1200,600)
+        ik.ik.setSpeed(1200,600)
     
     home_joint_pose = [-0.0014,    0.2129,    0.3204,    0,    1.0374,   -0.0014]
-    planner = IKJoint(target_joint_pos=home_joint_pose)
+    planner = ik.ik.IKJoint(target_joint_pos=home_joint_pose)
     plan = planner.plan()
     print ('[goToARC]')
     
     plan.visualize()
     if isExecute:
-        pauseFunc(withPause)
+        ik.helper.pauseFunc(withPause)
         plan.execute()
     
     return True
@@ -84,12 +85,11 @@ def goToARC(isExecute = True, withPause = False, slowDown = False):
     #~ thread.join()
 
 def get_safe_plan():
-    from ik.ik import IKJoint, GetJoints
     q0 = GetJoints('/joint_states')
     qf_list = list(q0)
     qf_list[5] = 0
     qf = tuple(qf_list)
-    safe_move = IKJoint(target_joint_pos=qf, q0=q0)
+    safe_move = ik.ik.IKJoint(target_joint_pos=qf, q0=q0)
     safe_plan = safe_move.plan()
     safe_plan.setSpeedByName('gripperRotation')
     return safe_plan

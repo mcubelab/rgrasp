@@ -33,7 +33,7 @@ from robot_comm.srv import *
 from visualization_msgs.msg import * 
 import copy
 from collision_detection.collisionHelper import * 
-from collision_free_placing import collision_free_placing, is_in_bin
+#from collision_free_placing import collision_free_placing, is_in_bin
 from rospy import ROSException
 from rospy import Publisher
 from ik.roshelper import ROS_Wait_For_Msg
@@ -345,9 +345,10 @@ def suction_down_simple(listener, br, withPause = True, suction_position_target_
 
         pauseFunc(withPause)
         if first_run:
-            q0 = collision_free_placing(binId = bin_id, listener = listener, obj_ID = obj_ID, BoxBody = BoxBody, isSuction = True, with_object = with_object, hand_orientation = myPlan.orientation_list[0], projected_target_position = myPlan.position_list[0], isReturn = True, tip_hand_transform = myPlan.transform_list[0],go_faster_flag=go_faster_flag)
-            if update_command is not None:
-                update_command.execute()
+#            q0 = collision_free_placing(binId = bin_id, listener = listener, obj_ID = obj_ID, BoxBody = BoxBody, isSuction = True, with_object = with_object, hand_orientation = myPlan.orientation_list[0], projected_target_position = myPlan.position_list[0], isReturn = True, tip_hand_transform = myPlan.transform_list[0],go_faster_flag=go_faster_flag)
+#            if update_command is not None:
+#                update_command.execute()
+            q0_list =  [-0.0014,    0.2129,    0.3204,    0,    1.0374,   -0.0014]
             q0_list = list(q0)
             #q0_list[5] = (joint6_mid_angle * np.pi) / 180.0
             q0 = tuple(q0_list) 

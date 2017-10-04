@@ -1,85 +1,21 @@
 #~ from ik.ik import *
 import sys
 import os
-arc_path = os.environ['ARC_BASE'] + '/catkin_ws/src/apc_planning/src'
-sys.path.append(arc_path)
+rgrasp_path = os.environ['RGRASP_BASE'] + '/catkin_ws/src/apc_planning/src'
+sys.path.append(rgrasp_path)
 import rospy
 import numpy as np
 from scipy.spatial import ConvexHull
 import matplotlib.pylab as plt
 from suction_projection import suction_projection_func
 import goToHome 
-from ik.helper import matrix_from_xyzquat, reference_frames, get_params_yaml
+import ik.helper
+#from ik.helper import matrix_from_xyzquat, reference_frames, get_params_yaml
 import ik.ik
 from manual_fit.srv import *
 import tf
-from collision_free_placing import collision_free_plan, collision_free_placing, go_arc_safe
+#import collision_free_placing 
 import gripper
-
-
-def collisionCheck(finger_opening, tcp_pos, hand_orient_norm, listener, br, isSuction=False, flagPlt = False):
-    #########################################################
-    # fhogan
-    # Description:
-    #~Function to detect collision between desired position of gripper and tote
-    #
-    #~Usage
-    #~ collision= collisionCheck(finger_opening, tcp_pos, hand_orient_norm):
-    #~ or
-    #~ collision = collisionCheck(finger_opening, tcp_pos, hand_orient_norm, flagPlt):
-    #
-    #~Parameters:
-    #
-    #~Inputs:
-    # 1) finger_opening (Gripper opening (m))
-    # 2) tcp_pos (position of tcp in cartesian coordinates(m))
-    # 3) hand_orient_norm (3x3 orientation matrix for hand frame (hand_X, hand_Y, hand_Z), 
-    #       where Z is in line with link 6 axis and X is the axis joining both spatulas) 
-    # 4) listener: tf transformation handle
-    # 5) isSuction: grasping:False, suction: True (Bool) 
-    # 6) flagPlt: Plot for debugging (Bool)
-    #
-    #~Outputs:
-    # 1) collision (True/False)
-    #########################################################
-
-    #~Build points assocaited with finger, wrist, and tote bounding boxes
-    fingerPoints= getFingerPoints(finger_opening, tcp_pos, hand_orient_norm, isSuction)
-    wristPoints = getWristPoints(tcp_pos, hand_orient_norm, isSuction)
-    tubePoints = getSuctionTubePoints(tcp_pos, hand_orient_norm, isSuction)
-    totePointsList = getToteSections(listener = listener, br=br)
-    #~Plot collision boxes (Optional)
-    if flagPlt == True:
-        plotBoundBoxes(fingerPoints=fingerPoints,wristPoints=wristPoints,tubePoints=tubePoints, listener = listener, br=br)
-        
-    #~Initialize parameters
-    collision = False
-    collision_section = [False]*7
-    
-    #~Collision dectection for each section
-    for i in range(0,len(totePointsList)):
-        collision_finger = checkCollisionGJK(fingerPoints, np.asarray(totePointsList[i]))
-        collision_wrist  = checkCollisionGJK(wristPoints, np.asarray(totePointsList[i]))
-        collision_tube   = checkCollisionGJK(tubePoints, np.asarray(totePointsList[i]))
-        if collision_finger or collision_wrist or collision_tube:
-            collision_section[i] = True
-            section_index = i
-            break
-        
-    #~Collision dectection: Are there any sections in collisions with tote?
-    collision = any(collision_section==True for collision_section in collision_section)
-    
-    #~Determine new collision free position of grasping and print collision status
-    if collision:
-        #~If multiple sections in collision, choose the side that is closest to the center of the gripper
-        #~ section_index = setCollisionSection(collision_section, tcp_pos, hand_orient_norm, totePointsList)
-        print '[collision detection]', collision
-        print '[collision detection] section:', section_index
-    else:
-        print '[collision detection]', collision
-    
-    return collision
-
 
 def getToteSections(listener, br, flag = True):
         #~build outside sections and floor
@@ -128,127 +64,19 @@ def getToteSections(listener, br, flag = True):
 def getBinPoints(binId, listener, br, isSuction=False):
     #~build box collision geometries
     bodies = []
-    #~collision geometries for red bins
-    if binId<4:
-        zheight=rospy.get_param("/tote/height")
-        if binId<2:
-            xlength=rospy.get_param("/collision_bins_01/x_length")
-            ywidth = rospy.get_param("/collision_bins_01/y_length")
-        else:
-            xlength=rospy.get_param("/collision_bins_23/x_length")
-            ywidth = rospy.get_param("/collision_bins_23/y_length")
-        #~build box
-        bin_center_pose = get_params_yaml('bin'+str(binId)+'_pose')
-        bodies.append(buildCenteredBox(length=xlength, width=ywidth, heigth=zheight, midPos=bin_center_pose[0:3], listener=listener, br=br))
-        #~x_pos offsets
-        if (binId==0) or (binId==1):
-            x_pos_offset_list = [0,1,6,7]
-            for term in x_pos_offset_list:
-                if isSuction:
-                    bodies[0][term][0] = bodies[0][term][0] - rospy.get_param('/collision/x_pos_offset_01_suction')
-                else:
-                    bodies[0][term][0] = bodies[0][term][0] - rospy.get_param('/collision/x_pos_offset_01')
-        ###########
-        ## bin 2 ##
-        ###########
-        if (binId==2):
-            x_pos_offset_list = [0,1,6,7]
-            for term in x_pos_offset_list:
-                if isSuction:
-                    bodies[0][term][0] = bodies[0][term][0] - rospy.get_param('/collision/x_pos_offset_2_suction')
-                else:
-                    bodies[0][term][0] = bodies[0][term][0] - rospy.get_param('/collision/x_pos_offset_23')
-            x_neg_offset_list = [2,3,4,5]
-            for term in x_pos_offset_list:
-                if isSuction:
-                    bodies[0][term][0] = bodies[0][term][0] + rospy.get_param('/collision/x_neg_offset_2_suction')
-                else:
-                    bodies[0][term][0] = bodies[0][term][0] + rospy.get_param('/collision/x_neg_offset_23')
-        ###########
-        ## bin 3 ##
-        ###########
-        elif (binId==3):
-            x_pos_offset_list = [0,1,6,7]
-            for term in x_pos_offset_list:
-                if isSuction:
-                    bodies[0][term][0] = bodies[0][term][0] - rospy.get_param('/collision/x_pos_offset_3_suction')
-                else:
-                    bodies[0][term][0] = bodies[0][term][0] - rospy.get_param('/collision/x_pos_offset_23')
-            x_neg_offset_list = [2,3,4,5]
-            for term in x_pos_offset_list:
-                if isSuction:
-                    bodies[0][term][0] = bodies[0][term][0] + rospy.get_param('/collision/x_neg_offset_3_suction')
-                else:
-                    bodies[0][term][0] = bodies[0][term][0] + rospy.get_param('/collision/x_neg_offset_23')
-        ###########
-        ## bin 2 ##
-        ###########
-        #~y_pos offsets
-        y_pos_offset_list = [0,1,2,3]
-        y_neg_offset_list = [4,5,6,7]
-        if (binId==2):
-            #~y_pos offsets
-            for term in y_pos_offset_list:
-                if isSuction:
-                    bodies[0][term][1] = bodies[0][term][1] - rospy.get_param('/collision/y_pos_offset_2_suction')
-                else:
-                    bodies[0][term][1] = bodies[0][term][1] - rospy.get_param('/collision/y_pos_offset')
-            #~y_neg offsets
-            for term in y_neg_offset_list:
-                if isSuction:
-                    bodies[0][term][1] = bodies[0][term][1] + rospy.get_param('/collision/y_neg_offset_2_suction')
-                else:
-                    bodies[0][term][1] = bodies[0][term][1] + rospy.get_param('/collision/y_neg_offset')
-        ###########
-        ## bin 3 ##
-        ###########
-        elif (binId==3):
-            #~y_pos offsets
-            for term in y_pos_offset_list:
-                if isSuction: 
-                    bodies[0][term][1] = bodies[0][term][1] - rospy.get_param('/collision/y_pos_offset_3_suction')
-                else:
-                    bodies[0][term][1] = bodies[0][term][1] - rospy.get_param('/collision/y_pos_offset')
-            #~y_neg offsets
-            for term in y_neg_offset_list:
-                if isSuction: 
-                    bodies[0][term][1] = bodies[0][term][1] + rospy.get_param('/collision/y_neg_offset_3_suction')
-                else:
-                    bodies[0][term][1] = bodies[0][term][1] + rospy.get_param('/collision/y_neg_offset')
-    #~collision geometries for storage boxes
-    else:
-        tol = 0.02
-        xlength = rospy.get_param('/bin' + str(binId) + '/length')
-        ywidth = rospy.get_param('/bin' + str(binId) + '/width')
-        zheight = rospy.get_param('/bin' + str(binId) + '/height')
-        #~build box
-        bin_center_pose = get_params_yaml('bin'+str(binId)+'_pose')
-        bodies.append(buildCenteredBox(length=xlength-tol*2, width=ywidth-tol*2, heigth=zheight, midPos=bin_center_pose[0:3], listener=listener, br=br))
+    tol = 0.04
+    xlength = rospy.get_param('/bin' + str(binId) + '/length')
+    ywidth = rospy.get_param('/bin' + str(binId) + '/width')
+    zheight = rospy.get_param('/bin' + str(binId) + '/height')
+    #~build box
+    bin_center_pose = get_params_yaml('bin'+str(binId)+'_pose')
+    bodies.append(buildCenteredBox(length=xlength-tol*2, width=ywidth-tol*2, heigth=zheight, midPos=bin_center_pose[0:3], listener=listener, br=br))
 
     return np.asarray(bodies[0])
     
-def getStoragePoints():
-    point_list = []
-    array_tmp = []
-    term = ['x','y','z']
-    for point in range(0,10):
-        for coord in term:
-            name = 'corner' + str(point) + '/' + coord
-            array_tmp.append(rospy.get_param(name))
-        point_list.append(array_tmp)
-        array_tmp = []
-    for point in range(0,10):
-        for coord in term:
-            name = 'corner' + str(point) + '/' + coord
-            array_tmp.append(rospy.get_param(name))
-        array_tmp[2] = array_tmp[2] - rospy.get_param('tote/height')
-        point_list.append(array_tmp)
-        array_tmp = []
-
-    return np.asarray(point_list)
 
 def buildCenteredBox(length, width, heigth, midPos, listener, br):
-    world_X, world_Y, world_Z, tote_X,tote_Y,tote_Z, tote_pose_pos = reference_frames(listener=listener, br=br)
+    world_X, world_Y, world_Z, tote_X,tote_Y,tote_Z, tote_pose_pos = ik.helper.reference_frames(listener=listener, br=br)
     #Build center points
     xVec = np.array([])
     #
@@ -257,32 +85,18 @@ def buildCenteredBox(length, width, heigth, midPos, listener, br):
     ToteBody = []
     a = [[1,1,0],[1,1,-1],[-1,1,0],[-1,1,-1],[-1,-1,0],[-1,-1,-1],[1,-1,0],[1,-1,-1]] #~[X,Y,Z]
 
-    #~ print 'midPos', midPos
-    #~ print 'length', length
     for i in range(0, 8):
         TotePoints.append(midPos +a[i][0]*(length/2.0)*tote_X+a[i][1]*(width/2.0)*tote_Y + a[i][2]*(heigth)*tote_Z)
 
     return np.asarray(TotePoints)
 
 def getFingerPoints(finger_opening, tcp_pos, hand_orient_norm, isSuction):
-        if isSuction:
-            #Get finger dimensions from yaml file
-            finger_width = rospy.get_param("/scorpion_tail/width")
-            dist_tcp_to_intersection = rospy.get_param("/wrist/length")
-            dist_tcp_to_spatula = rospy.get_param("/gripper/spatula_tip_to_tcp_dist")
-            finger_thickness_top = rospy.get_param("/scorpion_tail/suction/finger_thickness_top")
-            finger_thickness_bot = rospy.get_param("/finger/thickness_bot")
-            x_offset_suction = rospy.get_param("/scorpion_tail/suction/x_offset")
-            y_offset_suction = rospy.get_param("/scorpion_tail/suction/y_offset")
-            suction_cup_diameter = rospy.get_param("/scorpion_tail/suction/suction_cup_diameter")
-            suction_cup_diameter_2 = suction_cup_diameter /2.0
-        else:
-            #Get finger dimensions from yaml file
-            finger_width = rospy.get_param("/finger/width")
-            dist_tcp_to_intersection = rospy.get_param("/wrist/length")
-            dist_tcp_to_spatula = rospy.get_param("/gripper/spatula_tip_to_tcp_dist")
-            finger_thickness_top = rospy.get_param("/finger/thickness_top")
-            finger_thickness_bot = rospy.get_param("/finger/thickness_bot") + 0.015 #~add distance for spatula
+        #Get finger dimensions from yaml file
+        finger_width = rospy.get_param("/finger/width")
+        dist_tcp_to_intersection = rospy.get_param("/wrist/length")
+        dist_tcp_to_spatula = rospy.get_param("/gripper/spatula_tip_to_tcp_dist")
+        finger_thickness_top = rospy.get_param("/finger/thickness_top")
+        finger_thickness_bot = rospy.get_param("/finger/thickness_bot") + 0.015 #~add distance for spatula
         #Get hand reference frame
         hand_X=hand_orient_norm[0:3,0]
         hand_Y=hand_orient_norm[0:3,1]
@@ -300,29 +114,16 @@ def getFingerPoints(finger_opening, tcp_pos, hand_orient_norm, isSuction):
                 finger_thickness = finger_thickness_bot
             FingerBody.append(tcp_pos+dist_tcp_to_intersection*hand_Z + b[i][0]*(finger_opening/2.0+finger_thickness)*hand_X+ ((b[i][1]*(finger_width/2.0)+fing_offset))*hand_Y)
             FingerBody.append(tcp_pos+dist_tcp_to_spatula*hand_Z + b[i][0]*(finger_opening/2.0+finger_thickness)*hand_X+(b[i][1]*(finger_width/2.0)+fing_offset)*hand_Y)
-            
-        # adding suction cup points
-        if isSuction: 
-            for (dx, dy) in b:   
-                FingerBody.append(tcp_pos+dist_tcp_to_intersection*hand_Z + (dx*suction_cup_diameter_2+x_offset_suction) *hand_X+ (dy*suction_cup_diameter_2+y_offset_suction)*hand_Y)
-                FingerBody.append(tcp_pos+dist_tcp_to_spatula*hand_Z + (dx*suction_cup_diameter_2+x_offset_suction)*hand_X+(dy*suction_cup_diameter_2+y_offset_suction)*hand_Y)
-            
+
         return np.asarray(FingerBody)
 
         
 def getWristPoints(tcp_pos, hand_orient_norm, isSuction):
-        if isSuction:
-            #Get finger dimensions from yaml file
-            dist_tcp_to_intersection = rospy.get_param("/wrist/length")
-            gripper_width_top = rospy.get_param("/gripper/width")/2
-            gripper_width_bot = rospy.get_param("/gripper/width")/2
-            gripper_length = rospy.get_param("/scorpion_tail/width")
-        else:
-            #Get finger dimensions from yaml file
-            dist_tcp_to_intersection = rospy.get_param("/wrist/length")
-            gripper_width_top = rospy.get_param("/scorpion_tail/grasp/top_grasp_width")#~to change
-            gripper_width_bot = rospy.get_param("/scorpion_tail/grasp/bot_grasp_width")#~to change
-            gripper_length = rospy.get_param("/scorpion_tail/width")
+        #Get finger dimensions from yaml file
+        dist_tcp_to_intersection = rospy.get_param("/wrist/length")
+        gripper_width_top = rospy.get_param("/scorpion_tail/grasp/top_grasp_width")#~to change
+        gripper_width_bot = rospy.get_param("/scorpion_tail/grasp/bot_grasp_width")#~to change
+        gripper_length = rospy.get_param("/scorpion_tail/width")
         #Get hand reference frame
         hand_X=hand_orient_norm[0:3,0]
         hand_Y=hand_orient_norm[0:3,1]
@@ -341,34 +142,6 @@ def getWristPoints(tcp_pos, hand_orient_norm, isSuction):
             WristBody.append(tcp_pos+0*hand_Z +b[i][0]*(gripper_width)*hand_X+(b[i][1]*(gripper_length/2.0)+fing_offset)*hand_Y)
             WristBody.append(tcp_pos+dist_tcp_to_intersection*hand_Z+b[i][0]*(gripper_width)*hand_X+(b[i][1]*(gripper_length/2.0)+fing_offset)*hand_Y)
         return np.asarray(WristBody)
-        
-def getSuctionTubePoints(tcp_pos, hand_orient_norm, isSuction):
-        if isSuction:
-            #Get finger dimensions from yaml file
-            dist_tcp_to_intersection = rospy.get_param("/suction_tube/suction/length")
-            gripper_width = rospy.get_param("/suction_tube/diameter")/2
-            gripper_length = rospy.get_param("/suction_tube/diameter")
-            fing_offset = (64.70000)/1000.
-            vert_offset = (-5.10000)/1000.
-        else:
-            #Get finger dimensions from yaml file
-            dist_tcp_to_intersection = rospy.get_param("/suction_tube/grasp/length")
-            gripper_width = rospy.get_param("/suction_tube/diameter")/2
-            gripper_length = rospy.get_param("/suction_tube/diameter")
-            fing_offset = (65.30391)/1000.
-            vert_offset = -(90.11284)/1000.
-        #Get hand reference frame
-        hand_X=hand_orient_norm[0:3,0]
-        hand_Y=hand_orient_norm[0:3,1]
-        hand_Z=hand_orient_norm[0:3,2]
-        #~
-        TubeBody = []
-        for i in range(0, 4):   
-            b = [[1,1],[1,-1],[-1,1],[-1,-1]]
-            #~Tube (and cup) Body (changes with opening)
-            TubeBody.append(tcp_pos+0*hand_Z +(b[i][0]*(gripper_width)+vert_offset)*hand_X+(b[i][1]*(gripper_length/2.0)+fing_offset)*hand_Y)
-            TubeBody.append(tcp_pos+dist_tcp_to_intersection*hand_Z+(b[i][0]*(gripper_width)+vert_offset)*hand_X+(b[i][1]*(gripper_length/2.0)+fing_offset)*hand_Y)
-        return np.asarray(TubeBody)
 
 def buildBoxes(V1, V2):
         Box1 = []
@@ -383,13 +156,13 @@ def buildBoxes(V1, V2):
         
 def plotBoundBoxes(fingerPoints, wristPoints, tubePoints, listener, br):
         Tote = getToteSections(listener=listener, br=br);
-        storage_points = getStoragePoints()
+#        storage_points = getStoragePoints()
 
         ax = buildPlt()
         updatePlt(fingerPoints, ax, edgeCol = 'b', lineColor = 'b')
         updatePlt(wristPoints, ax, edgeCol = 'b', lineColor = 'b')
-        updatePlt(tubePoints, ax, edgeCol = 'b', lineColor = 'b')
-        updatePlt(storage_points, ax, edgeCol = 'r', lineColor = 'r')
+#        updatePlt(tubePoints, ax, edgeCol = 'b', lineColor = 'b')
+#        updatePlt(storage_points, ax, edgeCol = 'r', lineColor = 'r')
 
         #~ updatePlt(toteBody1, ax, edgeCol = 'r', lineColor = 'b')
         #~ updatePlt(toteBody2, ax, edgeCol = 'r', lineColor = 'b')
@@ -648,7 +421,7 @@ def collisionFree(objInput, binId, listener, br, finger_opening=0, safety_margin
     tcp_pos = objInput[0:3]
     hand_orient_quat = objInput[3:7]
     base_pose = [0,0,0, 0, 1, 0, 0]
-    T = matrix_from_xyzquat(objInput)
+    T = ik.helper.matrix_from_xyzquat(objInput)
     hand_orient_base = np.array(T[0:3][0:3])
     finger_pts_3d = getFingerPoints(finger_opening, [0,0,0], hand_orient_base, False)
     #~ get bin points
@@ -790,11 +563,11 @@ def unit_test(finger_opening):
             ik.ik.executePlanForward(plans, False)
         
             plans = []
-        q_initial = collision_free_placing(binId, listener, isSuction = False, isReturn=True)
-        if binId==8:
-            go_arc_safe()
-        else:
-            q_initial = collision_free_placing(binId+1, listener, isSuction = False, isReturn=True)
+#        q_initial = collision_free_placing(binId, listener, isSuction = False, isReturn=True)
+#        if binId==8:
+#            collision_free_placing.go_arc_safe()
+#        else:
+#            q_initial = collision_free_placing.collision_free_placing(binId+1, listener, isSuction = False, isReturn=True)
 
 if __name__=='__main__':
 

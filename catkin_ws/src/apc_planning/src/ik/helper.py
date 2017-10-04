@@ -1,8 +1,9 @@
-import os, errno
+import os, errno, sys
+rgrasp_path = os.environ['RGRASP_BASE'] + '/catkin_ws/src/apc_planning/src'
+sys.path.append(rgrasp_path)
+import collision_detection.collisionHelper 
 import json
-import sys
 import numpy as np
-import tf
 import rospy
 import tf.transformations as tfm
 import time
@@ -11,15 +12,9 @@ from marker_helper import createCubeMarker2, createSphereMarker
 #~ from ik import setSpeedByName
 #~ from ik.ik import*
 from numpy import linalg as la
-import traceback
-from roshelper import lookupTransform, poseTransform, coordinateFrameTransformList, pubFrame
+from roshelper import lookupTransform, poseTransform
 import gripper
-import yaml
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from scipy.spatial import Delaunay
 from suction_projection import suction_projection_func
-from roshelper import ROS_Wait_For_Msg
 from sensor_msgs.msg import JointState
 
 obj_dim_data = []
@@ -782,5 +777,110 @@ def angle_shortest_dist(angle_current, angle_target_list):
     index_min = np.argmin(dist_array)
     return angle_target_array[index_min]
     
+def record_rosbag(topics):
+    #~ dir_save_bagfile = '/media/' + os.environ['HOME']+'/gelsight_grasping_data'
+    dir_save_bagfile = os.environ['ARCDATA_BASE']+'/gelsight_grasping_data'
+    make_sure_dir_exists(dir_save_bagfile)
+    name_of_bag=time.strftime("%Y%m%d-%H%M%S")
+    rosbag_proc = subprocess.Popen('rosbag record -q -O %s %s' % (name_of_bag, " ".join(topics)) , shell=True, cwd=dir_save_bagfile)
+    return name_of_bag
+
+def make_sure_dir_exists(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+def terminate_ros_node(s):
+    list_cmd = subprocess.Popen("rosnode list", shell=True, stdout=subprocess.PIPE)
+    list_output = list_cmd.stdout.read()
+    retcode = list_cmd.wait()
+    assert retcode == 0, "List command returned %d" % retcode
+    for str in list_output.split("\n"):
+        if (str.startswith(s)):
+            os.system("rosnode kill " + str)
+
+def get_hand_frame(obj_pose_orient_norm, obj_dim, listener, br):
+
+    #~Define reference frames
+    world_X, world_Y, world_Z, tote_X, tote_Y, tote_Z, tote_pose_pos = reference_frames(listener = listener, br=br)
+    #~ Project all axes of object about Z-world axis
+    proj_vecZ = np.abs(np.dot(world_Z,obj_pose_orient_norm))
+    temp = proj_vecZ.argsort()
+    
+    #~sort all dimensions
+    max_index=temp[2]
+    secondmax_index=temp[1]
+    min_index=temp[0]
+    signed_proj_vecZ = np.dot(world_Z,obj_pose_orient_norm)
+    if signed_proj_vecZ[max_index]<0:
+        hand_Z=obj_pose_orient_norm[:,max_index]
+    else:
+        hand_Z=-obj_pose_orient_norm[:,max_index]
+        
+    # find smaller of the other two object dimensions
+    obj_xyplane_dim_array = np.array([obj_dim[secondmax_index],obj_dim[min_index]])
+    obj_smaller_xydim_index = np.argmin(np.fabs(obj_xyplane_dim_array))
+    
+    # Set hand X (finger vec) along smaller dimension vector
+    if obj_smaller_xydim_index==0:
+        hand_X=obj_pose_orient_norm[:,secondmax_index]
+        grasp_width=obj_dim[secondmax_index]
+    else:
+        hand_X=obj_pose_orient_norm[:,min_index]
+        grasp_width=obj_dim[min_index]
+        
+    #~define coordinate frame vectors
+    hand_Y=np.cross(hand_Z, hand_X)
+
+    return hand_X, hand_Y, hand_Z, grasp_width
+
+def get_picking_params_from_7(objInput, objId, listener, br):
+    try:
+        obj_dim, obj_X, obj_Y, obj_Z, obj_pose_orient_norm = get_object_properties(objId, objInput)
+    except:
+        obj_dim = np.array([0.135, 0.055, 0.037])
+        obj_pose_orient_norm = np.array([[ 0.0, 0.0, -1.0], [0.0, 1.0, 0.0], [1.0, 0.0, 0.0]])
+
+    objPose = objInput
+    graspPos = objPose[0:3]
+    hand_X, hand_Y, hand_Z, grasp_width = get_hand_frame(obj_pose_orient_norm=obj_pose_orient_norm, obj_dim=obj_dim, listener=listener, br=br)
+
+    return graspPos, hand_X, hand_Y, hand_Z, grasp_width
+    
+def get_picking_params_from_12(objInput):
+    
+    #~define variables
+    grasp_begin_pt=np.array(objInput[0:3])
+    hand_Z=np.array(objInput[3:6])
+    
+    #~define grasp pos
+    grasp_depth=np.array(objInput[6])
+    graspPos=grasp_begin_pt + hand_Z*grasp_depth
+    grasp_width=np.array(objInput[7])
+    
+    #~define hand frame
+    hand_X=np.array(objInput[8:11])
+    hand_Y=np.cross(hand_Z, hand_X)
+
+    return graspPos, hand_X, hand_Y, hand_Z, grasp_width
+    
+def drop_pose_transform(binId,rel_pose, BoxBody, place_pose, viz_pub):
+     #~define gripper home orientation
+    base_pose = [0.,0.,0.,0.,1.,0.,0.] #~goarc hand pose
+    matrix_base_pose= tfm.quaternion_matrix(base_pose[3:7])
+    hand_orient_norm = matrix_base_pose[0:3,0:3]
+    #~initialize arguments for placing functions
+    finger_opening = gripper.getGripperopening()
+    safety_margin=.035
+    #~ get 3d bin and finger points
+    finger_pts_3d = collision_detection.collisionHelper.getFingerPoints(finger_opening, [0,0,0], hand_orient_norm, False)
+    bin_pts_3d = collision_detection.collisionHelper.getBinPoints(binId=binId,listener=listener, br=br)
+    #~convert to 2d
+    bin_pts = bin_pts_3d[:,0:2]
+    finger_pts = finger_pts_3d[:,0:2]
+    #~ ~perform coordinate transformation from object to gripper 
+    (drop_pose,final_object_pose) = pose_transform_precise_placing(rel_pose, BoxBody, place_pose, base_pose, bin_pts_3d, finger_pts, safety_margin, False, viz_pub)
+    return drop_pose
     
 
+    
+    

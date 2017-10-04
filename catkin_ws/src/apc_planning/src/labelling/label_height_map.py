@@ -8,9 +8,9 @@ import json
 from math import cos, sin, pi
 
 # cameraid = sys.argv[1] #'612203002922'
-read_dir = os.environ["ARCDATA_BASE"] + "/heightmap/"
-save_dir = os.environ["ARCDATA_BASE"] + "/labeldata/grasping/"
-good_dir = os.environ["ARCDATA_BASE"] + "/labeldata"
+read_dir = os.environ["RGRASPDATA_BASE"] + "/heightmap/"
+save_dir = os.environ["RGRASPDATA_BASE"] + "/labeldata/grasping/"
+good_dir = os.environ["RGRASPDATA_BASE"] + "/labeldata"
 image = []
 mask = []
 mask2 = []

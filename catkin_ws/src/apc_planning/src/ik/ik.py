@@ -7,7 +7,6 @@ import visualization_msgs.msg, trajectory_msgs.msg, moveit_msgs.msg
 import json
 from roshelper import ROS_Wait_For_Msg
 import roshelper
-from helper import pauseFunc, joint6_angle_list, angle_shortest_dist
 from visualization_msgs.msg import *
 import telnetlib
 import tf.transformations as tfm
@@ -21,7 +20,7 @@ from std_msgs.msg import Float64
 from std_msgs.msg import Int32
 from pr_msgs.msg import gelsightresult
 
-from helper import graspGripper, graspinGripper, graspoutGripper, moveGripper, setForceGripper, closeGripper, Timer
+import helper
 
 #import moveit_commander
 import spatula
@@ -893,8 +892,8 @@ def generatePlan(q0, target_tip_pos, target_tip_ori, tip_hand_transform, speed, 
         qf = None
     else:
 		#~unwrap angle of joint 6
-		#~ angle_list = joint6_angle_list(plan.q_traj[-1][5])
-		#~ best_angle = angle_shortest_dist(q0[5], angle_list)
+		#~ angle_list = helper.joint6_angle_list(plan.q_traj[-1][5])
+		#~ best_angle = helper.angle_shortest_dist(q0[5], angle_list)
 		#~ plan.q_traj[-1][5] = best_angle
 		qf = plan.q_traj[-1]
         
@@ -913,14 +912,14 @@ def executePlanForward(plans, withPause, withViz = False):
     for numOfPlan in range(0, len(plans)):
         if withViz:
             plans[numOfPlan].visualize()
-        pauseFunc(withPause)
+        helper.pauseFunc(withPause)
         plans[numOfPlan].execute()
 
 def executePlanBackward(plans, withPause, withViz = False):
     for numOfPlan in range(0, len(plans)):
         if withViz:
             plans[len(plans)-numOfPlan-1].visualizeBackward()
-        pauseFunc(withPause)
+        helper.pauseFunc(withPause)
         plans[len(plans)-numOfPlan-1].executeBackward()
 
 def setCartJ(pos, ori):

@@ -8,7 +8,7 @@ from ik.visualize_helper import visualize_grasping_proposals
 import numpy as np
 from manual_fit.srv import *
 import os
-from collision_detection.collisionHelper import collisionCheck
+#from collision_detection.collisionHelper import collisionCheck
 from sensor_msgs.msg import Image as RosImage
 
 try:
@@ -18,7 +18,7 @@ except:
     print 'FAILED TO IMPORT VISION, WILL ONLY RUN IN VIRTUAL'
 
 import sys
-sys.path.append(os.environ['ARC_BASE']+'/catkin_ws/src/weight_sensor/src')
+sys.path.append(os.environ['CODE_BASE']+'/catkin_ws/src/weight_sensor/src')
 import ws_prob
 import sensor_msgs.msg
 import goToHome
@@ -55,8 +55,8 @@ class TaskPlanner(object):
         self.visionType = opt.visionType
         if self.visionType == 'real':
             self.getPassiveVisionEstimate = rospy.ServiceProxy('/passive_vision/estimate', passive_vision.srv.state)
-        self.FAKE_PASSIVE_VISION_DIR = os.environ['ARC_BASE'] + '/input/fake_dirs/fake_passive_vision/'
-        self.FAKE_GRASPING_DIR = os.environ['ARC_BASE'] + '/input/fake_dirs/fake_grasping/'
+        self.FAKE_PASSIVE_VISION_DIR = os.environ['CODE_BASE'] + '/input/fake_dirs/fake_passive_vision/'
+        self.FAKE_GRASPING_DIR = os.environ['CODE_BASE'] + '/input/fake_dirs/fake_grasping/'
         self.passive_vision_file_id = opt.passive_vision_file_id
         self.all_grasp_proposals = None
         #Bad points
@@ -298,6 +298,7 @@ class TaskPlanner(object):
         self.grasping_output = grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container, flag=0,
                                  withPause=self.withPause, viz_pub=self.viz_array_pub)
+        assert(False)
         self.execution_possible = self.grasping_output['execution_possible']
 
     def planned_place(self, fixed_container = None):

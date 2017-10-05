@@ -94,9 +94,13 @@ def grasp(objInput,
     plan_possible = False
     execution_possible = False
     gripper_opening = 0.0
+    grasp_possible = True
+    gelsight_data=[]
+    collision = False
+    final_object_pose=None
     
     def compose_output():
-        return {'collision':False,'grasp_possible':False,'plan_possible':False,'execution_possible':False,'gripper_opening':[],'graspPose':[],'gelsight_data':[],'final_object_pose':[]}
+        return {'collision':collision,'grasp_possible':grasp_possible,'plan_possible':plan_possible,'execution_possible':execution_possible,'gripper_opening':gripper_opening,'graspPose':graspPose,'gelsight_data':gelsight_data,'final_object_pose':final_object_pose}
 
     #########################
     ## Constant parameters ##

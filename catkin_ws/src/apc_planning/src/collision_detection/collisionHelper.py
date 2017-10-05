@@ -12,7 +12,6 @@ import goToHome
 import ik.helper
 #from ik.helper import matrix_from_xyzquat, reference_frames, get_params_yaml
 import ik.ik
-import tf
 
 def getToteSections(listener, br, flag = True):
         #~build outside sections and floor

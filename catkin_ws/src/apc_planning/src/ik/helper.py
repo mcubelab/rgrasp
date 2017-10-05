@@ -22,7 +22,7 @@ obj_dim_data = []
 def get_obj_dim(objId):
     global obj_dim_data
     if len(obj_dim_data) == 0:
-        jsonFilename = os.environ['ARC_BASE']+'/catkin_ws/src/apc_config/object_data/objectDictionary.json'
+        jsonFilename = os.environ['RGRASP_BASE']+'/catkin_ws/src/apc_config/object_data/objectDictionary.json'
         with open(jsonFilename) as data_file:
             data = json.load(data_file)
         for key, value in data.iteritems():

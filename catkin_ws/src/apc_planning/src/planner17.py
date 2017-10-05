@@ -27,11 +27,11 @@ import numpy as np
 import tf.transformations as tfm
 from manual_fit.srv import *
 import os
-from collision_detection.collisionHelper import collisionCheck
+#from collision_detection.collisionHelper import collisionCheck
 import suction
 from sensor_msgs.msg import Image as RosImage
 #import shelf_helper
-import webpages
+#import webpages
 #from collision_free_placing import collision_free_placing, go_arc_safe
 import json
 
@@ -43,7 +43,7 @@ except:
     print 'FAILED TO IMPORT VISION, WILL ONLY RUN IN VIRTUAL'
 
 import sys
-sys.path.append(os.environ['ARC_BASE']+'/catkin_ws/src/weight_sensor/src')
+sys.path.append(os.environ['RGRASP_BASE']+'/catkin_ws/src/weight_sensor/src')
 import ws_prob
 import sensor_msgs.msg
 import goToHome
@@ -101,9 +101,9 @@ class TaskPlanner(object):
         self.store_info = {'experiment' : self.experiment_logging,
                            'baseline' : self.baseline_logging,
                            'random': self.baseline_logging}
-        self.FAKE_PASSIVE_VISION_DIR = os.environ['ARC_BASE'] + '/input/fake_dirs/fake_passive_vision/'
-        self.FAKE_GRASPING_DIR = os.environ['ARC_BASE'] + '/input/fake_dirs/fake_grasping/'
-        self.FAKE_SUCTION_DIR = os.environ['ARC_BASE'] + '/input/fake_dirs/fake_suction/'
+        self.FAKE_PASSIVE_VISION_DIR = os.environ['RGRASP_BASE'] + '/input/fake_dirs/fake_passive_vision/'
+        self.FAKE_GRASPING_DIR = os.environ['RGRASP_BASE'] + '/input/fake_dirs/fake_grasping/'
+        self.FAKE_SUCTION_DIR = os.environ['RGRASP_BASE'] + '/input/fake_dirs/fake_suction/'
         self.param_suction = 7
         self.param_suction_side = 7
         self.param_grasping = 12
@@ -133,13 +133,13 @@ class TaskPlanner(object):
         self.interactive_filename = opt.interactive_filename
         self.json_boxes_filename = 'box_sizes.json'
         if not os.path.isfile(self.jsonfilename):
-            self.jsonfilename = os.environ['ARC_BASE'] + '/input/' + self.jsonfilename
+            self.jsonfilename = os.environ['RGRASP_BASE'] + '/input/' + self.jsonfilename
         if not os.path.isfile(self.json_order_filename):
-            self.json_order_filename = os.environ['ARC_BASE'] + '/input/' + self.json_order_filename
+            self.json_order_filename = os.environ['RGRASP_BASE'] + '/input/' + self.json_order_filename
         if not os.path.isfile(self.interactive_filename):
-            self.interactive_filename = os.environ['ARC_BASE'] + '/input/' + self.interactive_filename
+            self.interactive_filename = os.environ['RGRASP_BASE'] + '/input/' + self.interactive_filename
         if not os.path.isfile(self.json_boxes_filename):
-            self.json_boxes_filename = os.environ['ARC_BASE'] + '/input/' + self.json_boxes_filename
+            self.json_boxes_filename = os.environ['RGRASP_BASE'] + '/input/' + self.json_boxes_filename
         #assert os.path.isfile(self.jsonfilename), 'JSON file leads nowhere'
         #####################
         ### Configuration ###
@@ -257,7 +257,7 @@ class TaskPlanner(object):
             self.withSensorWeight = False
 
         # Initialize webpage
-        self.webpage = webpages.WebDisplay()
+#        self.webpage = webpages.WebDisplay()
 
         ########################################
         ### Potentially not useful variables ###
@@ -379,14 +379,14 @@ class TaskPlanner(object):
             DATA['bins'] = []
             for x in range(self.num_bins):
                 DATA['bins'].append({'bin_id': chr(ord('A')+x), 'contents': self.shelfObjNamesGivenBin(x+1) })
-            with open(os.path.join(os.environ['ARC_BASE'], 'input/last_input.json'), 'w') as outfile:
+            with open(os.path.join(os.environ['RGRASP_BASE'], 'input/last_input.json'), 'w') as outfile:
                 json.dump(DATA, outfile, sort_keys=True, indent=4,
                           ensure_ascii=False)
         '''
 
     def enter_jsonfile_boxes(self):
             ##Introduce boxes
-            if self.json_boxes_filename != os.environ['ARC_BASE'] + '/input/':  #No file name assigned to it
+            if self.json_boxes_filename != os.environ['RGRASP_BASE'] + '/input/':  #No file name assigned to it
                 with open(self.json_boxes_filename) as data_file:
                     DATA_JSON = json.load(data_file)
                 for box_num, box in enumerate(DATA_JSON['boxes']):
@@ -395,7 +395,7 @@ class TaskPlanner(object):
 
     def enter_jsonfile_goals(self):
             ##Introduce goal objects
-            if self.json_order_filename != os.environ['ARC_BASE'] + '/input/':  #No file name assigned to it
+            if self.json_order_filename != os.environ['RGRASP_BASE'] + '/input/':  #No file name assigned to it
                 with open(self.json_order_filename) as data_file:
                     DATA_JSON = json.load(data_file)
                 self.goals_left = 0
@@ -1044,7 +1044,7 @@ class TaskPlanner(object):
 
         # Placing is done
         self.json_output(interactive_file = True)
-        outfilename = os.environ['ARC_BASE']+'/input/interactive_placing.json'
+        outfilename = os.environ['RGRASP_BASE']+'/input/interactive_placing.json'
         with open(outfilename, 'w') as outfile:
             json.dump(DATA, outfile, sort_keys = True, indent = 4, ensure_ascii=False)
         with open(outfilename + '.' + str(rospy.get_time()), 'w') as outfile:   # save every iteration seperately in case the result got overwritten
@@ -1136,7 +1136,7 @@ class TaskPlanner(object):
             if self.visionType == 'real':
                 add_command = '{} add {} {} {} {}'.format(obj.container,obj.label, obj.pose[0], obj.pose[1], obj.pose[2])
                 self.getPassiveVisionEstimate(add_command, obj.container)
-        outfilename = os.environ['ARC_BASE']+'/input/interactive_placing.json'
+        outfilename = os.environ['RGRASP_BASE']+'/input/interactive_placing.json'
         with open(outfilename, 'w') as outfile:
             json.dump(DATA, outfile, sort_keys = True, indent = 4, ensure_ascii=False)
         with open(outfilename + '.' + str(rospy.get_time()), 'w') as outfile:   # save every iteration seperately in case the result got overwritten
@@ -1455,7 +1455,7 @@ class TaskPlanner(object):
         return predicted_object_name, prediction_small_list, active_vision_data.rot_bbox_info, active_vision_data.bbox_info
 
     def getCompetitionObj(self):
-        cmptnItemDataPath = os.environ['ARCDATA_BASE'] + '/itemdata'
+        cmptnItemDataPath = os.environ['RGRASPDATA_BASE'] + '/itemdata'
         cmptnObjList = []
         for dirname, cmptnObjNames, filenames in os.walk(cmptnItemDataPath):
             for cmptnObjName in cmptnObjNames:
@@ -1466,16 +1466,16 @@ class TaskPlanner(object):
         
     def json_output(self, interactive_file = False):
         if interactive_file:
-            self.interactivefilename = os.environ['ARC_BASE']+'/input/interactive_result.json'
+            self.interactivefilename = os.environ['RGRASP_BASE']+'/input/interactive_result.json'
         if self.task == 'stowing':
-            self.outfilename = os.environ['ARCDATA_BASE']+'/stow_result/stow_result.json'
-            self.outfilename_in_output = os.environ['ARC_BASE']+'/output/stow_result.json'
+            self.outfilename = os.environ['RGRASPDATA_BASE']+'/stow_result/stow_result.json'
+            self.outfilename_in_output = os.environ['RGRASP_BASE']+'/output/stow_result.json'
             #Add all objects in bin 1
-            self.outfilename_complete = os.environ['ARCDATA_BASE']+'/stow_result_complete/stow_result_complete.json'
-            self.outfilename_complete_in_output = os.environ['ARC_BASE']+'/output/stow_result_complete.json'
+            self.outfilename_complete = os.environ['RGRASPDATA_BASE']+'/stow_result_complete/stow_result_complete.json'
+            self.outfilename_complete_in_output = os.environ['RGRASP_BASE']+'/output/stow_result_complete.json'
         else:
-            self.outfilename = os.environ['ARCDATA_BASE']+'/pick_result/pick_result.json'
-            self.outfilename_in_output = os.environ['ARC_BASE']+'/output/pick_result.json'
+            self.outfilename = os.environ['RGRASPDATA_BASE']+'/pick_result/pick_result.json'
+            self.outfilename_in_output = os.environ['RGRASP_BASE']+'/output/pick_result.json'
         DATA = {}
         DATA['bins'] = []
         for x in range(self.num_bins):
@@ -1788,7 +1788,7 @@ class TaskPlanner(object):
             last_input = raw_input('Are you sure about that?[y/n]')
             if last_input == 'y':
                 self.use_last_json = True
-                self.jsonfilename = os.path.join(os.environ['ARC_BASE'], 'input/last_input.json')
+                self.jsonfilename = os.path.join(os.environ['RGRASP_BASE'], 'input/last_input.json')
                 self.enter_jsonfile()
                 return
             else:
@@ -1847,7 +1847,7 @@ class TaskPlanner(object):
         self.experiment_data = {}
         self.number_objects_experiment = 5
         #Vision Logs
-        self.data_directory = os.environ['ARCDATA_BASE']+'/loopdata/planner/{}'.format(int(round(time.time())))
+        self.data_directory = os.environ['RGRASPDATA_BASE']+'/loopdata/planner/{}'.format(int(round(time.time())))
         os.makedirs(self.data_directory)
         self.infinite_looping = True
 
@@ -1857,7 +1857,7 @@ class TaskPlanner(object):
         execution_success_string = 'success'
         if not self.execution_result:
             execution_success_string = 'fail'
-        self.expfilename = os.environ['ARCDATA_BASE']+'/planner_experiments/%s_%s_%s.json' %(self.execution_date, self.best_primitive, execution_success_string)
+        self.expfilename = os.environ['RGRASPDATA_BASE']+'/planner_experiments/%s_%s_%s.json' %(self.execution_date, self.best_primitive, execution_success_string)
         with open(self.expfilename, 'w') as outfile:
             json.dump(self.experiment_data, outfile, sort_keys=True,
                       indent=4, ensure_ascii=False)
@@ -2897,12 +2897,12 @@ if __name__ == '__main__':
     (opt, args) = parser.parse_args()
 
     #Creating necessary directories
-    if not os.path.isdir(os.environ['ARCDATA_BASE']+'/loopdata/planner/'):
-        os.makedirs(os.environ['ARCDATA_BASE']+'/loopdata/planner')
-    if not os.path.isdir(os.environ['ARCDATA_BASE']+'/planner_experiments'):
-        os.makedirs(os.environ['ARCDATA_BASE']+'/planner_experiments')
-    if not os.path.isdir(os.environ['ARC_BASE']+'/output'):
-        os.makedirs(os.environ['ARC_BASE']+'/output')
+    if not os.path.isdir(os.environ['RGRASPDATA_BASE']+'/loopdata/planner/'):
+        os.makedirs(os.environ['RGRASPDATA_BASE']+'/loopdata/planner')
+    if not os.path.isdir(os.environ['RGRASPDATA_BASE']+'/planner_experiments'):
+        os.makedirs(os.environ['RGRASPDATA_BASE']+'/planner_experiments')
+    if not os.path.isdir(os.environ['RGRASP_BASE']+'/output'):
+        os.makedirs(os.environ['RGRASP_BASE']+'/output')
 
     p = TaskPlanner(args)
     p.run()

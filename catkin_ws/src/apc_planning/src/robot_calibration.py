@@ -144,7 +144,7 @@ def gentle_move_boxes(dir_index, q_initial, pos, gripperOri_list, tip_hand_trans
         value = raw_input("Enter: Move 2mm closer to wall, s: Stop robot and record value ")
         #save data if s
         if value == 's':
-            fpath = os.environ['ARC_BASE'] + '/catkin_ws/src/apc_config/box_corners.yaml'
+            fpath = os.environ['RGRASP_BASE'] + '/catkin_ws/src/apc_config/box_corners.yaml'
             stream = open(fpath, 'r')
             data = yaml.load(stream)
             tcp_pose = get_tcp_pose(listener)
@@ -196,7 +196,7 @@ def gentle_move(dir_index, q_initial, pos, gripperOri_list, tip_hand_transform, 
         value = raw_input("Enter: Move 2mm closer to wall, s: Stop robot and record value ")
         #save data if s
         if value == 's':
-            fpath = os.environ['ARC_BASE'] + '/catkin_ws/src/apc_config/storage_corners.yaml'
+            fpath = os.environ['RGRASP_BASE'] + '/catkin_ws/src/apc_config/storage_corners.yaml'
             stream = open(fpath, 'r')
             data = yaml.load(stream)
             tcp_pose = get_tcp_pose(listener)
@@ -458,7 +458,7 @@ def generate_bins():
         y2 = rospy.get_param('/corner'+str(point_list[i][2])+'/y')
         cart_list = [(x1+x2)/2., (y1+y2)/2., rospy.get_param('/bin'+str(i)+'/z')]
         #~save bin pose to yaml
-        fpath = os.environ['ARC_BASE'] + '/catkin_ws/src/apc_config/' +'bin'+str(i)+'_pose' +'.yaml'
+        fpath = os.environ['RGRASP_BASE'] + '/catkin_ws/src/apc_config/' +'bin'+str(i)+'_pose' +'.yaml'
         stream = open(fpath, 'r')
         data = yaml.load(stream)
         #~compute center point of tote
@@ -482,7 +482,7 @@ def generate_boxes():
         y2 = rospy.get_param('/box_corner'+str(point_list[i][2])+'/y')
         cart_list = [(x1+x2)/2., (y1+y2)/2., rospy.get_param('/bin'+str(bin_list[i])+'/z') + rospy.get_param('/bin'+str(bin_list[i])+'/z_flap')]
         #~save bin pose to yaml
-        fpath = os.environ['ARC_BASE'] + '/catkin_ws/src/apc_config/' +'bin'+str(bin_list[i])+'_pose' +'.yaml'
+        fpath = os.environ['RGRASP_BASE'] + '/catkin_ws/src/apc_config/' +'bin'+str(bin_list[i])+'_pose' +'.yaml'
         stream = open(fpath, 'r')
         data = yaml.load(stream)
         #~compute center point of tote

@@ -52,7 +52,7 @@ cmd "4-testcam" {
     host = "localhost";
 }
 cmd "5-rviz" {
-    exec = "rosrun rviz rviz -d $ARC_BASE/catkin_ws/src/apc_config/rviz/rvizconfig.rviz";
+    exec = "rosrun rviz rviz -d $RGRASP_BASE/catkin_ws/src/apc_config/rviz/rvizconfig.rviz";
     host = "localhost";
 }
 cmd "6-interactive-fitting" {
@@ -103,11 +103,11 @@ group "calibration" {
         host = "localhost";
     }
     cmd "3-show-urdf" {
-        exec = "roslaunch apc_config display_urdf.launch model:=$ARC_BASE/catkin_ws/src/apc_config/models/irb_2600id-15/irb_2600id-15.urdf gui:=True";
+        exec = "roslaunch apc_config display_urdf.launch model:=$RGRASP_BASE/catkin_ws/src/apc_config/models/irb_2600id-15/irb_2600id-15.urdf gui:=True";
         host = "localhost";
     }
     cmd "3-urdf_rviz" {
-        exec = "rosrun rviz rviz -d $ARC_BASE/catkin_ws/src/apc_config/rviz/urdf.rviz";
+        exec = "rosrun rviz rviz -d $RGRASP_BASE/catkin_ws/src/apc_config/rviz/urdf.rviz";
         host = "localhost";
     }
     cmd "4-manual_fit_urdf" {

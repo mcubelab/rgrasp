@@ -1,12 +1,12 @@
 import sys
 import os
-sys.path.append(os.environ['ARC_BASE']+"/catkin_ws/src/apc_planning/src/")
+sys.path.append(os.environ['RGRASP_BASE']+"/catkin_ws/src/apc_planning/src/")
 
 import rospy
 import tf
 import numpy as np
 import scorpion, suction, gripper, spatula
-rospy.init_node('pythonarc', anonymous=True)
+rospy.init_node('pythonrgrasp', anonymous=True)
 
 listener = tf.TransformListener()
 br = tf.TransformBroadcaster()

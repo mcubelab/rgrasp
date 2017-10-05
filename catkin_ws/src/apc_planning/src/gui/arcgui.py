@@ -3,7 +3,7 @@
 import Tkinter
 import sys
 import os
-sys.path.append(os.environ['ARC_BASE']+"/catkin_ws/src/apc_planning/src/")
+sys.path.append(os.environ['RGRASP_BASE']+"/catkin_ws/src/apc_planning/src/")
 
 import rospy
 import tf

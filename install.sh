@@ -103,31 +103,31 @@ fi
 if [ "$#" == 0 ] || [ "$1" == "CATKIN" ]; then 
     git submodule update --init --recursive catkin_ws/src/pr_msgs
     echo "Make CATKIN"
-    cd $ARC_BASE/catkin_ws
+    cd $RGRASP_BASE/catkin_ws
     catkin_make
 fi
 
 if [ "$#" == 0 ] || [ "$1" == "ABB" ]; then
     echo "Make abb-ros"
     git submodule update --init --recursive catkin_ws/abb-ros-catkin
-    cd $ARC_BASE/catkin_ws
+    cd $RGRASP_BASE/catkin_ws
     catkin_make
-    source $ARC_BASE/software/config/arc_environment.sh
+    source $RGRASP_BASE/software/config/arc_environment.sh
 fi
 
 #if [ "$#" == 0 ] || [ "$1" == "SOFTWARE" ]; then
 #    echo "Make SOFTWARE"
 #    git submodule update --init --recursive software/externals/snopt software/externals/drake
-#    cd $ARC_BASE/software/
+#    cd $RGRASP_BASE/software/
 #    make -j
 #fi
 
 if [ "$#" == 0 ] || [ "$1" == "HAND" ]; then 
     git submodule update --init --recursive catkin_ws/src/wsg50-ros-pkg
     echo 'Do catkin_make --pkg wsg_50_common wsg_50_driver wsg_50_simulation'
-    cd $ARC_BASE/catkin_ws
+    cd $RGRASP_BASE/catkin_ws
     catkin_make 
-    source $ARC_BASE/software/config/arc_environment.sh
+    source $RGRASP_BASE/software/config/arc_environment.sh
     catkin_make 
 fi
 
@@ -273,11 +273,11 @@ if [ "$#" == 1 ] && [ "$1" == "PCL" ]; then
 fi
 
 if [ "$#" == 1 ] && [ "$1" == "VISIONMODULES" ] || [ "$1" == "VISION" ]; then
-    cd $ARC_BASE/catkin_ws/src
+    cd $RGRASP_BASE/catkin_ws/src
     git submodule update --init --recursive realsense_camera
     git submodule update --init --recursive passive_vision
     git submodule update --init --recursive active_vision
-    cd $ARC_BASE/catkin_ws
+    cd $RGRASP_BASE/catkin_ws
     catkin_make --pkg realsense_camera
 fi
 

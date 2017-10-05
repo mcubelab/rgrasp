@@ -27,9 +27,9 @@ fi
 if [ "$#" == 0 ] || [ "$1" == "HAND" ]; then 
     git submodule update --init --recursive catkin_ws/src/wsg50-ros-pkg
     echo 'Do catkin_make --pkg wsg_50_common wsg_50_driver wsg_50_simulation'
-    cd $ARC_BASE/catkin_ws
+    cd $RGRASP_BASE/catkin_ws
     catkin_make --pkg wsg_50_common wsg_50_driver wsg_50_simulation
-    source $ARC_BASE/software/config/arc_environment.sh
+    source $RGRASP_BASE/software/config/rgrasp_environment.sh
     catkin_make 
 fi
 

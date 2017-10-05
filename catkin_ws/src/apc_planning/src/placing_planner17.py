@@ -141,7 +141,7 @@ class PlacingPlanner(object):
         (y_dim, x_dim) = HM.shape
         '''
         #Save HeightMaps
-        self.HMfilename = os.environ['ARC_BASE']+'/output/height_map_result_in_bin%d.json'%(b+1)
+        self.HMfilename = os.environ['RGRASP_BASE']+'/output/height_map_result_in_bin%d.json'%(b+1)
         DATA = {}
         DATA['old_HM'] = old_HM.tolist()
         DATA['Scores'] = Scores.tolist()

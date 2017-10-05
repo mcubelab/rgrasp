@@ -1,45 +1,9 @@
-Script started on Wed 04 Oct 2017 11:40:39 AM EDT
-> /home/mcube/rgrasp/catkin_ws/src/apc_planning/src/planner17.py(16)<module>()
+Script started on Wed 04 Oct 2017 01:24:27 PM EDT
+> /home/robot/rgrasp/catkin_ws/src/apc_planning/src/planner17.py(16)<module>()
 -> from item import Item
 (Pdb) c
 FAILED TO IMPORT VISION, WILL ONLY RUN IN VIRTUAL
 FAILED TO IMPORT VISION, WILL ONLY RUN IN VIRTUAL
-[ PLANNER ] visionType  =  real
-[ PLANNER ] in_simulation  =  False
-[ PLANNER ] combined_task  =  False
-[ PLANNER ] decider  =  baseline
-[ PLANNER ] experiment  =  False
-AO:  {'dimensions': [0.187, 0.142, 0.03], 'weight': 0.046299999999999994, 'slow_move': False, 'placeability': [1, 0, 1], 'type': 'deformable', 'name': 'balloons'}
-Not able to get parameters for label shower_curtain
-AO:  {'placeability': [1, 1, 1]}
-Not able to get parameters for label bath_sponge
-AO:  {'dimensions': [0.319, 0.047, 0.047], 'weight': 0.3953, 'slow_move': True, 'placeability': [0, 1, 1], 'type': 'box', 'name': 'reynolds_wrap'}
-Not able to get parameters for label can_opener
-Not able to get parameters for label red_water_bottle
-AO:  {'placeability': [1, 0, 1]}
-Not able to get parameters for label epsom_salts
-Not able to get parameters for label softness_tissues
-Not able to get parameters for label casemate_red_journal
-AO:  {'name': 'hanes_socks', 'weight': 0.3589, 'slow_move': True, 'placeability': [0, 0, 1], 'type': 'wrapped', 'dimensions': [0.267, 0.226, 0.072]}
-Not able to get parameters for label paper_napkins
-AO:  {'name': 'irish_spring_soap', 'weight': 0.1124, 'slow_move': False, 'placeability': [1, 1, 1], 'type': 'box', 'dimensions': [0.1, 0.064, 0.039]}
-Not able to get parameters for label paint_roller
-Not able to get parameters for label nitrile_gloves
-AO:  {'name': 'speed_stick', 'weight': 0.2757, 'slow_move': True, 'placeability': [1, 0, 1], 'type': 'box', 'dimensions': [0.144, 0.069, 0.061]}
-AO:  {'placeability': [1, 0, 0]}
-Not able to get parameters for label mesh_cup
-AO:  {'placeability': [0, 0, 1]}
-Not able to get parameters for label windex
-Not able to get parameters for label pink_facial_pads
-Not able to get parameters for label comb_pack
-AO:  {'placeability': [0, 0, 1]}
-Not able to get parameters for label colgate_toothbrush_4pk
-[goToARC]
-No robot
-[Robot] Robot seeems not connected, skipping execute()
-[Suction], Suction cup not connected, skipping command:  pump_start
-[Suction], Suction cup not connected, skipping command:  start
-[ PLANNER ] getPassiveVisionEstimate 'update hm sg', '',  0 
 Traceback (most recent call last):
   File "/usr/lib/python2.7/pdb.py", line 1314, in main
     pdb._runscript(mainpyfile)
@@ -50,19 +14,11 @@ Traceback (most recent call last):
   File "<string>", line 1, in <module>
   File "planner17.py", line 16, in <module>
     from item import Item
-  File "planner17.py", line 2806, in run
-    self.run_stowing()
-  File "planner17.py", line 2522, in run_stowing
-    self.getPassiveVisionEstimate('update hm sg', '', self.tote_ID)
-  File "/opt/ros/kinetic/lib/python2.7/dist-packages/rospy/impl/tcpros_service.py", line 435, in __call__
-    return self.call(*args, **kwds)
-  File "/opt/ros/kinetic/lib/python2.7/dist-packages/rospy/impl/tcpros_service.py", line 495, in call
-    service_uri = self._get_service_uri(request)
-  File "/opt/ros/kinetic/lib/python2.7/dist-packages/rospy/impl/tcpros_service.py", line 463, in _get_service_uri
-    raise ServiceException("service [%s] unavailable"%self.resolved_name)
-ServiceException: service [/passive_vision/estimate] unavailable
+  File "flush_grasping17.py", line 19, in <module>
+    from collision_detection.collisionHelper import collisionCheck, getBinPoints, getFingerPoints
+ImportError: cannot import name collisionCheck
 Uncaught exception. Entering post mortem debugging
 Running 'cont' or 'step' will restart the program
-> /opt/ros/kinetic/lib/python2.7/dist-packages/rospy/impl/tcpros_service.py(463)_get_service_uri()
--> raise ServiceException("service [%s] unavailable"%self.resolved_name)
+> /home/robot/rgrasp/catkin_ws/src/apc_planning/src/flush_grasping17.py(19)<module>()
+-> from collision_detection.collisionHelper import collisionCheck, getBinPoints, getFingerPoints
 (Pdb) 

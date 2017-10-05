@@ -18,8 +18,8 @@ class PlacingInterface(object):
         self.suggestionFunction = None
         self.numObjSelected = 0
 
-        cmptnItemDataPath = os.environ['RGRASPDATA_BASE'] + '/itemdata'
-        oldItemDataPath = os.environ['RGRASPDATA_BASE'] + '/itemdata_amazon'
+        cmptnItemDataPath = os.environ['DATA_BASE'] + '/itemdata'
+        oldItemDataPath = os.environ['DATA_BASE'] + '/itemdata_amazon'
 
         # List all competition objects in item data
         self.cmptnObjList = []

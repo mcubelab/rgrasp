@@ -20,12 +20,12 @@ from plyfile import PlyData, PlyElement
 import json
 
 def readPlyFile(obj_id):
-    x = PlyData.read(open(os.environ['RGRASP_BASE'] + '/catkin_ws/src/apc_posest/src/models/%s.ply' % obj_id))
+    x = PlyData.read(open(os.environ['CODE_BASE'] + '/catkin_ws/src/apc_posest/src/models/%s.ply' % obj_id))
     return x
     
 
 def get_obj_dim(objId):
-    jsonFilename = os.environ['RGRASP_BASE']+'/catkin_ws/src/apc_config/object_data/objectDictionary.json'
+    jsonFilename = os.environ['CODE_BASE']+'/catkin_ws/src/apc_config/object_data/objectDictionary.json'
     with open(jsonFilename) as data_file:
         data = json.load(data_file)
     

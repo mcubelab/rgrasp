@@ -2,27 +2,17 @@
 
 import rospy
 import numpy as np
-from numpy import linalg as la
-from pr_msgs.msg import *
-from manual_fit.srv import *
+#from manual_fit.srv import *
 from copy import deepcopy
 import roslib; roslib.load_manifest("robot_comm")
-from robot_comm.srv import *
+#from robot_comm.srv import *
 import tf
-import tf.transformations as tfm
-#from collision_free_placing import collision_free_plan, collision_free_placing, go_arc_safe
-from ik.ik import generatePlan, EvalPlan, WeightGuard, GraspingGuard, executePlanForward, fastik
-from ik.helper import get_joints, get_tcp_pose, mat2quat, get_params_yaml, reference_frames, get_object_properties, vision_transform_precise_placing, vision_transform_precise_placing_with_visualization, pose_transform_precise_placing
-from ik.roshelper import pose2list, poseTransform
-import goToHome
-import os
-from collision_detection.collisionHelper import collisionCheck, getBinPoints, getFingerPoints
-from visualization_msgs.msg import MarkerArray
-import gripper, spatula, scorpion, suction
-import time
-from ik.helper import deleteMarkers, plotPickPoints
-from apc.helper import UpdateCommand
-from ik.visualize_helper import visualize_flush_proposals
+#from collision_free_placing import  collision_free_placing
+from ik.ik import generatePlan, EvalPlan, WeightGuard, executePlanForward
+from ik.helper import get_joints, mat2quat, get_params_yaml, reference_frames, drop_pose_transform
+from collision_detection.collisionHelper import collisionFree
+import gripper,  scorpion
+import ik.helper
 
 havegripper = rospy.get_param('/have_gripper', True)
 

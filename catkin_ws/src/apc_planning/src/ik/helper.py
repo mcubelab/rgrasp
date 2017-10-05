@@ -1,5 +1,5 @@
 import os, errno, sys
-rgrasp_path = os.environ['RGRASP_BASE'] + '/catkin_ws/src/apc_planning/src'
+rgrasp_path = os.environ['CODE_BASE'] + '/catkin_ws/src/apc_planning/src'
 sys.path.append(rgrasp_path)
 import collision_detection.collisionHelper 
 import json
@@ -22,7 +22,7 @@ obj_dim_data = []
 def get_obj_dim(objId):
     global obj_dim_data
     if len(obj_dim_data) == 0:
-        jsonFilename = os.environ['RGRASP_BASE']+'/catkin_ws/src/apc_config/object_data/objectDictionary.json'
+        jsonFilename = os.environ['CODE_BASE']+'/catkin_ws/src/apc_config/object_data/objectDictionary.json'
         with open(jsonFilename) as data_file:
             data = json.load(data_file)
         for key, value in data.iteritems():

@@ -11,8 +11,8 @@ class ObjectNameConverter:
     def __init__(self):
         self.lower2upper = dict()
         self.upper2lower = dict()
-        path_old = os.environ['RGRASPDATA_BASE'] + '/itemdata/'
-        path_new = os.environ['RGRASPDATA_BASE'] + '/newitemdata/'
+        path_old = os.environ['DATA_BASE'] + '/itemdata/'
+        path_new = os.environ['DATA_BASE'] + '/newitemdata/'
         for x in next(os.walk(path_old))[1]:
             if x == 'Empty':
                 continue

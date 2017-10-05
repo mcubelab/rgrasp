@@ -1,7 +1,7 @@
 #~ from ik.ik import *
 import sys
 import os
-rgrasp_path = os.environ['RGRASP_BASE'] + '/catkin_ws/src/apc_planning/src'
+rgrasp_path = os.environ['CODE_BASE'] + '/catkin_ws/src/apc_planning/src'
 sys.path.append(rgrasp_path)
 import rospy
 import numpy as np

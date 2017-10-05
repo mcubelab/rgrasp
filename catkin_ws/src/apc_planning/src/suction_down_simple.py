@@ -25,7 +25,7 @@ if __name__ == "__main__":
 import sensor_msgs.msg
 import os
 import sys
-sys.path.append(os.environ['RGRASP_BASE'] + '/catkin_ws/src/weight_sensor/src')
+sys.path.append(os.environ['CODE_BASE'] + '/catkin_ws/src/weight_sensor/src')
 import ws_prob
 from pr_msgs.srv import SuctionData1
 import roslib; roslib.load_manifest("robot_comm")

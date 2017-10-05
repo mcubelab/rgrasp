@@ -142,10 +142,19 @@ def grasp(objInput,
 #            q_initial = collision_free_placing(binId, listener, isSuction = False, with_object = False, hand_orientation=[0,1,0,0], projected_target_position = bin_pose[0:3], isReturn = True)
 #            scorpion.back()
             
-        #~1. Move to a location above the bin, Rotate gripper to grasp orientation
+        #~0. Move to a location above the bin, Rotate gripper to grasp orientation
         pregrasp_targetPosition = graspPos - hand_Z*UpdistFromObject
-        pregrasp_targetPosition[2] = bin_pose[2]
-        plan, qf, plan_possible = generatePlan(q_initial, pregrasp_targetPosition, hand_orient_quat, tip_hand_transform, 'superSaiyan', plan_name = 'rotate_gripper')
+        pregrasp_targetPosition[2] = bin_pose[2] + 0.15
+        plan, qf, plan_possible = generatePlan(q_initial, pregrasp_targetPosition, hand_orient_quat, tip_hand_transform, 'superSaiyan', plan_name = 'go_safe_bin')
+        if plan_possible:
+            plans.append(plan)
+            q_initial = qf
+        else:
+            return compose_output()
+                        
+        #~1. Move to to surface of bin
+        pregrasp_targetPosition[2] = bin_pose[2] + 0.05
+        plan, qf, plan_possible = generatePlan(q_initial, pregrasp_targetPosition, hand_orient_quat, tip_hand_transform, 'superSaiyan', plan_name = 'go_top_bin')
         if plan_possible:
             plans.append(plan)
             q_initial = qf
@@ -255,7 +264,7 @@ def grasp(objInput,
         
         #~Predrop: go to top middle bin surface fast without guarded move
         predrop_pos=np.array(drop_pose[0:3])
-        predrop_pos[2]=bin_pose[2] + 0.2
+        predrop_pos[2] = bin_pose[2] + 0.2
          
         ######################
         ##  Generate plans ##
@@ -266,7 +275,8 @@ def grasp(objInput,
 #            q_initial = collision_free_placing(binId, listener, obj_ID=objId, BoxBody=BoxBody, isSuction = False,with_object = True, hand_orientation=drop_pose[3:7],projected_target_position = predrop_pos, isReturn = True)
 #            if update_command is not None:
 #                update_command.execute()
-                
+
+        
         #~1.fast motion to bin surface
         plan, qf, plan_possible = generatePlan(q_initial, predrop_pos, drop_pose[3:7], tip_hand_transform, 'faster',  plan_name = 'go_bin_surface')
         if plan_possible:
@@ -337,13 +347,11 @@ def unit_test(listener, br):
     #~unit test for flags 1 and 2 in bins 0 and 1 (with weight guard)
     flag_list = [0,1,2]
     bin_list = [0,1,2]
-    #~ bin_list = [0]
-    for binId in bin_list:
-        for flag in flag_list:
-            if flag==2:
-                bin_list_drop = [binId] 
-                for bin_drop_id in  bin_list_drop:
-                    (output_dict)=grasp(objInput=objInput[binId],
+    objInput = [[1.0550236701965332, -0.40252241492271423, -0.018005974590778351, 0.0, 0.0, -1.0, 0.15000000596046448, 0.10999999940395355, -0.38268342614173889, -0.92387950420379639, 0.0, 0.22444444894790649]]
+    binId = 0
+    flag = 0
+    bin_drop_id = binId
+    (output_dict)=grasp(objInput=objInput[binId],
                                         listener=listener,
                                         br=br,
                                         isExecute=isExecute,
@@ -351,17 +359,31 @@ def unit_test(listener, br):
                                         binId=bin_drop_id,
                                         flag=flag,
                                         withPause = False)
-                    gripper.close()
-            else:
-                #~call pick function without xtra placing arguments (flag:0,1)
-                (output_dict)=grasp(objInput[binId],
-                                    listener=listener,
-                                    br=br,
-                                    isExecute=isExecute,
-                                    objId=TARGET,
-                                    binId=binId,
-                                    flag=flag,
-                                    withPause = False)
+    #~ bin_list = [0]
+#    for binId in bin_list:
+#        for flag in flag_list:
+#            if flag==2:
+#                bin_list_drop = [binId] 
+#                for bin_drop_id in  bin_list_drop:
+#                    (output_dict)=grasp(objInput=objInput[binId],
+#                                        listener=listener,
+#                                        br=br,
+#                                        isExecute=isExecute,
+#                                        objId=TARGET,
+#                                        binId=bin_drop_id,
+#                                        flag=flag,
+#                                        withPause = False)
+#                    gripper.close()
+#            else:
+#                #~call pick function without xtra placing arguments (flag:0,1)
+#                (output_dict)=grasp(objInput[binId],
+#                                    listener=listener,
+#                                    br=br,
+#                                    isExecute=isExecute,
+#                                    objId=TARGET,
+#                                    binId=binId,
+#                                    flag=flag,
+#                                    withPause = False)
 
 # To test the function
 if __name__=='__main__':

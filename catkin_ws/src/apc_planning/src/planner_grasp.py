@@ -332,7 +332,8 @@ class TaskPlanner(object):
             self.run_grasping(container = self.tote_ID) # 4. Run grasping
             
             if self.execution_possible != False: # 5. Check the weight
-                ''' #TODO_M
+                #TODO_M
+                ''' 
                 self.weight_info[self.tote_ID] = self.weightSensor.readWeightSensor(item_list = [], withSensor=self.withSensorWeight, binNum=self.tote_ID, givenWeights=-11)[self.tote_ID] 
                 self.weight_info[self.tote_ID]
                 print('Detected weight:',  self.weight_info[self.tote_ID]['weights'])

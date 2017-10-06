@@ -329,7 +329,8 @@ def vision_transform_precise_placing(bbox_info,listener):
 
 def pose_transform_precise_placing(rel_pose,BoxBody,place_pose,base_pose,bin_pts,finger_pts,margin=0,show_plot=False,viz_pub=None):
     margin=0.0
-
+    print 'rel_pose', rel_pose
+    print 'place_pose', place_pose
     #drop_pose is the first guess at the desired pose of the hand
     drop_pose = transformBack(rel_pose, place_pose)
     base_rot=tfm.quaternion_matrix(base_pose[3:7])
@@ -863,7 +864,7 @@ def get_picking_params_from_12(objInput):
 
     return graspPos, hand_X, hand_Y, hand_Z, grasp_width
     
-def drop_pose_transform(binId,rel_pose, BoxBody, place_pose, viz_pub):
+def drop_pose_transform(binId,rel_pose, BoxBody, place_pose, viz_pub, listener, br):
      #~define gripper home orientation
     base_pose = [0.,0.,0.,0.,1.,0.,0.] #~goarc hand pose
     matrix_base_pose= tfm.quaternion_matrix(base_pose[3:7])

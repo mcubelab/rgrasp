@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 
-from placing_planner17 import PlacingPlanner
+from placing_grasp import PlacingPlanner
 import random, subprocess, time, datetime, json, optparse, rospy, copy
 import tf
 from ik.visualize_helper import visualize_grasping_proposals
@@ -25,7 +25,7 @@ import goToHome
 from grasping17 import grasp
 
 from ik.roshelper import poseTransform, lookupTransform, lookupTransformList, coordinateFrameTransform, coordinateFrameTransformList, visualizeObjects, pose2list, pubFrame, ROS_Wait_For_Msg
-from ik.helper import get_obj_vol, rotmatZ, get_obj_dim, matrix_from_xyzquat, pauseFunc, getObjCOM, quat_from_matrix, in_or_out, moveGripper, fake_bbox_info, fake_bbox_info_1, Timer
+from ik.helper import get_obj_vol, rotmatZ, get_obj_dim, matrix_from_xyzquat, pauseFunc, getObjCOM, quat_from_matrix, in_or_out, moveGripper, fake_bbox_info, fake_bbox_info_1, Timer, vision_transform_precise_placing_with_visualization
 from visualization_msgs.msg import MarkerArray, Marker
 from apc.helper import UpdateCommand
 
@@ -298,7 +298,6 @@ class TaskPlanner(object):
         self.grasping_output = grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container, flag=0,
                                  withPause=self.withPause, viz_pub=self.viz_array_pub)
-        assert(False)
         self.execution_possible = self.grasping_output['execution_possible']
 
     def planned_place(self, fixed_container = None):
@@ -308,11 +307,13 @@ class TaskPlanner(object):
         if self.PlacingPlanner.visionType == 'real': #Update HM
             self.PlacingPlanner.update_real_height_map(fixed_container[0])
         drop_pose = self.PlacingPlanner.place_object_local_best(None, containers = fixed_container) #TODO_M : change placing to return drop_pose
+        print('drop_pose', drop_pose)
         # Place object using grasping
+        self.rel_pose, self.BoxBody=vision_transform_precise_placing_with_visualization(self.bbox_info,viz_pub=self.viz_array_pub,listener=self.listener)
         placing_output=grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
                              isExecute=self.isExecute, binId=fixed_container[0], flag=2, withPause=self.withPause,
                              rel_pose=self.rel_pose, BoxBody=self.BoxBody, place_pose=drop_pose,
-                             viz_pub=self.viz_array_pub, is_drop = False, update_command=update_command)
+                             viz_pub=self.viz_array_pub, is_drop = False)
                              
     def run_stowing(self):
         goToHome.goToARC(slowDown=self.goHomeSlow) # 1. Initialize robot state
@@ -333,30 +334,29 @@ class TaskPlanner(object):
             self.run_grasping(container = self.tote_ID) # 4. Run grasping
             
             if self.execution_possible != False: # 5. Check the weight
-                #TODO_M
-                ''' 
-                self.weight_info[self.tote_ID] = self.weightSensor.readWeightSensor(item_list = [], withSensor=self.withSensorWeight, binNum=self.tote_ID, givenWeights=-11)[self.tote_ID] 
-                self.weight_info[self.tote_ID]
+                
+                
+                self.weight_info[self.tote_ID] = self.weightSensor.readWeightSensor(item_list = [], withSensor=self.withSensorWeight, binNum=self.tote_ID, givenWeights=-11)
                 print('Detected weight:',  self.weight_info[self.tote_ID]['weights'])
                 
                 if self.weight_info[self.tote_ID]['weights'] > 10:
                     self.execution_possible = True
-                '''
+                
+                self.execution_possible = True  #TODO_M
                 if self.execution_possible == None:
                     self.execution_possible = False
                 else: # 6. Move to bin 1 for placing
                     grasp(objInput=[], listener=self.listener, br=self.br, isExecute=self.isExecute,
                       binId=1, flag=1, withPause=self.withPause, viz_pub=self.viz_array_pub)
-                
             if self.visionType == 'real': # 7. Update vision state of the tote
                 self.getPassiveVisionEstimate('update hm sg', '', self.tote_ID)
             
-            print('----------------------------------------------\nExecution_possible = ', self.execution_possible,'\n----------------------------------------------')
+            print('-----------------------------\n Execution_possible = {} \n-----------------------------'.format(self.execution_possible) )
             if self.execution_possible: # 8. Placing
                 self.fails_in_row = 0
                 self.bbox_info = fake_bbox_info_1(self.listener)#Give bounding box to the object 
                 self.bbox_info[7:10] = [self.max_dimension, self.max_dimension, self.max_dimension]
-                #self.planned_place() #TOdo_M
+                self.planned_place() #TOdo_M
             else: 
                 self.num_attempts_failed += 1                
                 self.fails_in_row += 1

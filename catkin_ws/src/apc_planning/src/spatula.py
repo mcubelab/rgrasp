@@ -55,4 +55,4 @@ def close():
             rospy.sleep(0.5)
     
 if __name__=='__main__':
-rospy.init_node("spatula_testing")
+  rospy.init_node("spatula_testing")

@@ -24,8 +24,6 @@ import helper
 
 #import moveit_commander
 import spatula
-import scorpion
-import suction
 
 from ctypes import cdll, c_void_p, c_int
 _dll = cdll.LoadLibrary(os.environ['CODE_BASE'] + '/catkin_ws/devel/lib/libikfast_python.so')

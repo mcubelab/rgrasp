@@ -17,8 +17,8 @@ import yaml
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.spatial import Delaunay
-from suction_projection import suction_projection_func
 from roshelper import ROS_Wait_For_Msg
+from suction_projection import suction_projection_func
 from sensor_msgs.msg import JointState
 #from ik.marker_helper import createArrowMarker, createCubeMarker2, createDeleteAllMarker
 

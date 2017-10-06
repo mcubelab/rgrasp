@@ -2,13 +2,11 @@
 import rospy
 from ik.helper import get_params_yaml, rotmatZ, mat2quat
 import sys
-from explainer import Explainer
 import numpy as np
 import math
 from math import ceil, floor
 import optparse
 import copy
-from item import Item
 import matplotlib.image as img
 from sensor_msgs.msg import Image as RosImage
 import matplotlib
@@ -19,7 +17,6 @@ import json
 from ik.helper import Timer
 try:
     import passive_vision.srv
-    import active_vision.srv
     import realsense_camera.srv
 except:
     print 'FAILED TO IMPORT VISION, WILL ONLY RUN IN VIRTUAL'
@@ -81,11 +78,6 @@ class PlacingPlanner(object):
         #Parameters
         self.pow_variance = 4.
         self.INF = 100000.
-        #Explainer
-        if e == None:
-            self.e = Explainer(verbosity=2)
-        else:
-            self.e = e
         
         #High_surface_objects
         self.list_high_surface = ['avery_binder','composition_book', 'table_cloth',

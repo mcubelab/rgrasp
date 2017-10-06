@@ -11,7 +11,7 @@ import tf
 from ik.ik import generatePlan, EvalPlan, WeightGuard, executePlanForward
 from ik.helper import get_joints, mat2quat, get_params_yaml, reference_frames, drop_pose_transform
 from collision_detection.collisionHelper import collisionFree
-import gripper,  scorpion
+import gripper
 import ik.helper
 
 def grasp(objInput,

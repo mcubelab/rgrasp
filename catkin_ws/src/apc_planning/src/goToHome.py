@@ -31,8 +31,6 @@ from ik.roshelper import coordinateFrameTransform
 import ik.helper #import pauseFunc, openGripper, closeGripper
 import threading
 import spatula
-import scorpion
-import suction
 from ik.roshelper import ROS_Wait_For_Msg
 import ik.ik
 #from ik.ik import IK, IKJoint, Plan, generatePlan, executePlanForward, setSpeedByName, setSpeed, ik.ik.setAcc

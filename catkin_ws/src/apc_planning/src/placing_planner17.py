@@ -386,7 +386,7 @@ class PlacingPlanner(object):
         
             
         obj.w_dim[0], obj.w_dim[1] = obj.w_dim[1], obj.w_dim[0] #Swap x,y dimensions
-        
+
         #Merge candidates
         C = []
         for c in cand:

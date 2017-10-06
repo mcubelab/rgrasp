@@ -25,7 +25,7 @@ import goToHome
 from grasping17 import grasp
 
 from ik.roshelper import poseTransform, lookupTransform, lookupTransformList, coordinateFrameTransform, coordinateFrameTransformList, visualizeObjects, pose2list, pubFrame, ROS_Wait_For_Msg
-from ik.helper import get_obj_vol, rotmatZ, get_obj_dim, matrix_from_xyzquat, pauseFunc, getObjCOM, quat_from_matrix, in_or_out, moveGripper, fake_bbox_info, fake_bbox_info_1, Timer, vision_transform_precise_placing_with_visualization
+from ik.helper import get_obj_vol, rotmatZ, get_obj_dim, matrix_from_xyzquat, pauseFunc, getObjCOM, quat_from_matrix, in_or_out, moveGripper, fake_bbox_info, fake_bbox_info_1, Timer, vision_transform_precise_placing_with_visualization, get_params_yaml
 from visualization_msgs.msg import MarkerArray, Marker
 from apc.helper import UpdateCommand
 
@@ -39,7 +39,7 @@ class TaskPlanner(object):
                                    'virtual' : self.callFakePassiveVision}
         # Class constants
         self.param_grasping = 12
-        self.infinite_looping = False
+        self.infinite_looping = True
         self.max_dimension = 0.1  #TODO M: adjust for realistic bbox size
         self.goHomeSlow = False
         self.tote_ID = 0 
@@ -301,13 +301,17 @@ class TaskPlanner(object):
         self.execution_possible = self.grasping_output['execution_possible']
 
     def planned_place(self, fixed_container = None):
-        fixed_container = [0] #TODO_M: planner only accepts bins 1,2,3 and names them as 0,1,2
+        fixed_container = [1-self.tote_ID] #TODO_M: planner only accepts bins 1,2,3 and names them as 0,1,2
         bbox_size = self.bbox_info[7:10] #TODO_M: give bbox_size to the planner!
         
         if self.PlacingPlanner.visionType == 'real': #Update HM
             self.PlacingPlanner.update_real_height_map(fixed_container[0])
         drop_pose = self.PlacingPlanner.place_object_local_best(None, containers = fixed_container) #TODO_M : change placing to return drop_pose
         print('drop_pose', drop_pose)
+        
+        #~frank hack: drop pose
+        drop_pose = get_params_yaml('bin'+str(fixed_container[0])+'_pose')
+        
         # Place object using grasping
         self.rel_pose, self.BoxBody=vision_transform_precise_placing_with_visualization(self.bbox_info,viz_pub=self.viz_array_pub,listener=self.listener)
         placing_output=grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
@@ -342,7 +346,6 @@ class TaskPlanner(object):
                 if self.weight_info[self.tote_ID]['weights'] > 10:
                     self.execution_possible = True
                 
-                self.execution_possible = True  #TODO_M
                 if self.execution_possible == None:
                     self.execution_possible = False
                 else: # 6. Move to bin 1 for placing
@@ -363,7 +366,7 @@ class TaskPlanner(object):
                 if self.grasp_point is not None: # 9. Add to bad grasp points
                     self.bad_grasping_points.append(self.grasp_point)
                     self.bad_grasping_times.append(time.time())
-            if self.fails_in_row > 9: # 10. Failed too many times, take action
+            if self.fails_in_row > 4: # 10. Failed too many times, take action
                 if self.infinite_looping:
                     print('The pick failed 10 times in a row, switching totes')
                     self.switch_tote()

@@ -5,7 +5,7 @@ from scipy.spatial import ConvexHull
 #########################################################
 # orion
 # Description:
-#~2017 suction projection
+#~2017 projection
 #
 #~Usage
 #~ suction_projection(bin_pts,hand_pts,target_wf,target_hf,theta,show_plot=False,margin=0)
@@ -30,10 +30,10 @@ from scipy.spatial import ConvexHull
 #########################################################
 
 
-def suction_projection_func(bin_pts,hand_pts,target_wf,target_hf,theta,show_plot=False,margin=0):
-    rot_theta=np.vstack([[np.cos(theta),-np.sin(theta)],[np.sin(theta),np.cos(theta)]])
-    hand_pts=np.transpose(np.dot(rot_theta,np.transpose(hand_pts)))
-    target_hf=np.transpose(np.dot(rot_theta,np.transpose(target_hf)))
+def projection_func(bin_pts,hand_pts,target_wf,target_hf,theta,show_plot=False,margin=0):
+    rot_theta = np.vstack([[np.cos(theta),-np.sin(theta)],[np.sin(theta),np.cos(theta)]])
+    hand_pts = np.transpose(np.dot(rot_theta,np.transpose(hand_pts)))
+    target_hf = np.transpose(np.dot(rot_theta,np.transpose(target_hf)))
     bin_hull = ConvexHull(bin_pts)
     bin_mean = np.array([np.mean(bin_pts[:,0]),np.mean(bin_pts[:,1])],ndmin=2)
     hand_mean = np.array([np.mean(hand_pts[:,0]),np.mean(hand_pts[:,1])],ndmin=2)

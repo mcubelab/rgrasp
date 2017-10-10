@@ -9,6 +9,7 @@ from scipy.spatial import ConvexHull
 import matplotlib.pylab as plt
 from suction_projection import suction_projection_func
 import goToHome 
+import collision_projection
 import ik.helper
 #from ik.helper import matrix_from_xyzquat, reference_frames, get_params_yaml
 import ik.ik
@@ -207,7 +208,7 @@ def collisionFree(objInput, binId, listener, br, finger_opening=0, safety_margin
     #~function properties
     show_plot = False
     margin=0
-    (shape_translation,dist_val_min,feasible_solution,nearest_point) = suction_projection_func(bin_pts,finger_pts,target_wf,target_hf,theta,show_plot,margin)
+    (shape_translation,dist_val_min,feasible_solution,nearest_point) = collision_projection.projection_func(bin_pts,finger_pts,target_wf,target_hf,theta,show_plot,margin)
     return shape_translation
         
 if __name__=='__main__':

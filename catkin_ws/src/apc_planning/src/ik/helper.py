@@ -742,11 +742,13 @@ def get_tcp_pose(listener, tcp_offset = 0.0):
     
 def get_joints():
     #~get robot joints (both virtual and real)
-    while True:
+    for i in range(10):
         APCrobotjoints = rospy.wait_for_message("/joint_states" , JointState, 3)
         if APCrobotjoints.name[0] == 'joint1':
             q0 = APCrobotjoints.position[0:6]
             break
+        else: #~frank hack: if robot is real but no connection, initialize robot pose to be goARC
+            q0 = [-0.0014,    0.2129,    0.3204,    0,    1.0374,   -0.0014]
     return q0
     
 def unwrap(angle):

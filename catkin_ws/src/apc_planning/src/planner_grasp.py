@@ -4,7 +4,7 @@
 from placing_grasp import PlacingPlanner
 import random, time, datetime, json, optparse, rospy, copy
 import tf
-from ik.visualize_helper import visualize_grasping_proposals
+import ik.visualize_helper
 import numpy as np
 import os
 from sensor_msgs.msg import Image as RosImage
@@ -24,7 +24,7 @@ from visualization_msgs.msg import MarkerArray
 
 
 class TaskPlanner(object):
-    def __init__(self, args):
+    def __init__(self, opt):
         
         
         self.passiveVisionTypes = {'real' : self.call_passive_vision,
@@ -288,6 +288,11 @@ class TaskPlanner(object):
         if self.visionType != 'real':
             self.callFakeGrasping(prob=0.8, container = container)
             return
+        
+        #~visualize grasp proposals
+        ik.visualize_helper.visualize_grasping_proposals(self.proposal_viz_array_pub, np.asarray([self.grasp_point]),  self.listener, self.br, True)
+        ik.visualize_helper.visualize_grasping_proposals(self.proposal_viz_array_pub, self.all_grasp_proposals,  self.listener, self.br)
+        
         self.grasping_output = grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container, flag=0,
                                  withPause=self.withPause, viz_pub=self.proposal_viz_array_pub)
@@ -369,6 +374,7 @@ class TaskPlanner(object):
         goToHome.goToARC(slowDown = self.goHomeSlow)
         print("Planner is done")
         
+
 if __name__ == '__main__':
     
     rospy.init_node('Planner')
@@ -387,5 +393,6 @@ if __name__ == '__main__':
         help='Whether to run passive vision experiments', default=False)
     (opt, args) = parser.parse_args()
 
-    p = TaskPlanner(args)
-    p.run_stowing()
+    p = TaskPlanner(opt)
+#    p.run_stowing()
+    p.visualize_grasp_proposals()

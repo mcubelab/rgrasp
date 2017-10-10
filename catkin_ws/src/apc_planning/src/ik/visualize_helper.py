@@ -2,22 +2,22 @@ import os, errno
 import numpy as np
 
 from visualization_msgs.msg import MarkerArray
-from marker_helper import createCubeMarker2
+from marker_helper import createCubeMarker2, createDeleteAllMarker
 from roshelper import pubFrame
 #from helper import reference_frames, get_params_yaml, quat_from_matrix
 import helper
 
-def visualize_grasping_proposals(proposal_viz_array_pub, proposals, is_selected , listener, br):
-
+def visualize_grasping_proposals(proposal_viz_array_pub, proposals, listener, br, is_selected = False):
 
     n = proposals.shape[0]
     if n>0 and proposals[0] is None:
         return
 
     color = (0, 1, 1, 1)  # rgba
-    if is_selected:
-        color = (1, 1, 0, 1)
     color_bar = (0.5, 0.5, 0.5, 0.5)  # rgba
+    if is_selected:
+        color = (0, 1, 0, 1)
+        color_bar = (0, .5, 0, .5)  # rgba
     scale = (0.001,0.02,0.2)
     markers_msg = MarkerArray()
     #if not is_selected:  # don't delete other candidate
@@ -40,14 +40,16 @@ def visualize_grasping_proposals(proposal_viz_array_pub, proposals, is_selected 
         rotmat = np.vstack((hand_X, hand_Y, hand_Z, np.zeros((1,3)))).T
         rotmat = np.vstack((rotmat, np.array([[0,0,0,1]])))
         quat = helper.quat_from_matrix(rotmat)
+        
+        m0 = createDeleteAllMarker('pick_proposals')
         m1 = createCubeMarker2(rgba = color, scale = scale, offset = tuple(graspPos+hand_X*grasp_width/2), orientation= tuple(quat), marker_id = i*3, ns = 'pick_proposals')
         m2 = createCubeMarker2(rgba = color, scale = scale, offset = tuple(graspPos-hand_X*grasp_width/2), orientation= tuple(quat), marker_id = i*3+1, ns = 'pick_proposals')
         m3 = createCubeMarker2(rgba = color_bar, scale = scale_bar, offset = tuple(graspPos), orientation= tuple(quat), marker_id = i*3+2, ns = 'pick_proposals')
 
+        markers_msg.markers.append(m0)
         markers_msg.markers.append(m1)
         markers_msg.markers.append(m2)
         markers_msg.markers.append(m3)
     for i in range(0,100):
         proposal_viz_array_pub.publish(markers_msg)
     #pauseFunc(True)
-

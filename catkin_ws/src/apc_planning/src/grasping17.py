@@ -9,7 +9,7 @@ import roslib; roslib.load_manifest("robot_comm")
 import tf
 #from collision_free_placing import  collision_free_placing
 from ik.ik import generatePlan, EvalPlan, WeightGuard, executePlanForward
-from ik.helper import get_joints, mat2quat, get_params_yaml, reference_frames, drop_pose_transform
+#from ik.helper import get_joints, mat2quat, get_params_yaml, reference_frames, drop_pose_transform
 from collision_detection.collisionHelper import collisionFree
 import gripper
 import ik.helper
@@ -86,10 +86,10 @@ def grasp(objInput,
     ########################
     ## Initialize values ##
     ########################
-    q_initial = get_joints()
-    bin_pose = get_params_yaml('bin'+str(binId)+'_pose')
+    q_initial = ik.helper.get_joints()
+    bin_pose = ik.helper.get_params_yaml('bin'+str(binId)+'_pose')
     spatula_tip_to_tcp_dist=rospy.get_param("/gripper/spatula_tip_to_tcp_dist")
-    delta_vision_pose = get_params_yaml('vision_pose_picking')
+    delta_vision_pose = ik.helper.get_params_yaml('vision_pose_picking')
     vision_pos=np.array(bin_pose[0:3])+np.array(delta_vision_pose[0:3])
     plans = []
     graspPose=[]
@@ -101,7 +101,11 @@ def grasp(objInput,
     collision = False
     final_object_pose=None
     
+    print '[test] 0'
+    
     ik.visualize_helper.visualize_grasping_proposals(viz_pub, np.asarray([objInput]), False,  listener, br)
+    
+    print '[test] 1'
     
     def compose_output():
         return {'collision':collision,'grasp_possible':grasp_possible,'plan_possible':plan_possible,'execution_possible':execution_possible,'gripper_opening':gripper_opening,'graspPose':graspPose,'gelsight_data':gelsight_data,'final_object_pose':final_object_pose}
@@ -123,7 +127,7 @@ def grasp(objInput,
     if flag==0: 
         
         #~Define reference frames
-        world_X, world_Y, world_Z, tote_X, tote_Y, tote_Z, tote_pose_pos = reference_frames(listener= listener, br=br)
+        world_X, world_Y, world_Z, tote_X, tote_Y, tote_Z, tote_pose_pos = ik.helper.reference_frames(listener= listener, br=br)
         
         #~get grasp pose and gripper opening from vision
         if len(objInput)==12:
@@ -136,7 +140,7 @@ def grasp(objInput,
         hand_orient_norm=hand_orient_norm.transpose()
     
         #~Grasp relocation script
-        hand_orient_quat=mat2quat(hand_orient_norm)
+        hand_orient_quat=ik.helper.mat2quat(hand_orient_norm)
         euler = tf.transformations.euler_from_quaternion(hand_orient_quat)
         theta = euler[2] - np.pi
         colFreePose = collisionFree(graspPos, binId=binId, listener=listener, br=br, finger_opening = grasp_width, safety_margin = 0.00, theta = theta)
@@ -257,10 +261,10 @@ def grasp(objInput,
     elif flag == 2:
         #if primitive called without placing arguments, go to center of bin
         if rel_pose==None:
-            drop_pose = get_params_yaml('bin'+str(binId)+'_pose')
+            drop_pose = ik.helper.get_params_yaml('bin'+str(binId)+'_pose')
             drop_pose[3:7] = gripperOriHome
         else:
-            drop_pose = drop_pose_transform(binId, rel_pose, BoxBody, place_pose, viz_pub, listener, br)
+            drop_pose = ik.helper.drop_pose_transform(binId, rel_pose, BoxBody, place_pose, viz_pub, listener, br)
            
         #~ Adjust height according to weigth
         if is_drop:
@@ -359,9 +363,9 @@ def unit_test(listener, br):
     
     #~define obj poses 
     objInput = []
-    objInput.append(get_params_yaml('bin0_pose'))
-    objInput.append(get_params_yaml('bin1_pose'))
-    objInput.append(get_params_yaml('bin2_pose'))
+    objInput.append(ik.helper.get_params_yaml('bin0_pose'))
+    objInput.append(ik.helper.get_params_yaml('bin1_pose'))
+    objInput.append(ik.helper.get_params_yaml('bin2_pose'))
 #    
     #~unit test for flags 1 and 2 in bins 0 and 1 (with weight guard)
     flag_list = [0,1,2]

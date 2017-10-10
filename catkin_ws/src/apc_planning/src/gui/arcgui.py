@@ -21,6 +21,11 @@ def goarc():
     
 def testcam():
     call('rosrun realsense_camera testcam.py')
+    
+def reset_gripper():
+    gripper.open()
+    spatula.open()
+    
 
 B1 = Tkinter.Button(top, text = 'gripper open', command = gripper.open)
 B1.pack()
@@ -34,6 +39,8 @@ B5 = Tkinter.Button(top, text = 'goarc', command = goarc)
 B5.pack()
 B6 = Tkinter.Button(top, text = 'testcam', command = testcam)
 B6.pack()
+B7 = Tkinter.Button(top, text = 'reset gripper', command=reset_gripper)
+B7.pack()
 
 top.mainloop()
 #rospy.spin()

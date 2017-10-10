@@ -16,24 +16,9 @@
 # location of the home, xyz in world coordinate frame and orientation, this
 # is subject to change
 
-import geometry_msgs.msg
-import std_msgs
-import json
-import tf
 import rospy
-import pdb
-import rospy
-import numpy as np
-import math
-import tf.transformations as tfm
-import gripper
-from ik.roshelper import coordinateFrameTransform
-import ik.helper #import pauseFunc, openGripper, closeGripper
-import threading
-import spatula
-from ik.roshelper import ROS_Wait_For_Msg
+import ik.helper
 import ik.ik
-#from ik.ik import IK, IKJoint, Plan, generatePlan, executePlanForward, setSpeedByName, setSpeed, ik.ik.setAcc
 
 def goToHome(isExecute = True, withPause = False, slowDown = False):
 
@@ -41,7 +26,7 @@ def goToHome(isExecute = True, withPause = False, slowDown = False):
     if slowDown:
         ik.ik.setSpeedByName(speedName = 'fastest')
     else:
-        setSpeed(1200,600)
+        ik.ik.setSpeed(1200,600)
     
     
     home_joint_pose = [-0.005744439031, -0.6879946105, 0.5861570764, 0.09693312715, 0.1061231983, -0.1045031463]
@@ -75,40 +60,6 @@ def goToARC(isExecute = True, withPause = False, slowDown = False):
         plan.execute()
     
     return True
-    
-#~ def goToHomeAndCalibrate():
-    #~ thread = threading.Thread(target=spatula.home)
-    #~ thread.start()
-    #~ goToHome(isExecute = True, withPause = False, slowDown = False)
-    #~ thread.join()
-
-def get_safe_plan():
-    q0 = GetJoints('/joint_states')
-    qf_list = list(q0)
-    qf_list[5] = 0
-    qf = tuple(qf_list)
-    safe_move = ik.ik.IKJoint(target_joint_pos=qf, q0=q0)
-    safe_plan = safe_move.plan()
-    safe_plan.setSpeedByName('gripperRotation')
-    return safe_plan
-
-def prepGripperPicking():
-    print '[prepGripperPicking]'
-    safe_plan = get_safe_plan()
-    safe_plan.execute() # Move safe pos for moving scorpion
-    spatula.open() #~open spatula
-    gripper.close() #~close gripper
-    scorpion.back() #~open scorpion
-    safe_plan.executeBackward() # Move back to original position
-    
-def prepGripperSuction():
-    print '[prepGripperSuction]'
-    safe_plan = get_safe_plan()
-    safe_plan.execute() # Move safe pos for moving scorpion
-    spatula.open() #~open spatula
-    gripper.close() #~close gripper
-    scorpion.fwd() #~open scorpion
-    safe_plan.executeBackward() # Move back to original position
 
 if __name__=="__main__":
     ## initialize listener rospy

@@ -13,6 +13,8 @@ from ik.helper import get_joints, mat2quat, get_params_yaml, reference_frames, d
 from collision_detection.collisionHelper import collisionFree
 import gripper
 import ik.helper
+import ik.visualize_helper
+from visualization_msgs.msg import MarkerArray
 
 def grasp(objInput,
           listener,
@@ -99,6 +101,8 @@ def grasp(objInput,
     collision = False
     final_object_pose=None
     
+    ik.visualize_helper.visualize_grasping_proposals(viz_pub, np.asarray([objInput]), False,  listener, br)
+    
     def compose_output():
         return {'collision':collision,'grasp_possible':grasp_possible,'plan_possible':plan_possible,'execution_possible':execution_possible,'gripper_opening':gripper_opening,'graspPose':graspPose,'gelsight_data':gelsight_data,'final_object_pose':final_object_pose}
 
@@ -182,7 +186,7 @@ def grasp(objInput,
         plans.append(sleep_plan)
         
          #~6. perform guarded move down
-        grasp_targetPosition[2] = bin_pose[2] -  rospy.get_param('/bin'+str(binId)+'/height') + 0.000 #~frank hack for safety
+        grasp_targetPosition[2] = bin_pose[2] -  rospy.get_param('/tote/height') + 0.000 #~frank hack for safety
         if binId==0:
             grasp_targetPosition[2] = grasp_targetPosition[2] +0.005
 
@@ -264,7 +268,7 @@ def grasp(objInput,
         else:
             drop_offset = 0.002
         #~set drop pose target z position to be bottom of bin
-        drop_pose[2] = bin_pose[2] - rospy.get_param('bin'+str(binId)+'/height') + drop_offset
+        drop_pose[2] = bin_pose[2] - rospy.get_param('tote/height') + drop_offset
         
         #~Predrop: go to top middle bin surface fast without guarded move
         predrop_pos=np.array(drop_pose[0:3])
@@ -346,6 +350,7 @@ def unit_test(listener, br):
     # Initialize
     isExecute = True
     rospy.sleep(0.5)
+    viz_pub = rospy.Publisher('/proposal_visualization_marker_array', MarkerArray, queue_size=10)
 #    data = posesrv('','')
     #~ goToHome.prepGripperPicking()
 
@@ -378,26 +383,16 @@ def unit_test(listener, br):
         for flag in flag_list:
             if flag==2:
                 bin_list_drop = [binId] 
-                for bin_drop_id in  bin_list_drop:
-                    (output_dict)=grasp(objInput=objInput[binId],
-                                        listener=listener,
-                                        br=br,
-                                        isExecute=isExecute,
-                                        objId=TARGET,
-                                        binId=bin_drop_id,
-                                        flag=flag,
-                                        withPause = False)
-                    gripper.close()
-            else:
-                #~call pick function without xtra placing arguments (flag:0,1)
-                (output_dict)=grasp(objInput[binId],
+                (output_dict)=grasp(objInput=objInput[binId],
                                     listener=listener,
                                     br=br,
                                     isExecute=isExecute,
                                     objId=TARGET,
                                     binId=binId,
                                     flag=flag,
-                                    withPause = False)
+                                    withPause = False,
+                                    viz_pub = viz_pub)
+                gripper.close()
 
 # To test the function
 if __name__=='__main__':

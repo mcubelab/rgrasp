@@ -1,7 +1,6 @@
 #!/usr/bin/python
 import rospy
 from ik.helper import get_params_yaml, rotmatZ, mat2quat
-import sys
 import numpy as np
 import math
 from math import ceil, floor
@@ -10,14 +9,11 @@ import copy
 import matplotlib.image as img
 from sensor_msgs.msg import Image as RosImage
 import matplotlib
-from PIL import Image
 import os
 import time
-import json
 from ik.helper import Timer
 try:
     import passive_vision.srv
-    import realsense_camera.srv
 except:
     print 'FAILED TO IMPORT VISION, WILL ONLY RUN IN VIRTUAL'
 
@@ -41,8 +37,8 @@ class PlacingPlanner(object):
         # Two of the bins have half the heigh
         self.h[1]/=2
         self.h[2]/=2
-        self.h[3] = rospy.get_param("/bin4/height"); self.h[4] = rospy.get_param("/bin5/height"); self.h[5] = rospy.get_param("/bin6/height")
-        self.h[6] = rospy.get_param("/bin7/height"); self.h[7] = rospy.get_param("/bin8/height")
+        self.h[3] = rospy.get_param("/tote/height"); self.h[4] = rospy.get_param("/tote/height"); self.h[5] = rospy.get_param("/tote/height")
+        self.h[6] = rospy.get_param("/tote/height"); self.h[7] = rospy.get_param("/tote/height")
         self.h_max = 0
         self.d = [[self.tote_length, self.tote_width] for _ in range(self.num_bins)]
         self.discDim = [[int(math.floor(x[0]/self.disc)), int(math.floor(x[1]/self.disc))] for x in self.d] #discretized dimensions of the HeightMap

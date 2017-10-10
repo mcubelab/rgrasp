@@ -1,0 +1,350 @@
+Script started on Fri 06 Oct 2017 04:46:33 PM EDT
+> /home/mcube/rgrasp/catkin_ws/src/apc_planning/src/planner_grasp.py(4)<module>()
+-> from placing_grasp import PlacingPlanner
+(Pdb) c
+[Robot] setAcc(4.0, 4.0)
+[Robot] setSpeed(1200.0, 600.0)
+[goToARC]
+("getPassiveVisionEstimate 'update hm sg', '', ", 0)
+("getPassiveVisionEstimate 'update hm', '', ", 1)
+-----------------------------
+       RUNNING GRASPING      
+-----------------------------
+[WS] Calibrating . . . . complete!
+('Calling passive vision system for grasp proposals. The bin considered is: ', 0)
+	[getPassiveVisionEstimate request hm sg 0] Elapsed: 4.29137897491
+Received grasp proposals.
+('There are ', 0, ' bad_grasping_points ', ': ', [])
+bad_points_grasping:  []
+[INFO] [1507322801.368326]: [Picking] Starting primitive with flag: 0
+[INFO] [1507322801.368675]: [Picking] objInput [0.96151214838027954, -0.40685787796974182, 0.014405237510800362, 0.0, 0.0, -1.0, 0.15000000596046448, 0.10000000149011612, -0.70710676908493042, -0.70710676908493042, 0.0, 0.79714286327362061]
+[INFO] [1507322801.368906]: [Picking] objId expo_eraser
+[INFO] [1507322801.369081]: [Picking] flag 0
+[INFO] [1507322801.369270]: [Picking] withPause False
+[INFO] [1507322801.369443]: [Picking] rel_pose None
+[INFO] [1507322801.369594]: [Picking] BoxBody None
+[INFO] [1507322801.369717]: [Picking] place_pose None
+[INFO] [1507322801.437501]: [Generate Plan] Build plan go_safe_bin
+[INFO] [1507322801.438026]: [Generate Plan] Target position [ 0.96151215 -0.40685788  0.205     ]
+[INFO] [1507322801.438969]: [Generate Plan] Target orientation [-0.38268343  0.92387953  0.          0.        ]
+[INFO] [1507322801.439728]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322801.439941]: [Generate Plan] Initial joint state (-0.0013962634015954668, 0.21293016874330867, 0.3204424506661596, 0.0, 1.0374237073854318, -0.0013962634015954668)
+[INFO] [1507322801.440128]: [Generate Plan] Computed joint state [-0.400297356238744, 0.4615883289255469, 0.16720872190325797, 0.0, 0.9419992759660917, -1.185695512547229]
+[INFO] [1507322801.440321]: [Generate Plan] Execution possible True
+[INFO] [1507322801.440956]: [Generate Plan] Build plan go_top_bin
+[INFO] [1507322801.441315]: [Generate Plan] Target position [ 0.96151215 -0.40685788  0.105     ]
+[INFO] [1507322801.442222]: [Generate Plan] Target orientation [-0.38268343  0.92387953  0.          0.        ]
+[INFO] [1507322801.443112]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322801.443334]: [Generate Plan] Initial joint state [-0.400297356238744, 0.4615883289255469, 0.16720872190325797, 0.0, 0.9419992759660917, -1.185695512547229]
+[INFO] [1507322801.443547]: [Generate Plan] Computed joint state [-0.400297356238744, 0.5333995243015801, 0.23088270039475578, 0.0, 0.8065141020985608, -1.185695512547229]
+[INFO] [1507322801.443738]: [Generate Plan] Execution possible True
+[INFO] [1507322801.444179]: [Picking] Grasp Target [ 0.96151215 -0.40685788 -0.13559477]
+[WeightGuard] Weight guard initiated
+[INFO] [1507322801.462268]: [Generate Plan] Build plan guarded_pick
+[INFO] [1507322801.462926]: [Generate Plan] Target position [ 0.96151215 -0.40685788 -0.145     ]
+[INFO] [1507322801.464043]: [Generate Plan] Target orientation [-0.38268343  0.92387953  0.          0.        ]
+[INFO] [1507322801.465019]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322801.465283]: [Generate Plan] Initial joint state [-0.400297356238744, 0.5333995243015801, 0.23088270039475578, 0.0, 0.8065141020985608, -1.185695512547229]
+[INFO] [1507322801.465487]: [Generate Plan] Computed joint state [-0.400297356238744, 0.7779390735340149, 0.29400834302531675, 0.0, 0.49884891023556505, -1.185695512547229]
+[INFO] [1507322801.465641]: [Generate Plan] Execution possible True
+[INFO] [1507322801.466230]: [Generate Plan] Build plan go_to_active_vision
+[INFO] [1507322801.466575]: [Generate Plan] Target position [ 0.89737    -0.391       0.17786528]
+[INFO] [1507322801.467208]: [Generate Plan] Target orientation [0.383, -0.924, 0.0, 0.0]
+[INFO] [1507322801.467383]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322801.467539]: [Generate Plan] Initial joint state [-0.400297356238744, 0.7779390735340149, 0.29400834302531675, 0.0, 0.49884891023556505, -1.185695512547229]
+[INFO] [1507322801.467690]: [Generate Plan] Computed joint state [-0.4109135067836617, 0.3981670888623696, 0.3106649642991966, 0.0, 0.8619642736333298, -1.1968042945571962]
+[INFO] [1507322801.467878]: [Generate Plan] Execution possible True
+('Best grasp point:', [0.96151214838027954, -0.40685787796974182, 0.014405237510800362, 0.0, 0.0, -1.0, 0.15000000596046448, 0.10000000149011612, -0.70710676908493042, -0.70710676908493042, 0.0, 0.79714286327362061], ' with score: ', 0.79714286327362061, 'in bin: ', 0)
+[INFO] [1507322801.468284]: [Picking] Starting primitive with flag: 0
+[INFO] [1507322801.468449]: [Picking] objInput [0.96151214838027954, -0.40685787796974182, 0.014405237510800362, 0.0, 0.0, -1.0, 0.15000000596046448, 0.10000000149011612, -0.70710676908493042, -0.70710676908493042, 0.0, 0.79714286327362061]
+[INFO] [1507322801.468643]: [Picking] objId expo_eraser
+[INFO] [1507322801.468783]: [Picking] flag 0
+[INFO] [1507322801.468929]: [Picking] withPause False
+[INFO] [1507322801.469104]: [Picking] rel_pose None
+[INFO] [1507322801.469276]: [Picking] BoxBody None
+[INFO] [1507322801.469412]: [Picking] place_pose None
+[INFO] [1507322801.547084]: [Generate Plan] Build plan go_safe_bin
+[INFO] [1507322801.547455]: [Generate Plan] Target position [ 0.96151215 -0.40685788  0.205     ]
+[INFO] [1507322801.548200]: [Generate Plan] Target orientation [-0.38268343  0.92387953  0.          0.        ]
+[INFO] [1507322801.548781]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322801.548933]: [Generate Plan] Initial joint state (-0.0013962634015954668, 0.21293016874330867, 0.3204424506661596, 0.0, 1.0374237073854318, -0.0013962634015954668)
+[INFO] [1507322801.549080]: [Generate Plan] Computed joint state [-0.400297356238744, 0.4615883289255469, 0.16720872190325797, 0.0, 0.9419992759660917, -1.185695512547229]
+[INFO] [1507322801.549221]: [Generate Plan] Execution possible True
+[INFO] [1507322801.549892]: [Generate Plan] Build plan go_top_bin
+[INFO] [1507322801.550208]: [Generate Plan] Target position [ 0.96151215 -0.40685788  0.105     ]
+[INFO] [1507322801.550970]: [Generate Plan] Target orientation [-0.38268343  0.92387953  0.          0.        ]
+[INFO] [1507322801.551568]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322801.551817]: [Generate Plan] Initial joint state [-0.400297356238744, 0.4615883289255469, 0.16720872190325797, 0.0, 0.9419992759660917, -1.185695512547229]
+[INFO] [1507322801.552047]: [Generate Plan] Computed joint state [-0.400297356238744, 0.5333995243015801, 0.23088270039475578, 0.0, 0.8065141020985608, -1.185695512547229]
+[INFO] [1507322801.552253]: [Generate Plan] Execution possible True
+[INFO] [1507322801.552573]: [Picking] Grasp Target [ 0.96151215 -0.40685788 -0.13559477]
+[WeightGuard] Weight guard initiated
+[INFO] [1507322801.567533]: [Generate Plan] Build plan guarded_pick
+[INFO] [1507322801.568133]: [Generate Plan] Target position [ 0.96151215 -0.40685788 -0.145     ]
+[INFO] [1507322801.569039]: [Generate Plan] Target orientation [-0.38268343  0.92387953  0.          0.        ]
+[INFO] [1507322801.569652]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322801.569805]: [Generate Plan] Initial joint state [-0.400297356238744, 0.5333995243015801, 0.23088270039475578, 0.0, 0.8065141020985608, -1.185695512547229]
+[INFO] [1507322801.569951]: [Generate Plan] Computed joint state [-0.400297356238744, 0.7779390735340149, 0.29400834302531675, 0.0, 0.49884891023556505, -1.185695512547229]
+[INFO] [1507322801.570089]: [Generate Plan] Execution possible True
+[INFO] [1507322801.570643]: [Generate Plan] Build plan go_to_active_vision
+[INFO] [1507322801.570977]: [Generate Plan] Target position [ 0.89737    -0.391       0.17786528]
+[INFO] [1507322801.571874]: [Generate Plan] Target orientation [0.383, -0.924, 0.0, 0.0]
+[INFO] [1507322801.572111]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322801.572304]: [Generate Plan] Initial joint state [-0.400297356238744, 0.7779390735340149, 0.29400834302531675, 0.0, 0.49884891023556505, -1.185695512547229]
+[INFO] [1507322801.572467]: [Generate Plan] Computed joint state [-0.4109135067836617, 0.3981670888623696, 0.3106649642991966, 0.0, 0.8619642736333298, -1.1968042945571962]
+[INFO] [1507322801.572613]: [Generate Plan] Execution possible True
+[Robot] setSpeed(1200.0, 120.0)
+[Robot] setSpeed(1200.0, 120.0)
+[Gripper] move, return: error: 0
+[Spatula] open
+[Robot] setSpeed(40.0, 40.0)
+[Robot] setZone(1)
+[Weight Guard] Read initial value:  [None, 4464.78089868, 3301.187691368]
+[Guarded Move] Contact detected!
+[Robot] setZone(1)
+[Spatula] close
+gripper_q0 [ 0.05000226  0.05000226]
+100.004524231
+[Gripper] grasp 98, return: error: 0
+[Robot] setSpeed(400.0, 70.0)
+gripper_q0 [ 0.00031979  0.00031979]
+[INFO] [1507322810.997094]: [Picking] ***************
+[INFO] [1507322810.997302]: [Picking] Pick Inconclusive (Gripper Opening Test)
+[INFO] [1507322810.997561]: [Picking] ***************
+[WS] No change detected
+[WS] Measured weight is  -2.53 g in bin 0
+[WS] no_item -   0.0g - 100.0% /
+('Detected weight:', -2.5295313866663491)
+-----------------------------
+ Execution_possible = False 
+-----------------------------
+-----------------------------
+       RUNNING GRASPING      
+-----------------------------
+[WS] Calibrating . . . . complete!
+('There are ', 1, ' bad_grasping_points ', ': ', [[0.96151214838027954, -0.40685787796974182, 0.014405237510800362, 0.0, 0.0, -1.0, 0.15000000596046448, 0.10000000149011612, -0.70710676908493042, -0.70710676908493042, 0.0, 0.79714286327362061]])
+bad_points_grasping:  [[0.96151214838027954, -0.40685787796974182, 0.014405237510800362, 0.0, 0.0, -1.0, 0.15000000596046448, 0.10000000149011612, -0.70710676908493042, -0.70710676908493042, 0.0, 0.79714286327362061]]
+[INFO] [1507322811.000185]: [Picking] Starting primitive with flag: 0
+[INFO] [1507322811.000429]: [Picking] objInput [0.90151214599609375, -0.3668578565120697, 0.015773268416523933, 0.0, 0.0, -1.0, 0.15000000596046448, 0.10000000149011612, -0.70710676908493042, -0.70710676908493042, 0.0, 0.78285712003707886]
+[INFO] [1507322811.000664]: [Picking] objId expo_eraser
+[INFO] [1507322811.000845]: [Picking] flag 0
+[INFO] [1507322811.001020]: [Picking] withPause False
+[INFO] [1507322811.001200]: [Picking] rel_pose None
+[INFO] [1507322811.001370]: [Picking] BoxBody None
+[INFO] [1507322811.001543]: [Picking] place_pose None
+[INFO] [1507322811.035522]: [Generate Plan] Build plan go_safe_bin
+[INFO] [1507322811.036023]: [Generate Plan] Target position [ 0.90151215 -0.36685786  0.205     ]
+[INFO] [1507322811.036955]: [Generate Plan] Target orientation [-0.38268343  0.92387953  0.          0.        ]
+[INFO] [1507322811.037706]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322811.037911]: [Generate Plan] Initial joint state (-0.41085050591946604, 0.39810960237990745, 0.31066860685499137, 0.0, 0.8620181175600012, -1.1967722680925144)
+[INFO] [1507322811.038128]: [Generate Plan] Computed joint state [-0.38647145452854076, 0.3717543610609628, 0.3012314858156269, 0.0, 0.897810479918307, -1.1718696108370257]
+[INFO] [1507322811.038320]: [Generate Plan] Execution possible True
+[INFO] [1507322811.038985]: [Generate Plan] Build plan go_top_bin
+[INFO] [1507322811.039363]: [Generate Plan] Target position [ 0.90151215 -0.36685786  0.105     ]
+[INFO] [1507322811.040269]: [Generate Plan] Target orientation [-0.38268343  0.92387953  0.          0.        ]
+[INFO] [1507322811.041114]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322811.041427]: [Generate Plan] Initial joint state [-0.38647145452854076, 0.3717543610609628, 0.3012314858156269, 0.0, 0.897810479918307, -1.1718696108370257]
+[INFO] [1507322811.041612]: [Generate Plan] Computed joint state [-0.38647145452854076, 0.4504356241321319, 0.3657371638902814, 0.0, 0.7546235387724832, -1.171869610837026]
+[INFO] [1507322811.041782]: [Generate Plan] Execution possible True
+[INFO] [1507322811.042143]: [Picking] Grasp Target [ 0.90151215 -0.36685786 -0.13422674]
+[WeightGuard] Weight guard initiated
+[INFO] [1507322811.056567]: [Generate Plan] Build plan guarded_pick
+[INFO] [1507322811.056966]: [Generate Plan] Target position [ 0.90151215 -0.36685786 -0.145     ]
+[INFO] [1507322811.057796]: [Generate Plan] Target orientation [-0.38268343  0.92387953  0.          0.        ]
+[INFO] [1507322811.058546]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322811.058745]: [Generate Plan] Initial joint state [-0.38647145452854076, 0.4504356241321319, 0.3657371638902814, 0.0, 0.7546235387724832, -1.171869610837026]
+[INFO] [1507322811.058949]: [Generate Plan] Computed joint state [-0.38647145452854076, 0.7171589573729316, 0.43026173084302666, 0.0, 0.42337563857893856, -1.1718696108370257]
+[INFO] [1507322811.059105]: [Generate Plan] Execution possible True
+[INFO] [1507322811.059789]: [Generate Plan] Build plan go_to_active_vision
+[INFO] [1507322811.060145]: [Generate Plan] Target position [ 0.89737    -0.391       0.17786528]
+[INFO] [1507322811.060732]: [Generate Plan] Target orientation [0.383, -0.924, 0.0, 0.0]
+[INFO] [1507322811.060887]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322811.061033]: [Generate Plan] Initial joint state [-0.38647145452854076, 0.7171589573729316, 0.43026173084302666, 0.0, 0.42337563857893856, -1.1718696108370257]
+[INFO] [1507322811.061207]: [Generate Plan] Computed joint state [-0.4109135067836617, 0.3981670888623696, 0.3106649642991966, 0.0, 0.8619642736333298, -1.1968042945571962]
+[INFO] [1507322811.061362]: [Generate Plan] Execution possible True
+('Best grasp point:', [0.90151214599609375, -0.3668578565120697, 0.015773268416523933, 0.0, 0.0, -1.0, 0.15000000596046448, 0.10000000149011612, -0.70710676908493042, -0.70710676908493042, 0.0, 0.78285712003707886], ' with score: ', 0.78285712003707886, 'in bin: ', 0)
+[INFO] [1507322811.061663]: [Picking] Starting primitive with flag: 0
+[INFO] [1507322811.061856]: [Picking] objInput [0.90151214599609375, -0.3668578565120697, 0.015773268416523933, 0.0, 0.0, -1.0, 0.15000000596046448, 0.10000000149011612, -0.70710676908493042, -0.70710676908493042, 0.0, 0.78285712003707886]
+[INFO] [1507322811.062071]: [Picking] objId expo_eraser
+[INFO] [1507322811.062240]: [Picking] flag 0
+[INFO] [1507322811.062421]: [Picking] withPause False
+[INFO] [1507322811.062629]: [Picking] rel_pose None
+[INFO] [1507322811.062803]: [Picking] BoxBody None
+[INFO] [1507322811.062973]: [Picking] place_pose None
+[INFO] [1507322811.110253]: [Generate Plan] Build plan go_safe_bin
+[INFO] [1507322811.110712]: [Generate Plan] Target position [ 0.90151215 -0.36685786  0.205     ]
+[INFO] [1507322811.111561]: [Generate Plan] Target orientation [-0.38268343  0.92387953  0.          0.        ]
+[INFO] [1507322811.112297]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322811.112483]: [Generate Plan] Initial joint state (-0.41085050591946604, 0.39810960237990745, 0.31066860685499137, 0.0, 0.8620181175600012, -1.1967722680925144)
+[INFO] [1507322811.112678]: [Generate Plan] Computed joint state [-0.38647145452854076, 0.3717543610609628, 0.3012314858156269, 0.0, 0.897810479918307, -1.1718696108370257]
+[INFO] [1507322811.112895]: [Generate Plan] Execution possible True
+[INFO] [1507322811.113501]: [Generate Plan] Build plan go_top_bin
+[INFO] [1507322811.113849]: [Generate Plan] Target position [ 0.90151215 -0.36685786  0.105     ]
+[INFO] [1507322811.114720]: [Generate Plan] Target orientation [-0.38268343  0.92387953  0.          0.        ]
+[INFO] [1507322811.115610]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322811.115829]: [Generate Plan] Initial joint state [-0.38647145452854076, 0.3717543610609628, 0.3012314858156269, 0.0, 0.897810479918307, -1.1718696108370257]
+[INFO] [1507322811.116012]: [Generate Plan] Computed joint state [-0.38647145452854076, 0.4504356241321319, 0.3657371638902814, 0.0, 0.7546235387724832, -1.171869610837026]
+[INFO] [1507322811.116180]: [Generate Plan] Execution possible True
+[INFO] [1507322811.116536]: [Picking] Grasp Target [ 0.90151215 -0.36685786 -0.13422674]
+[WeightGuard] Weight guard initiated
+[INFO] [1507322811.131845]: [Generate Plan] Build plan guarded_pick
+[INFO] [1507322811.132586]: [Generate Plan] Target position [ 0.90151215 -0.36685786 -0.145     ]
+[INFO] [1507322811.133869]: [Generate Plan] Target orientation [-0.38268343  0.92387953  0.          0.        ]
+[INFO] [1507322811.134801]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322811.135316]: [Generate Plan] Initial joint state [-0.38647145452854076, 0.4504356241321319, 0.3657371638902814, 0.0, 0.7546235387724832, -1.171869610837026]
+[INFO] [1507322811.135684]: [Generate Plan] Computed joint state [-0.38647145452854076, 0.7171589573729316, 0.43026173084302666, 0.0, 0.42337563857893856, -1.1718696108370257]
+[INFO] [1507322811.136256]: [Generate Plan] Execution possible True
+[INFO] [1507322811.137842]: [Generate Plan] Build plan go_to_active_vision
+[INFO] [1507322811.138436]: [Generate Plan] Target position [ 0.89737    -0.391       0.17786528]
+[INFO] [1507322811.139117]: [Generate Plan] Target orientation [0.383, -0.924, 0.0, 0.0]
+[INFO] [1507322811.139300]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322811.139469]: [Generate Plan] Initial joint state [-0.38647145452854076, 0.7171589573729316, 0.43026173084302666, 0.0, 0.42337563857893856, -1.1718696108370257]
+[INFO] [1507322811.139630]: [Generate Plan] Computed joint state [-0.4109135067836617, 0.3981670888623696, 0.3106649642991966, 0.0, 0.8619642736333298, -1.1968042945571962]
+[INFO] [1507322811.139784]: [Generate Plan] Execution possible True
+[Robot] setSpeed(1200.0, 120.0)
+[Robot] setSpeed(1200.0, 120.0)
+[Gripper] move, return: error: 0
+[Spatula] open
+[Robot] setSpeed(40.0, 40.0)
+[Robot] setZone(1)
+[Weight Guard] Read initial value:  [None, 4460.230010144, 3297.8927990800003]
+[Robot] setZone(1)
+[Spatula] close
+gripper_q0 [ 0.05000008  0.05000008]
+100.000167847
+[Gripper] grasp 98, return: error: 0
+[Robot] setSpeed(400.0, 70.0)
+^Zcgripper_q0 [ 0.00031952  0.00031952]
+[INFO] [1507322823.716029]: [Picking] ***************
+[INFO] [1507322823.716273]: [Picking] Pick Inconclusive (Gripper Opening Test)
+[INFO] [1507322823.716425]: [Picking] ***************
+[WS] Measured weight is   1.43 g in bin 0
+[WS] no_item -   0.0g - 100.0% /
+('Detected weight:', 1.42941958933352)
+-----------------------------
+ Execution_possible = False 
+-----------------------------
+-----------------------------
+       RUNNING GRASPING      
+-----------------------------
+[WS] Calibrating . . . . complete!
+('There are ', 2, ' bad_grasping_points ', ': ', [[0.96151214838027954, -0.40685787796974182, 0.014405237510800362, 0.0, 0.0, -1.0, 0.15000000596046448, 0.10000000149011612, -0.70710676908493042, -0.70710676908493042, 0.0, 0.79714286327362061], [0.90151214599609375, -0.3668578565120697, 0.015773268416523933, 0.0, 0.0, -1.0, 0.15000000596046448, 0.10000000149011612, -0.70710676908493042, -0.70710676908493042, 0.0, 0.78285712003707886]])
+bad_points_grasping:  [[0.96151214838027954, -0.40685787796974182, 0.014405237510800362, 0.0, 0.0, -1.0, 0.15000000596046448, 0.10000000149011612, -0.70710676908493042, -0.70710676908493042, 0.0, 0.79714286327362061], [0.90151214599609375, -0.3668578565120697, 0.015773268416523933, 0.0, 0.0, -1.0, 0.15000000596046448, 0.10000000149011612, -0.70710676908493042, -0.70710676908493042, 0.0, 0.78285712003707886]]
+[INFO] [1507322823.719672]: [Picking] Starting primitive with flag: 0
+[INFO] [1507322823.719924]: [Picking] objInput [0.84151214361190796, -0.32685786485671997, 0.014931906014680862, 0.0, 0.0, -1.0, 0.15000000596046448, 0.10000000149011612, -0.70710676908493042, -0.70710676908493042, 0.0, 0.77714288234710693]
+[INFO] [1507322823.720116]: [Picking] objId expo_eraser
+[INFO] [1507322823.720278]: [Picking] flag 0
+[INFO] [1507322823.720421]: [Picking] withPause False
+[INFO] [1507322823.720553]: [Picking] rel_pose None
+[INFO] [1507322823.720677]: [Picking] BoxBody None
+[INFO] [1507322823.720804]: [Picking] place_pose None
+[INFO] [1507322823.812077]: [Generate Plan] Build plan go_safe_bin
+[INFO] [1507322823.812606]: [Generate Plan] Target position [ 0.84151214 -0.32731728  0.205     ]
+[INFO] [1507322823.813627]: [Generate Plan] Target orientation [-0.38268343  0.92387953  0.          0.        ]
+[INFO] [1507322823.814489]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322823.815090]: [Generate Plan] Initial joint state (-0.41085050591946604, 0.39810960237990745, 0.31066860685499137, 0.0, 0.8620181175600012, -1.1967722680925144)
+[INFO] [1507322823.815335]: [Generate Plan] Computed joint state [-0.3709558609431592, 0.2828572749258156, 0.42562922442383955, 0.0, 0.8623098274452414, -1.1563540172516442]
+[INFO] [1507322823.815530]: [Generate Plan] Execution possible True
+[INFO] [1507322823.816273]: [Generate Plan] Build plan go_top_bin
+[INFO] [1507322823.816679]: [Generate Plan] Target position [ 0.84151214 -0.32731728  0.105     ]
+[INFO] [1507322823.817643]: [Generate Plan] Target orientation [-0.38268343  0.92387953  0.          0.        ]
+[INFO] [1507322823.818459]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322823.818748]: [Generate Plan] Initial joint state [-0.3709558609431592, 0.2828572749258156, 0.42562922442383955, 0.0, 0.8623098274452414, -1.1563540172516442]
+[INFO] [1507322823.819023]: [Generate Plan] Computed joint state [-0.3709558609431592, 0.36879440012354947, 0.49202381330173917, 0.0, 0.7099781133696079, -1.1563540172516442]
+[INFO] [1507322823.819265]: [Generate Plan] Execution possible True
+[INFO] [1507322823.819696]: [Picking] Grasp Target [ 0.84151214 -0.32731728 -0.1350681 ]
+[WeightGuard] Weight guard initiated
+[INFO] [1507322823.834997]: [Generate Plan] Build plan guarded_pick
+[INFO] [1507322823.835739]: [Generate Plan] Target position [ 0.84151214 -0.32731728 -0.145     ]
+[INFO] [1507322823.836862]: [Generate Plan] Target orientation [-0.38268343  0.92387953  0.          0.        ]
+[INFO] [1507322823.837973]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322823.838356]: [Generate Plan] Initial joint state [-0.3709558609431592, 0.36879440012354947, 0.49202381330173917, 0.0, 0.7099781133696079, -1.1563540172516442]
+[INFO] [1507322823.838698]: [Generate Plan] Computed joint state [-0.3709558609431592, 0.6610619252385854, 0.5590709207600807, 0.0, 0.3506634807962303, -1.1563540172516442]
+[INFO] [1507322823.838954]: [Generate Plan] Execution possible True
+[INFO] [1507322823.839991]: [Generate Plan] Build plan go_to_active_vision
+[INFO] [1507322823.840472]: [Generate Plan] Target position [ 0.89737    -0.391       0.17786528]
+[INFO] [1507322823.841116]: [Generate Plan] Target orientation [0.383, -0.924, 0.0, 0.0]
+[INFO] [1507322823.841349]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322823.841560]: [Generate Plan] Initial joint state [-0.3709558609431592, 0.6610619252385854, 0.5590709207600807, 0.0, 0.3506634807962303, -1.1563540172516442]
+[INFO] [1507322823.841797]: [Generate Plan] Computed joint state [-0.4109135067836617, 0.3981670888623696, 0.3106649642991966, 0.0, 0.8619642736333298, -1.1968042945571962]
+[INFO] [1507322823.841983]: [Generate Plan] Execution possible True
+('Best grasp point:', [0.84151214361190796, -0.32685786485671997, 0.014931906014680862, 0.0, 0.0, -1.0, 0.15000000596046448, 0.10000000149011612, -0.70710676908493042, -0.70710676908493042, 0.0, 0.77714288234710693], ' with score: ', 0.77714288234710693, 'in bin: ', 0)
+[INFO] [1507322823.842256]: [Picking] Starting primitive with flag: 0
+[INFO] [1507322823.842411]: [Picking] objInput [0.84151214361190796, -0.32685786485671997, 0.014931906014680862, 0.0, 0.0, -1.0, 0.15000000596046448, 0.10000000149011612, -0.70710676908493042, -0.70710676908493042, 0.0, 0.77714288234710693]
+[INFO] [1507322823.842597]: [Picking] objId expo_eraser
+[INFO] [1507322823.842731]: [Picking] flag 0
+[INFO] [1507322823.842870]: [Picking] withPause False
+[INFO] [1507322823.842997]: [Picking] rel_pose None
+[INFO] [1507322823.843120]: [Picking] BoxBody None
+[INFO] [1507322823.843246]: [Picking] place_pose None
+[INFO] [1507322823.882855]: [Generate Plan] Build plan go_safe_bin
+[INFO] [1507322823.883387]: [Generate Plan] Target position [ 0.84151214 -0.32731728  0.205     ]
+[INFO] [1507322823.884474]: [Generate Plan] Target orientation [-0.38268343  0.92387953  0.          0.        ]
+[INFO] [1507322823.886854]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322823.887132]: [Generate Plan] Initial joint state (-0.41085050591946604, 0.39810960237990745, 0.31066860685499137, 0.0, 0.8620181175600012, -1.1967722680925144)
+[INFO] [1507322823.887356]: [Generate Plan] Computed joint state [-0.3709558609431592, 0.2828572749258156, 0.42562922442383955, 0.0, 0.8623098274452414, -1.1563540172516442]
+[INFO] [1507322823.887556]: [Generate Plan] Execution possible True
+[INFO] [1507322823.888314]: [Generate Plan] Build plan go_top_bin
+[INFO] [1507322823.888727]: [Generate Plan] Target position [ 0.84151214 -0.32731728  0.105     ]
+[INFO] [1507322823.889696]: [Generate Plan] Target orientation [-0.38268343  0.92387953  0.          0.        ]
+[INFO] [1507322823.890558]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322823.890750]: [Generate Plan] Initial joint state [-0.3709558609431592, 0.2828572749258156, 0.42562922442383955, 0.0, 0.8623098274452414, -1.1563540172516442]
+[INFO] [1507322823.890940]: [Generate Plan] Computed joint state [-0.3709558609431592, 0.36879440012354947, 0.49202381330173917, 0.0, 0.7099781133696079, -1.1563540172516442]
+[INFO] [1507322823.891128]: [Generate Plan] Execution possible True
+[INFO] [1507322823.891512]: [Picking] Grasp Target [ 0.84151214 -0.32731728 -0.1350681 ]
+[WeightGuard] Weight guard initiated
+[INFO] [1507322823.908514]: [Generate Plan] Build plan guarded_pick
+[INFO] [1507322823.908920]: [Generate Plan] Target position [ 0.84151214 -0.32731728 -0.145     ]
+[INFO] [1507322823.909703]: [Generate Plan] Target orientation [-0.38268343  0.92387953  0.          0.        ]
+[INFO] [1507322823.910326]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322823.910481]: [Generate Plan] Initial joint state [-0.3709558609431592, 0.36879440012354947, 0.49202381330173917, 0.0, 0.7099781133696079, -1.1563540172516442]
+[INFO] [1507322823.910641]: [Generate Plan] Computed joint state [-0.3709558609431592, 0.6610619252385854, 0.5590709207600807, 0.0, 0.3506634807962303, -1.1563540172516442]
+[INFO] [1507322823.910800]: [Generate Plan] Execution possible True
+[INFO] [1507322823.911481]: [Generate Plan] Build plan go_to_active_vision
+[INFO] [1507322823.911897]: [Generate Plan] Target position [ 0.89737    -0.391       0.17786528]
+[INFO] [1507322823.912745]: [Generate Plan] Target orientation [0.383, -0.924, 0.0, 0.0]
+[INFO] [1507322823.912948]: [Generate Plan] Tip hand transform [0.0, 0.0, 0.420773, 0, 0, 0]
+[INFO] [1507322823.913154]: [Generate Plan] Initial joint state [-0.3709558609431592, 0.6610619252385854, 0.5590709207600807, 0.0, 0.3506634807962303, -1.1563540172516442]
+[INFO] [1507322823.913357]: [Generate Plan] Computed joint state [-0.4109135067836617, 0.3981670888623696, 0.3106649642991966, 0.0, 0.8619642736333298, -1.1968042945571962]
+[INFO] [1507322823.913532]: [Generate Plan] Execution possible True
+[Robot] setSpeed(1200.0, 120.0)
+[Robot] setSpeed(1200.0, 120.0)
+^CTraceback (most recent call last):
+  File "/usr/lib/python2.7/pdb.py", line 1314, in main
+    pdb._runscript(mainpyfile)
+  File "/usr/lib/python2.7/pdb.py", line 1233, in _runscript
+    self.run(statement)
+  File "/usr/lib/python2.7/bdb.py", line 400, in run
+    exec cmd in globals, locals
+  File "<string>", line 1, in <module>
+  File "planner_grasp.py", line 4, in <module>
+    from placing_grasp import PlacingPlanner
+  File "planner_grasp.py", line 330, in run_stowing
+    self.run_grasping(container = self.tote_ID) # 4. Run grasping
+  File "planner_grasp.py", line 293, in run_grasping
+    withPause=self.withPause, viz_pub=self.viz_array_pub)
+  File "grasping17.py", line 220, in grasp
+    executePlanForward(plans, withPause)
+  File "ik/ik.py", line 914, in executePlanForward
+    plans[numOfPlan].execute()
+  File "ik/ik.py", line 311, in execute
+    exec(self.script)
+  File "<string>", line 1, in <module>
+  File "ik/helper.py", line 129, in moveGripper
+    gripper.move(move_pos, move_speed)
+  File "gripper.py", line 33, in move
+    error = srv(move_pos, move_speed)
+  File "/opt/ros/kinetic/lib/python2.7/dist-packages/rospy/impl/tcpros_service.py", line 435, in __call__
+    return self.call(*args, **kwds)
+  File "/opt/ros/kinetic/lib/python2.7/dist-packages/rospy/impl/tcpros_service.py", line 523, in call
+    raise rospy.exceptions.ROSInterruptException("node shutdown interrupted service call")
+ROSInterruptException: node shutdown interrupted service call
+Uncaught exception. Entering post mortem debugging
+Running 'cont' or 'step' will restart the program
+> /opt/ros/kinetic/lib/python2.7/dist-packages/rospy/impl/tcpros_service.py(523)call()
+-> raise rospy.exceptions.ROSInterruptException("node shutdown interrupted service call")
+(Pdb) q
+Post mortem debugger finished. The planner_grasp.py will be restarted
+> /home/mcube/rgrasp/catkin_ws/src/apc_planning/src/planner_grasp.py(4)<module>()
+-> from placing_grasp import PlacingPlanner
+(Pdb) q

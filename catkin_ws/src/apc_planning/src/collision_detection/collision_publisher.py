@@ -6,7 +6,7 @@ import rospy
 import numpy as np
 from numpy import linalg as la
 from manual_fit.srv import *
-from collisionHelper import collisionCheck, getBinPoints, getFingerPoints, getWristPoints, getStoragePoints, getToteSections, getSuctionTubePoints
+from collisionHelper import  getBinPoints, getFingerPoints, getWristPoints, getToteSections
 import tf
 import tf.transformations as tfm
 import os
@@ -34,7 +34,7 @@ if __name__=='__main__':
         ##########
         ## Bins ##
         ##########
-        for i in range(0,4):
+        for i in range(0,3):
             bin_points = getBinPoints(i, listener, br)
             my_rgb = (0,0,1,1)
             plotBoxCorners(bin_points,viz_pub, my_rgb, namespace = 'corner_points'+str(i))
@@ -58,13 +58,13 @@ if __name__=='__main__':
         hand_orient_norm=hand_orient_norm.transpose()
         fingerPoints= getFingerPoints(finger_opening, tcp_pos, hand_orient_norm, False)
         wristPoints = getWristPoints(tcp_pos, hand_orient_norm, False)
-        tubePoints = getSuctionTubePoints(tcp_pos, hand_orient_norm, False)
-        totePointsList = getToteSections(listener = listener, br=br)
+#        tubePoints = getSuctionTubePoints(tcp_pos, hand_orient_norm, False)
+#        totePointsList = getToteSections(listener = listener, br=br)
         
         my_rgb = (0,1,0,1)
         plotBoxCorners(fingerPoints,viz_pub, my_rgb, namespace = 'fingerPoints'+str(i))
         plotBoxCorners(wristPoints,viz_pub, my_rgb, namespace = 'wristPoints'+str(i))
-        plotBoxCorners(tubePoints,viz_pub, my_rgb, namespace = 'tubePoints'+str(i))
+#        plotBoxCorners(tubePoints,viz_pub, my_rgb, namespace = 'tubePoints'+str(i))
         #~ plotBoxCorners(totePointsList[0],viz_pub, my_rgb, namespace = 'totePointsList'+str(i))
         #~ plotBoxCorners(totePointsList[1],viz_pub, my_rgb, namespace = 'totePointsList'+str(i))
         #~ plotBoxCorners(totePointsList[2],viz_pub, my_rgb, namespace = 'totePointsList'+str(i))

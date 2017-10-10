@@ -1,5 +1,4 @@
 import numpy as np
-import numpy.matlib
 import matplotlib.pyplot as plt
 from scipy.spatial import ConvexHull
     
@@ -83,10 +82,6 @@ def suction_projection_func(bin_pts,hand_pts,target_wf,target_hf,theta,show_plot
 
     feas_A=np.vstack(feas_A)
     feas_B=np.array(feas_B)
-    #print feas_A
-    #print feas_B
-    #print index_list
-    #import ipdb; ipdb.set_trace()
     shape_translation=None
     feasible_solution=False
     if len(sv_c_list)==0:

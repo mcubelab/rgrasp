@@ -61,9 +61,9 @@ def getBinPoints(binId, listener, br, isSuction=False):
     #~build box collision geometries
     bodies = []
     tol = 0.04
-    xlength = rospy.get_param('/bin' + str(binId) + '/length')
-    ywidth = rospy.get_param('/bin' + str(binId) + '/width')
-    zheight = rospy.get_param('/bin' + str(binId) + '/height')
+    xlength = rospy.get_param('/tote/length')
+    ywidth = rospy.get_param('/tote/width')
+    zheight = rospy.get_param('/tote/height')
     #~build box
     bin_center_pose = ik.helper.get_params_yaml('bin'+str(binId)+'_pose')
     bodies.append(buildCenteredBox(length=xlength-tol*2, width=ywidth-tol*2, heigth=zheight, midPos=bin_center_pose[0:3], listener=listener, br=br))

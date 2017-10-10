@@ -2,32 +2,25 @@
 
 
 from placing_grasp import PlacingPlanner
-import random, subprocess, time, datetime, json, optparse, rospy, copy
+import random, time, datetime, json, optparse, rospy, copy
 import tf
 from ik.visualize_helper import visualize_grasping_proposals
 import numpy as np
-from manual_fit.srv import *
 import os
-#from collision_detection.collisionHelper import collisionCheck
 from sensor_msgs.msg import Image as RosImage
 
 try:
     import passive_vision.srv
-    import realsense_camera.srv
 except:
     print 'FAILED TO IMPORT VISION, WILL ONLY RUN IN VIRTUAL'
 
 import sys
 sys.path.append(os.environ['CODE_BASE']+'/catkin_ws/src/weight_sensor/src')
 import ws_prob
-import sensor_msgs.msg
 import goToHome
 from grasping17 import grasp
-
-from ik.roshelper import poseTransform, lookupTransform, lookupTransformList, coordinateFrameTransform, coordinateFrameTransformList, visualizeObjects, pose2list, pubFrame, ROS_Wait_For_Msg
-from ik.helper import get_obj_vol, rotmatZ, get_obj_dim, matrix_from_xyzquat, pauseFunc, getObjCOM, quat_from_matrix, in_or_out, moveGripper, fake_bbox_info, fake_bbox_info_1, Timer, vision_transform_precise_placing_with_visualization, get_params_yaml
-from visualization_msgs.msg import MarkerArray, Marker
-from apc.helper import UpdateCommand
+from ik.helper import fake_bbox_info_1, Timer, vision_transform_precise_placing_with_visualization, get_params_yaml
+from visualization_msgs.msg import MarkerArray
 
 
 class TaskPlanner(object):
@@ -118,8 +111,8 @@ class TaskPlanner(object):
     def callFakeGrasping(self, prob, container):
         print('------- DOING GRASPING ------- ')
         print(' grasp_point = ', self.grasp_point)
-        _ = grasp(objInput=self.grasp_point, listener=self.listener, br=self.br, isExecute=self.isExecute,
-                  binId=container, flag=0, withPause=False, viz_pub=self.viz_array_pub)
+        grasp(objInput=self.grasp_point, listener=self.listener, br=self.br, isExecute=self.isExecute,
+              binId=container, flag=0, withPause=False, viz_pub=self.viz_array_pub)
         
         f = random.choice(os.listdir(self.FAKE_GRASPING_DIR)) #Get fake output for the primitive
         with open(os.path.join(self.FAKE_GRASPING_DIR, f), 'r') as infile:
@@ -143,7 +136,7 @@ class TaskPlanner(object):
         self.all_grasp_proposals = self.all_grasp_proposals.reshape(len(self.all_grasp_proposals)/self.param_grasping, self.param_grasping)
         self.grasp_object_list = np.asarray(self.passive_vision_state.grasp_object_list)
         self.grasp_object_confidence = np.asarray(self.passive_vision_state.grasp_object_confidence)
-        #visualize_grasping_proposals(self.proposal_viz_array_pub, self.all_grasp_proposals, False)
+#        visualize_grasping_proposals(self.proposal_viz_array_pub, self.all_grasp_proposals, False)
         
         #Sorting all points
         grasp_permutation = self.all_grasp_proposals[:,self.param_grasping-1].argsort()[::-1]
@@ -297,12 +290,11 @@ class TaskPlanner(object):
             return
         self.grasping_output = grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container, flag=0,
-                                 withPause=self.withPause, viz_pub=self.viz_array_pub)
+                                 withPause=self.withPause, viz_pub=self.proposal_viz_array_pub)
         self.execution_possible = self.grasping_output['execution_possible']
 
     def planned_place(self, fixed_container = None):
         fixed_container = [1-self.tote_ID] #TODO_M: planner only accepts bins 1,2,3 and names them as 0,1,2
-        bbox_size = self.bbox_info[7:10] #TODO_M: give bbox_size to the planner!
         
         if self.PlacingPlanner.visionType == 'real': #Update HM
             self.PlacingPlanner.update_real_height_map(fixed_container[0])
@@ -314,10 +306,10 @@ class TaskPlanner(object):
         
         # Place object using grasping
         self.rel_pose, self.BoxBody=vision_transform_precise_placing_with_visualization(self.bbox_info,viz_pub=self.viz_array_pub,listener=self.listener)
-        placing_output=grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
-                             isExecute=self.isExecute, binId=fixed_container[0], flag=2, withPause=self.withPause,
-                             rel_pose=self.rel_pose, BoxBody=self.BoxBody, place_pose=drop_pose,
-                             viz_pub=self.viz_array_pub, is_drop = False)
+        grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
+                         isExecute=self.isExecute, binId=fixed_container[0], flag=2, withPause=self.withPause,
+                         rel_pose=self.rel_pose, BoxBody=self.BoxBody, place_pose=drop_pose,
+                         viz_pub=self.viz_array_pub, is_drop = False)
                              
     def run_stowing(self):
         goToHome.goToARC(slowDown=self.goHomeSlow) # 1. Initialize robot state

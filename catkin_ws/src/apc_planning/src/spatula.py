@@ -1,19 +1,12 @@
 #!/usr/bin/env python
 
 import rospy
-# from apc_arduino.srv import ServiceBridge
-# from apc_arduino.msg import Spatula_Position
-#from ik.roshelper import ROS_Wait_For_Msg
 from sensor_msgs.msg import JointState
-#~ import threading
-import os
-import subprocess
 from pr_msgs.srv import SuctionData1
 
 ErrorMessage = 'Spatula not connected, skipping command: '
 exec_joint_pub = rospy.Publisher('/virtual_joint_states', JointState, queue_size=10)
 
-#~ havespatula = rospy.get_param('/have_spatula', True)
 havegripper = rospy.get_param('/have_gripper', True)
 haveraspberry = rospy.get_param('/use_raspberry', True)
 fastvirtual = rospy.get_param('/fast_virtual', False)

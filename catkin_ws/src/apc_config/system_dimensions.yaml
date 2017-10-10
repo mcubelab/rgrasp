@@ -3,8 +3,6 @@
 /gripper/x_width: 0.05
 /gripper/opening_limit_in: 0.11
 /gripper/spatula_tip_to_tcp_dist: 0.420773
-/gripper/suction_tip_to_tcp_dist: 0.565
-/gripper/suction_hinge_to_tcp_dist: 0.469116
 /gripper/calibration_to_tcp_dist: 0.465
 /finger/thickness_top:  0.03
 /finger/thickness_bot:  0.015
@@ -15,16 +13,4 @@
 /tote/length: 0.61
 /tote/width: 0.37
 /tote/height: 0.205 
-/scorpion_tail/suction/finger_thickness_top: 0.0206715
-/scorpion_tail/suction/y_offset: 0.062
-/scorpion_tail/suction/x_offset: 0.015
-/scorpion_tail/suction/suction_cup_diameter: 0.0354
-/scorpion_tail/width: 0.085875
-/scorpion_tail/grasp/top_grasp_width: 0.089195
-/scorpion_tail/grasp/bot_grasp_width: 0.0725
 /cal_tool/length: 0.256
-/suction_tube/grasp/length: 0.20788168
-/suction_tube/suction/length: 0.54
-/suction_tube/suction/length_suction_off: 0.565
-/suction_tube/diameter: 0.0336
-

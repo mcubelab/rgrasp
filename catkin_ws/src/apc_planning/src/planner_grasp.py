@@ -7,7 +7,9 @@ import tf
 import ik.visualize_helper
 import numpy as np
 import os
+from ik.marker_helper import createDeleteAllMarker
 from sensor_msgs.msg import Image as RosImage
+
 
 try:
     import passive_vision.srv
@@ -36,7 +38,8 @@ class TaskPlanner(object):
         self.max_dimension = 0.1  #TODO M: adjust for realistic bbox size
         self.goHomeSlow = False
         self.tote_ID = 0 
-        self.fails_in_row = 0       
+        self.fails_in_row = 0     
+        self.switch_dict = {0:1,1:0}
         # Configuration
         self.withPause = opt.withPause
         self.experiment = opt.experiment
@@ -84,6 +87,8 @@ class TaskPlanner(object):
 
     def switch_tote(self): 
         self.tote_ID = 1-self.tote_ID
+        #~frank edit: continuous switch between totes 0 and 1
+#        self.tote_ID = self.switch_dict[self.tote_ID]
         self.fails_in_row = 0
 
     def remove_old_points(self, points, times, limit):
@@ -146,13 +151,14 @@ class TaskPlanner(object):
     
     def GetGraspPoints(self, num_points, container):
         if self.all_grasp_proposals is None:
+            print('I am trying to get proposals')
             self.passiveVisionTypes[self.visionType](container)
         if self.visionType == 'virtual':
             self.grasp_object_list = ['Null']*len(self.all_grasp_proposals)
             self.grasp_object_confidence = ['Null']*len(self.all_grasp_proposals)
         #Add grasp proposals if possible
         print('There are ', len(self.bad_grasping_points), ' bad_grasping_points ',': ', self.bad_grasping_points)
-
+        print('I GOT {} proposals'.format(len(self.all_grasp_proposals)))
         ## Filter out outdated bad_grasping_point
         self.bad_grasping_points, self.bad_grasping_times = self.remove_old_points(self.bad_grasping_points, self.bad_grasping_times, 60*3)
         if len(self.all_grasp_proposals) > 0:            
@@ -290,6 +296,10 @@ class TaskPlanner(object):
             return
         
         #~visualize grasp proposals
+        markers_msg = MarkerArray()
+        m0 = createDeleteAllMarker('pick_proposals')
+        markers_msg.markers.append(m0)
+        p.proposal_viz_array_pub.publish(markers_msg)
         ik.visualize_helper.visualize_grasping_proposals(self.proposal_viz_array_pub, np.asarray([self.grasp_point]),  self.listener, self.br, True)
         ik.visualize_helper.visualize_grasping_proposals(self.proposal_viz_array_pub, self.all_grasp_proposals,  self.listener, self.br)
         
@@ -315,39 +325,40 @@ class TaskPlanner(object):
                          isExecute=self.isExecute, binId=fixed_container[0], flag=2, withPause=self.withPause,
                          rel_pose=self.rel_pose, BoxBody=self.BoxBody, place_pose=drop_pose,
                          viz_pub=self.viz_array_pub, is_drop = False)
-                             
-    def run_stowing(self):
+    def run_data_collection(self): 
+        #######################
+        ## initialize system ##
+        #######################
         goToHome.goToARC(slowDown=self.goHomeSlow) # 1. Initialize robot state
         if self.visionType == 'real': # 2. Passive vision update bins
-            print("getPassiveVisionEstimate 'update hm sg', '', ", self.tote_ID)
-            self.getPassiveVisionEstimate('update hm sg', '', self.tote_ID)
+#            print("getPassiveVisionEstimate 'update hm sg', '', ", self.tote_ID)
+#            self.getPassiveVisionEstimate('update hm sg', '', self.tote_ID)
             number_bins = 2
-            for bin_id in range(1,number_bins):
-                print("getPassiveVisionEstimate 'update hm', '', ", bin_id)
-                self.getPassiveVisionEstimate('update hm', '', bin_id)
+            for bin_id in range(number_bins): 
+                print("getPassiveVisionEstimate 'update hm sg', '', ", bin_id)
+                self.getPassiveVisionEstimate('update hm sg', '', bin_id)
 
+        ##################
+        ## stowing loop ##
+        ##################
         self.num_attempts = 0 
         self.num_attempts_failed = 0
-        while True: # 3. Start the stowing loop
+        while True:
             self.num_attempts += 1
             print('-----------------------------\n       RUNNING GRASPING      \n-----------------------------')
             self.weightSensor.calibrateWeights(withSensor=self.withSensorWeight)
+            self.all_grasp_proposals = None
             self.run_grasping(container = self.tote_ID) # 4. Run grasping
             
             if self.execution_possible != False: # 5. Check the weight
-                
-                
                 self.weight_info[self.tote_ID] = self.weightSensor.readWeightSensor(item_list = [], withSensor=self.withSensorWeight, binNum=self.tote_ID, givenWeights=-11)
                 print('Detected weight:',  self.weight_info[self.tote_ID]['weights'])
                 
-                if self.weight_info[self.tote_ID]['weights'] > 10:
+                if self.weight_info[self.tote_ID]['weights'] > 10: #frank question: what does the 10 represent?
                     self.execution_possible = True
                 
                 if self.execution_possible == None:
                     self.execution_possible = False
-                else: # 6. Move to bin 1 for placing
-                    grasp(objInput=[], listener=self.listener, br=self.br, isExecute=self.isExecute,
-                      binId=1, flag=1, withPause=self.withPause, viz_pub=self.viz_array_pub)
             if self.visionType == 'real': # 7. Update vision state of the tote
                 self.getPassiveVisionEstimate('update hm sg', '', self.tote_ID)
             
@@ -365,8 +376,8 @@ class TaskPlanner(object):
                     self.bad_grasping_times.append(time.time())
             if self.fails_in_row > 4: # 10. Failed too many times, take action
                 if self.infinite_looping:
-                    print('The pick failed 10 times in a row, switching totes')
                     self.switch_tote()
+                    print('The pick failed 10 times in a row, switching totes, the tote id is {}'.format(self.tote_ID))
                 else:
                     print('The pick failed 10 times in a row, stopping')
                     break
@@ -394,5 +405,4 @@ if __name__ == '__main__':
     (opt, args) = parser.parse_args()
 
     p = TaskPlanner(opt)
-#    p.run_stowing()
-    p.visualize_grasp_proposals()
+    p.run_data_collection()

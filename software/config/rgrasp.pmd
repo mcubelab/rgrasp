@@ -139,6 +139,7 @@ script "run_real" {
     start cmd "3-hand";
     start cmd "3-weight_sensor_contact";
     start cmd "4-start-vision";
+    start cmd "4-start-vision";
     wait ms 8000;
     start cmd "4-passive-vision";
     start cmd "1-transform-realsense";

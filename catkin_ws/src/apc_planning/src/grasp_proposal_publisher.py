@@ -8,6 +8,8 @@ Created on Tue Oct 10 14:46:01 2017
 
 from planner_grasp import TaskPlanner
 from placing_grasp import PlacingPlanner
+from visualization_msgs.msg import MarkerArray
+from ik.marker_helper import  createDeleteAllMarker
 import  optparse, rospy, sys
 import ik
 import numpy as np
@@ -36,14 +38,20 @@ if __name__=='__main__':
     p = TaskPlanner(opt)
 
     #~initialize passive vistion in all bins
-    p.getPassiveVisionEstimate('update hm sg', '', p.tote_ID)
     number_bins = 2
-    for bin_id in range(1,number_bins):
-        print("getPassiveVisionEstimate 'update hm', '', ", bin_id)
-        p.getPassiveVisionEstimate('update hm', '', bin_id)
-    p.getPassiveVisionEstimate('update hm sg', '', 0)
-    p.getBestGraspingPoint(0)
+    for bin_id in range(number_bins):
+        print("getPassiveVisionEstimate 'update hm sg', '', ", bin_id)
+        p.getPassiveVisionEstimate('update hm sg', '', bin_id)
+    p.getBestGraspingPoint(1)
     
 
-    ik.visualize_helper.visualize_grasping_proposals(p.proposal_viz_array_pub, np.asarray([p.grasp_point]),  p.listener, p.br, True)
+    markers_msg = MarkerArray()
+    m0 = createDeleteAllMarker('pick_proposals')
+    markers_msg.markers.append(m0)
+    for i in range(0,100):
+        p.proposal_viz_array_pub.publish(markers_msg)
+        
     ik.visualize_helper.visualize_grasping_proposals(p.proposal_viz_array_pub, p.all_grasp_proposals,  p.listener, p.br)
+    ik.visualize_helper.visualize_grasping_proposals(p.proposal_viz_array_pub, np.asarray([p.grasp_point]),  p.listener, p.br,  is_selected =True)
+    
+    p.all_grasp_proposals = None

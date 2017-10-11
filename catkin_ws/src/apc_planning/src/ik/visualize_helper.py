@@ -41,12 +41,11 @@ def visualize_grasping_proposals(proposal_viz_array_pub, proposals, listener, br
         rotmat = np.vstack((rotmat, np.array([[0,0,0,1]])))
         quat = helper.quat_from_matrix(rotmat)
         
-        m0 = createDeleteAllMarker('pick_proposals')
+
         m1 = createCubeMarker2(rgba = color, scale = scale, offset = tuple(graspPos+hand_X*grasp_width/2), orientation= tuple(quat), marker_id = i*3, ns = 'pick_proposals')
         m2 = createCubeMarker2(rgba = color, scale = scale, offset = tuple(graspPos-hand_X*grasp_width/2), orientation= tuple(quat), marker_id = i*3+1, ns = 'pick_proposals')
         m3 = createCubeMarker2(rgba = color_bar, scale = scale_bar, offset = tuple(graspPos), orientation= tuple(quat), marker_id = i*3+2, ns = 'pick_proposals')
 
-        markers_msg.markers.append(m0)
         markers_msg.markers.append(m1)
         markers_msg.markers.append(m2)
         markers_msg.markers.append(m3)

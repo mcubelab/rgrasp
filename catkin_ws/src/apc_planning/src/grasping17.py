@@ -14,6 +14,7 @@ from collision_detection.collisionHelper import collisionFree
 import gripper
 import ik.helper
 import ik.visualize_helper
+import sensor_msgs.msg
 from visualization_msgs.msg import MarkerArray
 
 def grasp(objInput,
@@ -87,6 +88,7 @@ def grasp(objInput,
     ## Initialize values ##
     ########################
     q_initial = ik.helper.get_joints()
+#    gripper_command_pub = rospy.Publisher('/joint_states', sensor_msgs.msg.JointState, queue_size=10)
     bin_pose = ik.helper.get_params_yaml('bin'+str(binId)+'_pose')
     spatula_tip_to_tcp_dist=rospy.get_param("/gripper/spatula_tip_to_tcp_dist")
     delta_vision_pose = ik.helper.get_params_yaml('vision_pose_picking')
@@ -125,8 +127,14 @@ def grasp(objInput,
     ## Picking primitive flag: 0 ##
     ###############################
     if flag==0: 
-        ik.visualize_helper.visualize_grasping_proposals(viz_pub, np.asarray([objInput]),  listener, br, False)
+#        ik.visualize_helper.visualize_grasping_proposals(viz_pub, np.asarray([objInput]),  listener, br, False)
         #~Define reference frames
+#        jnames = ['gripper_command_force']
+#        js = sensor_msgs.msg.JointState()
+#        js.name  = jnames
+#        js.position = [0]
+#        gripper_command_pub.publish(js)
+        
         world_X, world_Y, world_Z, tote_X, tote_Y, tote_Z, tote_pose_pos = ik.helper.reference_frames(listener= listener, br=br)
         
         #~get grasp pose and gripper opening from vision

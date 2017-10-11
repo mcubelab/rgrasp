@@ -244,28 +244,28 @@ def vision_transform_precise_placing_with_visualization(bbox_info,viz_pub,listen
     box_dim=bbox_info[7:10]
     (rel_pose,BoxBody)=vision_transform_precise_placing(bbox_info,listener=listener)
     
-    markers_msg = MarkerArray()
-    markers_msg.markers.append(createDeleteAllMarker('object_bounding_box_for_collision'))
-    m=createCubeMarker2(offset=tuple(rel_pose[0:3]), marker_id = 5, rgba=(1,0,1,1), orientation=tuple(rel_pose[3:7]), scale=tuple(box_dim[0:3]), frame_id="/link_6", ns = 'object_bounding_box_for_collision')
-    m.frame_locked = True
-    markers_msg.markers.append(m)
-    #viz_pub.publish(markers_msg)
-    #viz_pub.publish(markers_msg)
-    #viz_pub.publish(markers_msg)
-    #viz_pub.publish(markers_msg)
-    #rospy.sleep(0.1)
+#    markers_msg = MarkerArray()
+#    markers_msg.markers.append(createDeleteAllMarker('object_bounding_box_for_collision'))
+#    m=createCubeMarker2(offset=tuple(rel_pose[0:3]), marker_id = 5, rgba=(1,0,1,1), orientation=tuple(rel_pose[3:7]), scale=tuple(box_dim[0:3]), frame_id="/link_6", ns = 'object_bounding_box_for_collision')
+#    m.frame_locked = True
+#    markers_msg.markers.append(m)
+#    #viz_pub.publish(markers_msg)
+#    #viz_pub.publish(markers_msg)
+#    #viz_pub.publish(markers_msg)
+#    #viz_pub.publish(markers_msg)
+#    #rospy.sleep(0.1)
+#    
+#    m=createCubeMarker2(offset=tuple(bbox_info[4:7]), marker_id = 6, rgba=(0,0,1,1), orientation=tuple(bbox_info[0:4]), scale=tuple(box_dim[0:3]), frame_id="/map", ns = 'object_bounding_box_for_collision')
+#    m.frame_locked = True
+#    markers_msg.markers.append(m)
+#    viz_pub.publish(markers_msg)
+#    viz_pub.publish(markers_msg)
+#    viz_pub.publish(markers_msg)
+#    viz_pub.publish(markers_msg)
+#    rospy.sleep(0.1)
     
-    m=createCubeMarker2(offset=tuple(bbox_info[4:7]), marker_id = 6, rgba=(0,0,1,1), orientation=tuple(bbox_info[0:4]), scale=tuple(box_dim[0:3]), frame_id="/map", ns = 'object_bounding_box_for_collision')
-    m.frame_locked = True
-    markers_msg.markers.append(m)
-    viz_pub.publish(markers_msg)
-    viz_pub.publish(markers_msg)
-    viz_pub.publish(markers_msg)
-    viz_pub.publish(markers_msg)
-    rospy.sleep(0.1)
     
-    
-    return (rel_pose,BoxBody)
+    return (rel_pose, BoxBody)
     
 def visualize_placing_box(bbox_info,place_pose,viz_pub):
     if viz_pub!=None:

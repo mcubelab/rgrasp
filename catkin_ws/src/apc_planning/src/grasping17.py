@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import rospy
+import rospy, sys
 import numpy as np
 #from manual_fit.srv import *
 from copy import deepcopy
@@ -103,7 +103,7 @@ def grasp(objInput,
     
     print '[test] 0'
     
-    ik.visualize_helper.visualize_grasping_proposals(viz_pub, np.asarray([objInput]), False,  listener, br)
+    
     
     print '[test] 1'
     
@@ -125,7 +125,7 @@ def grasp(objInput,
     ## Picking primitive flag: 0 ##
     ###############################
     if flag==0: 
-        
+        ik.visualize_helper.visualize_grasping_proposals(viz_pub, np.asarray([objInput]),  listener, br, False)
         #~Define reference frames
         world_X, world_Y, world_Z, tote_X, tote_Y, tote_Z, tote_pose_pos = ik.helper.reference_frames(listener= listener, br=br)
         
@@ -138,7 +138,7 @@ def grasp(objInput,
         #~build gripper orientation matrix 3x3
         hand_orient_norm = np.vstack([hand_X,hand_Y,hand_Z])
         hand_orient_norm=hand_orient_norm.transpose()
-    
+
         #~Grasp relocation script
         hand_orient_quat=ik.helper.mat2quat(hand_orient_norm)
         euler = tf.transformations.euler_from_quaternion(hand_orient_quat)
@@ -385,18 +385,17 @@ def unit_test(listener, br):
 #    ~ bin_list = [0]
     for binId in bin_list:
         for flag in flag_list:
-            if flag==2:
-                bin_list_drop = [binId] 
-                (output_dict)=grasp(objInput=objInput[binId],
-                                    listener=listener,
-                                    br=br,
-                                    isExecute=isExecute,
-                                    objId=TARGET,
-                                    binId=binId,
-                                    flag=flag,
-                                    withPause = False,
-                                    viz_pub = viz_pub)
-                gripper.close()
+            bin_list_drop = [binId] 
+            (output_dict)=grasp(objInput=objInput[binId],
+                                listener=listener,
+                                br=br,
+                                isExecute=isExecute,
+                                objId=TARGET,
+                                binId=binId,
+                                flag=flag,
+                                withPause = False,
+                                viz_pub = viz_pub)
+            gripper.close()
 
 # To test the function
 if __name__=='__main__':

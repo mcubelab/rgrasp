@@ -18,6 +18,7 @@
   <rosparam command="load" file="$(find apc_config)/bin1_pose.yaml" />
   <rosparam command="load" file="$(find apc_config)/bin2_pose.yaml" />
   <rosparam command="load" file="$(find apc_config)/system_dimensions.yaml" />
+  <rosparam command="load" file="$(find apc_config)/vision_pose_picking.yaml" />
 
 
   <node pkg="tf" type="static_transform_publisher" name="baselink_broadcaster" args="0 0 0 0 0 0 map base_link 50" />

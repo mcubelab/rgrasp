@@ -1,881 +1,159 @@
-Panels:
-  - Class: rviz/Displays
-    Help Height: 0
-    Name: Displays
-    Property Tree Widget:
-      Expanded:
-        - /TF1/Frames1
-        - /Heightmap1
-      Splitter Ratio: 0.436031342
-    Tree Height: 609
-  - Class: rviz/Selection
-    Name: Selection
-  - Class: rviz/Tool Properties
-    Expanded:
-      - /2D Pose Estimate1
-      - /2D Nav Goal1
-      - /Publish Point1
-    Name: Tool Properties
-    Splitter Ratio: 0.588679016
-  - Class: rviz/Views
-    Expanded:
-      - /Current View1
-      - /Orbit1
-    Name: Views
-    Splitter Ratio: 0.5
-  - Class: rviz/Time
-    Experimental: false
-    Name: Time
-    SyncMode: 0
-    SyncSource: Image_realsense1
-  - Class: rviz/Displays
-    Help Height: 78
-    Name: Displays
-    Property Tree Widget:
-      Expanded: ~
-      Splitter Ratio: 0.5
-    Tree Height: 359
-  - Class: rviz/Views
-    Expanded:
-      - /Current View1
-    Name: Views
-    Splitter Ratio: 0.5
-Visualization Manager:
-  Class: ""
-  Displays:
-    - Alpha: 0.5
-      Cell Size: 1
-      Class: rviz/Grid
-      Color: 160; 160; 164
-      Enabled: false
-      Line Style:
-        Line Width: 0.0299999993
-        Value: Lines
-      Name: Grid
-      Normal Cell Count: 0
-      Offset:
-        X: 0
-        Y: 0
-        Z: 0
-      Plane: XY
-      Plane Cell Count: 10
-      Reference Frame: map
-      Value: false
-    - Class: rviz/Image
-      Enabled: true
-      Image Topic: /arc_1/realsense
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image_realsense1
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: compressed
-      Unreliable: false
-      Value: true
-    - Class: rviz/Image
-      Enabled: true
-      Image Topic: /arc_2/realsense
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: Image_realsense2
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: true
-    - Alpha: 1
-      Class: rviz/RobotModel
-      Collision Enabled: false
-      Enabled: true
-      Links:
-        All Links Enabled: true
-        Expand Joint Details: false
-        Expand Link Details: false
-        Expand Tree: false
-        Link Tree Style: Links in Alphabetic Order
-        base_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        bot_finger:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        bot_spatula_centered:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        hand_mount:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        link_1:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        link_2:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        link_3:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        link_4:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        link_5:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        link_6:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        link_wrist:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        scorpion_tail_bot_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        scorpion_tail_platform:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        scorpion_tail_top_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        suction_below_centered:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        suction_cup:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        top_finger:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        top_spatula:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        wsg50_base_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-      Name: RobotModel
-      Robot Description: robot_description
-      TF Prefix: ""
-      Update Interval: 0
-      Value: true
-      Visual Enabled: true
-    - Class: rviz/TF
-      Enabled: true
-      Frame Timeout: 30
-      Frames:
-        All Enabled: false
-        base_link:
-          Value: true
-        cup:
-          Value: true
-        hand_mount:
-          Value: true
-        link_6:
-          Value: true
-        link_wrist:
-          Value: true
-        map:
-          Value: true
-        realsense:
-          Value: true
-        realsense_612201002220:
-          Value: true
-        realsense_612203002922:
-          Value: true
-        realsense_612203004574:
-          Value: true
-        realsense_612205002211:
-          Value: true
-        realsense_613201001839:
-          Value: true
-        realsense_614203000465:
-          Value: true
-        realsense_614203003651:
-          Value: true
-        realsense_614204001012:
-          Value: true
-        realsense_614205001856:
-          Value: true
-        realsense_61420501085:
-          Value: true
-        realsense_616203002024:
-          Value: true
-        realsense_616205001219:
-          Value: true
-        realsense_616205002864:
-          Value: true
-        realsense_616205004776:
-          Value: true
-        realsense_616205005772:
-          Value: true
-        realsense_617205001931:
-          Value: true
-        scorpion_tail_bot_link:
-          Value: true
-        scorpion_tail_platform:
-          Value: true
-        scorpion_tail_top_link:
-          Value: true
-        suction_below_centered:
-          Value: true
-        suction_cup:
-          Value: true
-        top_finger:
-          Value: true
-        top_spatula:
-          Value: true
-        tote:
-          Value: true
-        wsg50_base_link:
-          Value: true
-      Marker Scale: 0.200000003
-      Name: TF
-      Show Arrows: false
-      Show Axes: true
-      Show Names: false
-      Tree:
-        map:
-          base_link:
-            {}
-          realsense:
-            {}
-          realsense_612201002220:
-            {}
-          realsense_612203002922:
-            {}
-          realsense_612203004574:
-            {}
-          realsense_612205002211:
-            {}
-          realsense_613201001839:
-            {}
-          realsense_614203000465:
-            {}
-          realsense_614203003651:
-            {}
-          realsense_614204001012:
-            {}
-          realsense_614205001856:
-            {}
-          realsense_61420501085:
-            {}
-          realsense_616203002024:
-            {}
-          realsense_616205001219:
-            {}
-          realsense_616205002864:
-            {}
-          realsense_616205004776:
-            {}
-          realsense_616205005772:
-            {}
-          realsense_617205001931:
-            {}
-          tote:
-            {}
-      Update Interval: 0
-      Value: true
-    - Class: rviz/InteractiveMarkers
-      Enable Transparency: true
-      Enabled: true
-      Name: InteractiveMarkers
-      Show Axes: false
-      Show Descriptions: false
-      Show Visual Aids: false
-      Update Topic: /affordance_marker/update
-      Value: true
-    - Class: moveit_rviz_plugin/Trajectory
-      Color Enabled: false
-      Enabled: true
-      Interrupt Display: false
-      Links:
-        All Links Enabled: true
-        Expand Joint Details: false
-        Expand Link Details: false
-        Expand Tree: false
-        Link Tree Style: Links in Alphabetic Order
-        base_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        bot_finger:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        bot_spatula_centered:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        hand_mount:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        link_1:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        link_2:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        link_3:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        link_4:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        link_5:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        link_6:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        link_wrist:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        scorpion_tail_bot_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        scorpion_tail_platform:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        scorpion_tail_top_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        suction_below_centered:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        suction_cup:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        top_finger:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        top_spatula:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        wsg50_base_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-      Loop Animation: false
-      Name: Trajectory
-      Robot Alpha: 0.5
-      Robot Color: 150; 50; 150
-      Robot Description: robot_description
-      Show Robot Collision: false
-      Show Robot Visual: true
-      Show Trail: false
-      State Display Time: 0.05 s
-      Trail Step Size: 1
-      Trajectory Topic: /move_group/display_planned_path
-      Value: true
-    - Class: rviz/Marker
-      Enabled: true
-      Marker Topic: /visualization_marker
-      Name: Visualization
-      Namespaces:
-        {}
-      Queue Size: 100
-      Value: true
-    - Class: rviz/Marker
-      Enabled: true
-      Marker Topic: visualization_marker
-      Name: Planner_viz
-      Namespaces:
-        {}
-      Queue Size: 100
-      Value: true
-    - Class: rviz/Camera
-      Enabled: false
-      Image Rendering: background and overlay
-      Image Topic: /arc_1/realsense
-      Name: Camera
-      Overlay Alpha: 0.5
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: false
-      Visibility:
-        Collision Visualize: true
-        Grid: true
-        Group_pointcloud:
-          "": true
-          Value: true
-        Heightmap:
-          "": true
-          Value: true
-        IK VIsualize: true
-        Image_realsense1: true
-        Image_realsense2: true
-        InteractiveMarkers: true
-        Planner_viz: true
-        RobotModel: true
-        SGProposalMarker: true
-        TF: true
-        Trajectory: true
-        Value: true
-        Visualization: true
-        gelsight: true
-      Zoom Factor: 1
-    - Class: rviz/Image
-      Enabled: true
-      Image Topic: /rpi/gelsight/raw_image
-      Max Value: 1
-      Median window: 5
-      Min Value: 0
-      Name: gelsight
-      Normalize Range: true
-      Queue Size: 2
-      Transport Hint: raw
-      Unreliable: false
-      Value: true
-    - Class: rviz/InteractiveMarkers
-      Enable Transparency: true
-      Enabled: true
-      Name: InteractiveMarkers
-      Show Axes: false
-      Show Descriptions: true
-      Show Visual Aids: false
-      Update Topic: /ik_interactive/update
-      Value: true
-    - Class: rviz/Group
-      Displays:
-        - Alpha: 1
-          Autocompute Intensity Bounds: true
-          Autocompute Value Bounds:
-            Max Value: 10
-            Min Value: -10
-            Value: true
-          Axis: Z
-          Channel Name: intensity
-          Class: rviz/PointCloud2
-          Color: 255; 255; 255
-          Color Transformer: RGB8
-          Decay Time: 0
-          Enabled: true
-          Invert Rainbow: false
-          Max Color: 255; 255; 255
-          Max Intensity: 4096
-          Min Color: 0; 0; 0
-          Min Intensity: 0
-          Name: bin0_passive_near
-          Position Transformer: XYZ
-          Queue Size: 10
-          Selectable: true
-          Size (Pixels): 3
-          Size (m): 0.00999999978
-          Style: Points
-          Topic: /arc_1/pointcloud_612203002922
-          Unreliable: false
-          Use Fixed Frame: true
-          Use rainbow: true
-          Value: true
-        - Alpha: 1
-          Autocompute Intensity Bounds: true
-          Autocompute Value Bounds:
-            Max Value: 10
-            Min Value: -10
-            Value: true
-          Axis: Z
-          Channel Name: intensity
-          Class: rviz/PointCloud2
-          Color: 255; 255; 255
-          Color Transformer: RGB8
-          Decay Time: 0
-          Enabled: true
-          Invert Rainbow: false
-          Max Color: 255; 255; 255
-          Max Intensity: 4096
-          Min Color: 0; 0; 0
-          Min Intensity: 0
-          Name: bin0_passive_far
-          Position Transformer: XYZ
-          Queue Size: 10
-          Selectable: true
-          Size (Pixels): 3
-          Size (m): 0.00999999978
-          Style: Points
-          Topic: /arc_1/pointcloud_614203000465
-          Unreliable: false
-          Use Fixed Frame: true
-          Use rainbow: true
-          Value: true
-        - Alpha: 1
-          Autocompute Intensity Bounds: true
-          Autocompute Value Bounds:
-            Max Value: 10
-            Min Value: -10
-            Value: true
-          Axis: Z
-          Channel Name: intensity
-          Class: rviz/PointCloud2
-          Color: 255; 255; 255
-          Color Transformer: RGB8
-          Decay Time: 0
-          Enabled: true
-          Invert Rainbow: false
-          Max Color: 255; 255; 255
-          Max Intensity: 4096
-          Min Color: 0; 0; 0
-          Min Intensity: 0
-          Name: bin0_active_far
-          Position Transformer: XYZ
-          Queue Size: 10
-          Selectable: true
-          Size (Pixels): 3
-          Size (m): 0.00999999978
-          Style: Points
-          Topic: /arc_1/pointcloud_616205005772
-          Unreliable: false
-          Use Fixed Frame: true
-          Use rainbow: true
-          Value: true
-        - Alpha: 1
-          Autocompute Intensity Bounds: true
-          Autocompute Value Bounds:
-            Max Value: 10
-            Min Value: -10
-            Value: true
-          Axis: Z
-          Channel Name: intensity
-          Class: rviz/PointCloud2
-          Color: 255; 255; 255
-          Color Transformer: RGB8
-          Decay Time: 0
-          Enabled: true
-          Invert Rainbow: false
-          Max Color: 255; 255; 255
-          Max Intensity: 4096
-          Min Color: 0; 0; 0
-          Min Intensity: 0
-          Name: bin1_passive_near
-          Position Transformer: XYZ
-          Queue Size: 10
-          Selectable: true
-          Size (Pixels): 3
-          Size (m): 0.00999999978
-          Style: Points
-          Topic: /arc_1/pointcloud_616205001219
-          Unreliable: false
-          Use Fixed Frame: true
-          Use rainbow: true
-          Value: true
-        - Alpha: 1
-          Autocompute Intensity Bounds: true
-          Autocompute Value Bounds:
-            Max Value: 10
-            Min Value: -10
-            Value: true
-          Axis: Z
-          Channel Name: intensity
-          Class: rviz/PointCloud2
-          Color: 255; 255; 255
-          Color Transformer: RGB8
-          Decay Time: 0
-          Enabled: true
-          Invert Rainbow: false
-          Max Color: 255; 255; 255
-          Max Intensity: 4096
-          Min Color: 0; 0; 0
-          Min Intensity: 0
-          Name: bin1_passive_far
-          Position Transformer: XYZ
-          Queue Size: 10
-          Selectable: true
-          Size (Pixels): 3
-          Size (m): 0.00999999978
-          Style: Points
-          Topic: /arc_1/pointcloud_61420501085
-          Unreliable: false
-          Use Fixed Frame: true
-          Use rainbow: true
-          Value: true
-        - Alpha: 1
-          Autocompute Intensity Bounds: true
-          Autocompute Value Bounds:
-            Max Value: 10
-            Min Value: -10
-            Value: true
-          Axis: Z
-          Channel Name: intensity
-          Class: rviz/PointCloud2
-          Color: 255; 255; 255
-          Color Transformer: RGB8
-          Decay Time: 0
-          Enabled: true
-          Invert Rainbow: false
-          Max Color: 255; 255; 255
-          Max Intensity: 4096
-          Min Color: 0; 0; 0
-          Min Intensity: 0
-          Name: bin2_passive_near
-          Position Transformer: XYZ
-          Queue Size: 10
-          Selectable: true
-          Size (Pixels): 3
-          Size (m): 0.00999999978
-          Style: Points
-          Topic: /arc_1/pointcloud_612205002211
-          Unreliable: false
-          Use Fixed Frame: true
-          Use rainbow: true
-          Value: true
-        - Alpha: 1
-          Autocompute Intensity Bounds: true
-          Autocompute Value Bounds:
-            Max Value: 10
-            Min Value: -10
-            Value: true
-          Axis: Z
-          Channel Name: intensity
-          Class: rviz/PointCloud2
-          Color: 255; 255; 255
-          Color Transformer: RGB8
-          Decay Time: 0
-          Enabled: true
-          Invert Rainbow: false
-          Max Color: 255; 255; 255
-          Max Intensity: 4096
-          Min Color: 0; 0; 0
-          Min Intensity: 0
-          Name: bin2_passive_far
-          Position Transformer: XYZ
-          Queue Size: 10
-          Selectable: true
-          Size (Pixels): 3
-          Size (m): 0.00999999978
-          Style: Points
-          Topic: /arc_1/pointcloud_612203004574
-          Unreliable: false
-          Use Fixed Frame: true
-          Use rainbow: true
-          Value: true
-      Enabled: true
-      Name: Group_pointcloud
-    - Class: rviz/Group
-      Displays:
-        - Class: rviz/Image
-          Enabled: false
-          Image Topic: /height_map_pre
-          Max Value: 1
-          Median window: 5
-          Min Value: 0
-          Name: Image_map_pre
-          Normalize Range: true
-          Queue Size: 2
-          Transport Hint: raw
-          Unreliable: false
-          Value: false
-        - Class: rviz/Image
-          Enabled: false
-          Image Topic: /height_map_post
-          Max Value: 1
-          Median window: 5
-          Min Value: 0
-          Name: Image_map_post
-          Normalize Range: true
-          Queue Size: 2
-          Transport Hint: raw
-          Unreliable: false
-          Value: false
-        - Class: rviz/Image
-          Enabled: false
-          Image Topic: /placing_score
-          Max Value: 1
-          Median window: 5
-          Min Value: 0
-          Name: Image_placing_score
-          Normalize Range: true
-          Queue Size: 2
-          Transport Hint: raw
-          Unreliable: false
-          Value: false
-      Enabled: true
-      Name: Heightmap
-    - Class: rviz/Marker
-      Enabled: true
-      Marker Topic: /proposal_visualization_marker
-      Name: SGProposalMarker
-      Namespaces:
-        {}
-      Queue Size: 100
-      Value: true
-    - Class: rviz/MarkerArray
-      Enabled: true
-      Marker Topic: ik_visualization_marker_array
-      Name: IK VIsualize
-      Namespaces:
-        {}
-      Queue Size: 1000
-      Value: true
-    - Class: rviz/MarkerArray
-      Enabled: true
-      Marker Topic: collision_visualization_marker_array
-      Name: Collision Visualize
-      Namespaces:
-        {}
-      Queue Size: 100
-      Value: true
-  Enabled: true
-  Global Options:
-    Background Color: 48; 48; 48
-    Fixed Frame: map
-    Frame Rate: 20
-  Name: root
-  Tools:
-    - Class: rviz/Interact
-      Hide Inactive Objects: true
-    - Class: rviz/MoveCamera
-    - Class: rviz/Select
-    - Class: rviz/FocusCamera
-    - Class: rviz/Measure
-    - Class: rviz/SetInitialPose
-      Topic: /initialpose
-    - Class: rviz/SetGoal
-      Topic: /move_base_simple/goal
-    - Class: rviz/PublishPoint
-      Single click: true
-      Topic: /clicked_point
-  Value: true
-  Views:
-    Current:
-      Class: rviz/Orbit
-      Distance: 2.85842395
-      Enable Stereo Rendering:
-        Stereo Eye Separation: 0.0599999987
-        Stereo Focal Distance: 1
-        Swap Stereo Eyes: false
-        Value: false
-      Focal Point:
-        X: 0.320294768
-        Y: 0.0402822271
-        Z: -0.0161329098
-      Focal Shape Fixed Size: true
-      Focal Shape Size: 0.0500000007
-      Name: Current View
-      Near Clip Distance: 0.00999999978
-      Pitch: 0.509797335
-      Target Frame: link1_parent
-      Value: Orbit (rviz)
-      Yaw: 5.50685978
-    Saved:
-      - Class: rviz/Orbit
-        Distance: 1.74232996
-        Enable Stereo Rendering:
-          Stereo Eye Separation: 0.0599999987
-          Stereo Focal Distance: 1
-          Swap Stereo Eyes: false
-          Value: false
-        Focal Point:
-          X: 0.218198001
-          Y: 0.473358989
-          Z: 0.425852001
-        Focal Shape Fixed Size: true
-        Focal Shape Size: 0.0500000007
-        Name: Orbit
-        Near Clip Distance: 0.00999999978
-        Pitch: 0.380398005
-        Target Frame: link1_parent
-        Value: Orbit (rviz)
-        Yaw: -1.06959999
-Window Geometry:
-  Camera:
-    collapsed: false
-  Displays:
-    collapsed: false
-  Height: 1176
-  Hide Left Dock: false
-  Hide Right Dock: false
-  Image_map_post:
-    collapsed: false
-  Image_map_pre:
-    collapsed: false
-  Image_placing_score:
-    collapsed: false
-  Image_realsense1:
-    collapsed: false
-  Image_realsense2:
-    collapsed: false
-  QMainWindow State: 000000ff00000000fd00000003000000000000016a00000452fc0200000011fb000000100044006900730070006c0061007900730100000028000002a2000000dd00fffffffb000000200049006d006100670065005f007200650061006c00730065006e00730065003101000002d0000000590000001600fffffffb000000200049006d006100670065005f007200650061006c00730065006e007300650032010000032f000000160000001600fffffffc00000343000000a30000000000fffffffa000000000100000002fb0000001e0049006d006100670065005f006b0069006e0065006300740032005f00310100000000ffffffff0000000000000000fb0000001e0049006d006100670065005f006b0069006e0065006300740032005f00320000000000ffffffff0000000000000000fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006400fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000001c0049006d006100670065005f0061007000720069006c007400610067000000038c000000d20000000000000000fb0000000c00430061006d00650072006100000003590000006a0000001600fffffffb00000026005400720061006a006500630074006f007200790020002d00200053006c00690064006500720000000000ffffffff0000004a00fffffffb000000100044006900730070006c00610079007300000002ba0000012c000000dd00fffffffb0000000a005600690065007700730000000309000000dd000000b000fffffffb0000001000670065006c00730069006700680074010000034b0000012f0000001600ffffff000000010000010100000452fc0200000006fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730000000028000001b0000000b000fffffffb0000001a0049006d006100670065005f006d00610070005f00700072006500000000280000010d0000001600fffffffb0000001c0049006d006100670065005f006d00610070005f0070006f007300740000000028000003070000001600fffffffb000000260049006d006100670065005f0070006c006100630069006e0067005f00730063006f007200650000000028000004520000001600fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b20000000000000000000000030000073f000000cdfc0100000002fb0000000800540069006d006500000000000000073f0000030000fffffffb0000000800540069006d00650100000000000004500000000000000000000005cf0000045200000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
-  Selection:
-    collapsed: false
-  Time:
-    collapsed: false
-  Tool Properties:
-    collapsed: false
-  Trajectory - Slider:
-    collapsed: false
-  Views:
-    collapsed: false
-  Width: 1855
-  X: 65
-  Y: 24
-  gelsight:
-    collapsed: false
+group "special" {
+    cmd "4-interactive-ik" {
+        exec = "rosrun manual_fit ik_interactive.py";
+        host = "localhost";
+    }
+    cmd "3-passive-vision-restart" {
+        exec = "rosservice call /passive_vision/estimate \"restart\" \"\" 0";
+        host = "localhost";
+    }
+    cmd "2-realsense_standalone" {
+        exec = "roslaunch apc_config realsense_rviz.launch";
+        host = "localhost";
+    }
+    cmd "1-robotconfig-virtual-withhand" {
+        exec = "roslaunch apc_config robot_config.launch have_robot:=false use_realsense:=false use_realsense2:=false irb_1600id_v4:=true use_hokuyo:=false have_gripper:=true toviz:=false use_raspberry:=true use_labjack:=false";
+        host = "localhost";
+    }
+    cmd "2-check_webcam_vs_robot" {
+        exec = " rosrun apc_planning check_webcam_vs_robot.py 616205005772";
+        host = "localhost";
+    }
+    cmd "5-collision-geometry" {
+        exec = "rosrun apc_planning collision_publisher.py";
+        host = "localhost";
+    }
+}
+
+group "calibration" {
+    cmd "1-transform-calibhand" {
+        exec = "rosrun tf static_transform_publisher 0 -0.025 0.195 0 0 0 /link_6 /cross_tip 100";
+        host = "localhost";
+    }
+    cmd "9-suction_tip_tf" {
+        exec = "rosrun tf static_transform_publisher 0 -.04 .305 0 0 0 link_6 tip 100";
+        host = "localhost";
+    }
+    cmd "4-start-vision-calib-cam" {
+        exec = "roslaunch apc_config init_cameras.launch display:=true correct_depth:=false";
+        host = "localhost";
+    }
+    cmd "1-transform-realsense" {
+        exec = "rosrun passive_vision pub_extrinsic.py 612203002922";
+        host = "localhost";
+    }
+    cmd "1-transform-calibapriltag" {
+        exec = "rosrun tf static_transform_publisher -0.1725 0 0.0175 1.57079632679 0 0 /link_6 /link6_apriltag 100";
+        host = "localhost";
+    }
+    cmd "3-close-gripper" {
+        exec = "rosservice call /wsg_50_driver/move 0.1 10";
+        host = "localhost";
+    }
+    cmd "3-show-urdf" {
+        exec = "roslaunch apc_config display_urdf.launch model:=$CODE_BASE/catkin_ws/src/apc_config/models/irb_2600id-15/irb_2600id-15.urdf gui:=True";
+        host = "localhost";
+    }
+    cmd "4-manual_fit_urdf" {
+        exec = "rosrun manual_fit manual_fit_urdf.py";
+        host = "localhost";
+    }
+    cmd "1-transform-calibhook" {
+        exec = "rosrun tf static_transform_publisher -0.00883883476 0.00883883476 0.15 0 0 0 /link_6 /cross_tip 100";
+        host = "localhost";
+    }
+    cmd "1-transform-suctioncup" {
+        exec = "rosrun tf static_transform_publisher -0.015 0.062 0.54 0 0 0 link_6 cup 100";
+        host = "localhost";
+    }
+    cmd "3-set-no-force" {
+        exec = "rosservice call /wsg_50_driver/set_force 5.0";
+        host = "localhost";
+    }
+    cmd "3-urdf_rviz" {
+        exec = "rosrun rviz rviz -d $CODE_BASE/catkin_ws/src/apc_config/rviz/urdf.rviz";
+        host = "localhost";
+    }
+}
+cmd "6-interactive-fitting" {
+    auto_respawn = "true";
+    exec = "rosrun manual_fit manual_fit_obj_interactive.py -s _is_picking:=false";
+    host = "localhost";
+}
+cmd "4-passive-vision" {
+    exec = "rosrun passive_vision estimate _bin0_active:=true _bin1_active:=true _bin2_active:=true _bin3_active:=false";
+    host = "localhost";
+}
+cmd "1-robotconfig-real" {
+    exec = "roslaunch apc_config robot_config.launch  irb_1600id_v4:=true toviz:=true use_raspberry:=true use_labjack:=false";
+    host = "localhost";
+}
+cmd "0-roscore" {
+    exec = "roscore";
+    host = "localhost";
+}
+cmd "4-testcam" {
+    exec = "rosrun realsense_camera test_cam.py";
+    host = "localhost";
+}
+cmd "5-rviz" {
+    exec = "rosrun rviz rviz -d $CODE_BASE/catkin_ws/src/apc_config/rviz/rvizconfig.rviz";
+    host = "localhost";
+}
+cmd "4-start-vision-save-data" {
+    exec = "roslaunch apc_config init_cameras.launch display:=true save_data:=true";
+    host = "localhost";
+}
+cmd "3-weight_sensor_contact" {
+    exec = "roslaunch apc_config weight_sensor.launch";
+    host = "localhost";
+}
+cmd "1-robotconfig-virtual" {
+    exec = "roslaunch apc_config robot_config.launch have_robot:=false use_realsense:=false use_realsense2:=false irb_1600id_v4:=true use_hokuyo:=false have_gripper:=false toviz:=false use_raspberry:=false use_labjack:=false";
+    host = "localhost";
+}
+cmd "2-abb" {
+    auto_respawn = "true";
+    exec = "roslaunch apc_config abb.launch";
+    host = "localhost";
+}
+cmd "7-apcgui" {
+    exec = "rosrun apc_planning arcgui.py";
+    host = "localhost";
+}
+cmd "3-hand" {
+    exec = "roslaunch apc_config wsg_50_tcp.launch";
+    host = "localhost";
+}
+cmd "4-start-vision" {
+    exec = "roslaunch apc_config init_cameras.launch display:=true";
+    host = "localhost";
+}
+
+script "run_real" {
+    start cmd "0-roscore";
+    wait ms 1000;
+    start cmd "1-robotconfig-real";
+    wait ms 500;
+    start cmd "2-abb";
+    start cmd "3-hand";
+    start cmd "3-weight_sensor_contact";
+    start cmd "4-start-vision";
+    wait ms 8000;
+    start cmd "4-passive-vision";
+    start cmd "1-transform-realsense";
+    start cmd "5-rviz";
+    wait ms 2000;
+    start cmd "6-interactive-fitting";
+}
+
+script "run_virtual" {
+    start cmd "0-roscore";
+    wait ms 1000;
+    start cmd "1-robotconfig-virtual";
+    wait ms 500;
+    start cmd "5-rviz";
+    wait ms 1000;
+    start cmd "6-interactive-fitting";
+    start cmd "1-transform-suctioncup";
+}

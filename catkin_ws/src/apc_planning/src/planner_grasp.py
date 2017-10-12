@@ -40,6 +40,7 @@ class TaskPlanner(object):
         self.tote_ID = 0 
         self.fails_in_row = 0     
         self.switch_dict = {0:1,1:0}
+        self.version = 1.0
         # Configuration
         self.withPause = opt.withPause
         self.experiment = opt.experiment

@@ -23,7 +23,7 @@ import goToHome
 from grasping17 import grasp
 from ik.helper import fake_bbox_info_1, Timer, vision_transform_precise_placing_with_visualization, get_params_yaml
 from visualization_msgs.msg import MarkerArray
-
+import sensor_msgs.msg
 
 class TaskPlanner(object):
     def __init__(self, opt):
@@ -365,19 +365,24 @@ class TaskPlanner(object):
                 self.fails_in_row = 0
                 self.bbox_info = fake_bbox_info_1(self.listener)#Give bounding box to the object 
                 self.bbox_info[7:10] = [self.max_dimension, self.max_dimension, self.max_dimension]
-                self.planned_place() #TOdo_M
+                self.planned_place() #TODO_M
             else: 
                 self.num_attempts_failed += 1                
                 self.fails_in_row += 1
                 if self.grasp_point is not None: # 9. Add to bad grasp points
                     self.bad_grasping_points.append(self.grasp_point)
                     self.bad_grasping_times.append(time.time())
+            #Publish experiment outcome
+            grasp_status_msgs = sensor_msgs.msg.JointState()
+            grasp_status_msgs.name = ['grasp_success', 'code_version', 'tote_ID'] #grasp proposals, grasp_point, scores, score, 
+            grasp_status_msgs.position = [self.execution_possible, self.version, self.tote_ID]
+            grasp_status_pub.publish(grasp_status_msgs)
             if self.fails_in_row > 4: # 10. Failed too many times, take action
                 if self.infinite_looping:
                     self.switch_tote()
-                    print('The pick failed 10 times in a row, switching totes, the tote id is {}'.format(self.tote_ID))
+                    print('The pick failed 4 times in a row, switching totes, the tote id is {}'.format(self.tote_ID))
                 else:
-                    print('The pick failed 10 times in a row, stopping')
+                    print('The pick failed 4 times in a row, stopping')
                     break
         # Finished stowing
         goToHome.goToARC(slowDown = self.goHomeSlow)

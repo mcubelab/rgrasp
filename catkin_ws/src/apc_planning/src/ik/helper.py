@@ -14,10 +14,12 @@ from marker_helper import createCubeMarker2, createSphereMarker
 from numpy import linalg as la
 from roshelper import lookupTransform, poseTransform
 import gripper
+import std_msgs.msg
 from suction_projection import suction_projection_func
-from sensor_msgs.msg import JointState
+import sensor_msgs.msg 
 
 obj_dim_data = []
+gripper_command_pub = rospy.Publisher('/gripper_command', sensor_msgs.msg.JointState, queue_size=10)
 
 def get_obj_dim(objId):
     global obj_dim_data
@@ -76,9 +78,6 @@ def get_params_yaml(pose_name):
     pose_list = [rospy.get_param(pose_name+'/'+p) for p in params_list]
     return pose_list
 
-# something useful for building primitives
-import geometry_msgs.msg
-
 def pause():
     raw_input('Press any key to continue')
 
@@ -117,12 +116,31 @@ def graspGripper(grasp_pos, grasp_speed=50):
     # move_pos in meter, move_speed in mm/s
     #WE should make grasp gripper force controlled--Nikhil
     # call gripper node, grasp
+
+    jnames = ['gripper_command']
+    gripper_msgs = sensor_msgs.msg.JointState()
+    gripper_msgs.name  = jnames
+    gripper_msgs.position = [grasp_pos]
+    gripper_msgs.velocity = [grasp_speed/1000]
+    gripper_msgs.effort = [np.inf]
+    gripper_command_pub.publish(gripper_msgs) 
+    
     grasp_pos=1000*grasp_pos
 
     gripper.grasp(grasp_pos, grasp_speed)
     return 1
 
 def moveGripper(move_pos, move_speed=50):
+    #~publis gripper state
+
+    jnames = ['gripper_command']
+    gripper_msgs = sensor_msgs.msg.JointState()
+    gripper_msgs.name  = jnames
+    gripper_msgs.position = [move_pos]
+    gripper_msgs.velocity = [move_speed/1000]
+    gripper_msgs.effort = [np.inf]
+    gripper_command_pub.publish(gripper_msgs)
+
     # move_pos in meter, move_speed in mm/s
     # call gripper node, grasp
     move_pos=1000*move_pos
@@ -135,11 +153,30 @@ def setForceGripper(force=50):
 
 def graspinGripper(grasp_speed=50,grasp_force=40):
     # call grasp_in function from gripper node
+
+    jnames = ['gripper_command']
+    gripper_msgs = sensor_msgs.msg.JointState()
+    gripper_msgs.name  = jnames
+    gripper_msgs.position = [0]
+    gripper_msgs.velocity = [grasp_speed/1000]
+    gripper_msgs.effort = [grasp_force]
+    gripper_command_pub.publish(gripper_msgs)
     gripper.grasp_in(grasp_speed,grasp_force)
     return 1
 
 def graspoutGripper(grasp_speed=50,grasp_force=40):
     # call grasp_out function from gripper node
+
+    jnames = ['gripper_command']
+    gripper_msgs = sensor_msgs.msg.JointState()
+    gripper_msgs.name  = jnames
+    gripper_msgs.position = [0.11]
+    gripper_msgs.velocity = [grasp_speed/1000]
+    gripper_msgs.effort = [grasp_force]
+    gripper_command_pub.publish(gripper_msgs)
+    gripper.grasp_in(grasp_speed,grasp_force)
+    
+    
     gripper.grasp_out(grasp_speed,grasp_force)
     return 1
 
@@ -743,7 +780,7 @@ def get_tcp_pose(listener, tcp_offset = 0.0):
 def get_joints():
     #~get robot joints (both virtual and real)
     for i in range(10):
-        APCrobotjoints = rospy.wait_for_message("/joint_states" , JointState, 3)
+        APCrobotjoints = rospy.wait_for_message("/joint_states" , sensor_msgs.msg.JointState, 3)
         if APCrobotjoints.name[0] == 'joint1':
             q0 = APCrobotjoints.position[0:6]
             break

@@ -8,8 +8,8 @@ import ik.visualize_helper
 import numpy as np
 import os
 from ik.marker_helper import createDeleteAllMarker
-from sensor_msgs.msg import Image as RosImage
-
+#from sensor_msgs.msg import Image as RosImage
+import sensor_msgs.msg
 
 try:
     import passive_vision.srv
@@ -297,10 +297,11 @@ class TaskPlanner(object):
         markers_msg = MarkerArray()
         m0 = createDeleteAllMarker('pick_proposals')
         markers_msg.markers.append(m0)
-        p.proposal_viz_array_pub.publish(markers_msg)
-        ik.visualize_helper.visualize_grasping_proposals(self.proposal_viz_array_pub, np.asarray([self.grasp_point]),  self.listener, self.br, True)
+        for i in range(10):
+            p.proposal_viz_array_pub.publish(markers_msg)
         ik.visualize_helper.visualize_grasping_proposals(self.proposal_viz_array_pub, self.all_grasp_proposals,  self.listener, self.br)
-        
+        ik.visualize_helper.visualize_grasping_proposals(self.proposal_viz_array_pub, np.asarray([self.grasp_point]),  self.listener, self.br, True)
+
         self.grasping_output = grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container, flag=0,
                                  withPause=self.withPause, viz_pub=self.proposal_viz_array_pub)

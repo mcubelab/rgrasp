@@ -42,7 +42,7 @@ if __name__=='__main__':
     for bin_id in range(number_bins):
         print("getPassiveVisionEstimate 'update hm sg', '', ", bin_id)
         p.getPassiveVisionEstimate('update hm sg', '', bin_id)
-    p.getBestGraspingPoint(1)
+    p.getBestGraspingPoint(0)
     
 
     markers_msg = MarkerArray()

@@ -49,6 +49,6 @@ def visualize_grasping_proposals(proposal_viz_array_pub, proposals, listener, br
         markers_msg.markers.append(m1)
         markers_msg.markers.append(m2)
         markers_msg.markers.append(m3)
-    for i in range(0,100):
+    for i in range(0,10):
         proposal_viz_array_pub.publish(markers_msg)
     #pauseFunc(True)

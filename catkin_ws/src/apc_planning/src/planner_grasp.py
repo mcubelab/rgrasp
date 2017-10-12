@@ -70,6 +70,7 @@ class TaskPlanner(object):
         self.viz_array_pub = rospy.Publisher('/visualization_marker_array', MarkerArray, queue_size=10)
         self.proposal_viz_array_pub = rospy.Publisher('/proposal_visualization_marker_array', MarkerArray, queue_size=10)
         self.grasp_status_pub = rospy.Publisher('/grasp_status', sensor_msgs.msg.JointState, queue_size=10)
+
         rospy.sleep(0.5)
 
     ###############################
@@ -376,7 +377,7 @@ class TaskPlanner(object):
             grasp_status_msgs = sensor_msgs.msg.JointState()
             grasp_status_msgs.name = ['grasp_success', 'code_version', 'tote_ID'] #grasp proposals, grasp_point, scores, score, 
             grasp_status_msgs.position = [self.execution_possible, self.version, self.tote_ID]
-            grasp_status_pub.publish(grasp_status_msgs)
+            self.grasp_status_pub.publish(grasp_status_msgs)
             if self.fails_in_row > 4: # 10. Failed too many times, take action
                 if self.infinite_looping:
                     self.switch_tote()
@@ -408,4 +409,5 @@ if __name__ == '__main__':
     (opt, args) = parser.parse_args()
 
     p = TaskPlanner(opt)
+    
     p.run_data_collection()

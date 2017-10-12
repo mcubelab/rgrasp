@@ -7,7 +7,7 @@ import rospy
 import numpy as np
 from scipy.spatial import ConvexHull
 import matplotlib.pylab as plt
-from suction_projection import suction_projection_func
+#from suction_projection import suction_projection_func
 import goToHome 
 import collision_projection
 import ik.helper

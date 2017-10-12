@@ -32,7 +32,7 @@ def open():
         jnames = ['bot_spatula_joint']
         js = JointState()
         js.name  = jnames
-        js.position = [0]
+        js.position = [-0.4]
         exec_joint_pub.publish(js)
         if not fastvirtual:
             rospy.sleep(0.5)
@@ -55,7 +55,7 @@ def close():
         jnames = ['bot_spatula_joint']
         js = JointState()
         js.name  = jnames
-        js.position = [-0.4]
+        js.position = [0.1]
         exec_joint_pub.publish(js)
         if not fastvirtual:
             rospy.sleep(0.5)

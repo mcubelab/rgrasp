@@ -202,7 +202,7 @@ def grasp(objInput,
         plans.append(grasp_plan)
         
         #~8. Close gripper
-        grasp_plan = EvalPlan('helper.graspinGripper(%f,%f)'%(200,50))
+        grasp_plan = EvalPlan('helper.graspinGripper(%f,%f)'%(800,50))
         plans.append(grasp_plan)
         
         #~9. sleep

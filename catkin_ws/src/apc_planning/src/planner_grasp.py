@@ -69,9 +69,7 @@ class TaskPlanner(object):
         #Class Publishers 
         self.viz_array_pub = rospy.Publisher('/visualization_marker_array', MarkerArray, queue_size=10)
         self.proposal_viz_array_pub = rospy.Publisher('/proposal_visualization_marker_array', MarkerArray, queue_size=10)
-        self.hm_pre_pub = rospy.Publisher('/height_map_pre', RosImage, queue_size = 10)
-        self.hm_post_pub = rospy.Publisher('/height_map_post', RosImage, queue_size = 10)
-        self.score_pub = rospy.Publisher('/placing_score', RosImage, queue_size = 10)
+        self.grasp_status_pub = rospy.Publisher('/grasp_status', sensor_msgs.msg.JointState, queue_size=10)
         rospy.sleep(0.5)
 
     ###############################
@@ -325,14 +323,13 @@ class TaskPlanner(object):
                          isExecute=self.isExecute, binId=fixed_container[0], flag=2, withPause=self.withPause,
                          rel_pose=self.rel_pose, BoxBody=self.BoxBody, place_pose=drop_pose,
                          viz_pub=self.viz_array_pub, is_drop = False)
+
     def run_data_collection(self): 
         #######################
         ## initialize system ##
         #######################
         goToHome.goToARC(slowDown=self.goHomeSlow) # 1. Initialize robot state
         if self.visionType == 'real': # 2. Passive vision update bins
-#            print("getPassiveVisionEstimate 'update hm sg', '', ", self.tote_ID)
-#            self.getPassiveVisionEstimate('update hm sg', '', self.tote_ID)
             number_bins = 2
             for bin_id in range(number_bins): 
                 print("getPassiveVisionEstimate 'update hm sg', '', ", bin_id)

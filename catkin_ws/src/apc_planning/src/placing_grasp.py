@@ -7,6 +7,7 @@ from math import ceil, floor
 import optparse
 import copy
 import matplotlib.image as img
+import sensor_msgs.msg
 from sensor_msgs.msg import Image as RosImage
 import matplotlib
 import os

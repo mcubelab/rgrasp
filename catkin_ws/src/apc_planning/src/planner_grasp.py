@@ -23,7 +23,7 @@ import goToHome
 from grasping17 import grasp
 from ik.helper import fake_bbox_info_1, Timer, vision_transform_precise_placing_with_visualization, get_params_yaml
 from visualization_msgs.msg import MarkerArray
-
+import sensor_msgs.msg
 
 class TaskPlanner(object):
     def __init__(self, opt):
@@ -69,9 +69,7 @@ class TaskPlanner(object):
         #Class Publishers 
         self.viz_array_pub = rospy.Publisher('/visualization_marker_array', MarkerArray, queue_size=10)
         self.proposal_viz_array_pub = rospy.Publisher('/proposal_visualization_marker_array', MarkerArray, queue_size=10)
-        self.hm_pre_pub = rospy.Publisher('/height_map_pre', RosImage, queue_size = 10)
-        self.hm_post_pub = rospy.Publisher('/height_map_post', RosImage, queue_size = 10)
-        self.score_pub = rospy.Publisher('/placing_score', RosImage, queue_size = 10)
+        self.grasp_status_pub = rospy.Publisher('/grasp_status', sensor_msgs.msg.JointState, queue_size=10)
         rospy.sleep(0.5)
 
     ###############################
@@ -331,8 +329,6 @@ class TaskPlanner(object):
         #######################
         goToHome.goToARC(slowDown=self.goHomeSlow) # 1. Initialize robot state
         if self.visionType == 'real': # 2. Passive vision update bins
-#            print("getPassiveVisionEstimate 'update hm sg', '', ", self.tote_ID)
-#            self.getPassiveVisionEstimate('update hm sg', '', self.tote_ID)
             number_bins = 2
             for bin_id in range(number_bins): 
                 print("getPassiveVisionEstimate 'update hm sg', '', ", bin_id)
@@ -367,19 +363,24 @@ class TaskPlanner(object):
                 self.fails_in_row = 0
                 self.bbox_info = fake_bbox_info_1(self.listener)#Give bounding box to the object 
                 self.bbox_info[7:10] = [self.max_dimension, self.max_dimension, self.max_dimension]
-                self.planned_place() #TOdo_M
+                self.planned_place() #TODO_M
             else: 
                 self.num_attempts_failed += 1                
                 self.fails_in_row += 1
                 if self.grasp_point is not None: # 9. Add to bad grasp points
                     self.bad_grasping_points.append(self.grasp_point)
                     self.bad_grasping_times.append(time.time())
+            #Publish experiment outcome
+            grasp_status_msgs = sensor_msgs.msg.JointState()
+            grasp_status_msgs.name = ['grasp_success', 'code_version', 'tote_ID'] #grasp proposals, grasp_point, scores, score, 
+            grasp_status_msgs.position = [self.execution_possible, self.version, self.tote_ID]
+            grasp_status_pub.publish(grasp_status_msgs)
             if self.fails_in_row > 4: # 10. Failed too many times, take action
                 if self.infinite_looping:
                     self.switch_tote()
-                    print('The pick failed 10 times in a row, switching totes, the tote id is {}'.format(self.tote_ID))
+                    print('The pick failed 4 times in a row, switching totes, the tote id is {}'.format(self.tote_ID))
                 else:
-                    print('The pick failed 10 times in a row, stopping')
+                    print('The pick failed 4 times in a row, stopping')
                     break
         # Finished stowing
         goToHome.goToARC(slowDown = self.goHomeSlow)

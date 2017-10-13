@@ -70,7 +70,8 @@ class TaskPlanner(object):
         self.viz_array_pub = rospy.Publisher('/visualization_marker_array', MarkerArray, queue_size=10)
         self.proposal_viz_array_pub = rospy.Publisher('/proposal_visualization_marker_array', MarkerArray, queue_size=10)
         self.grasp_status_pub = rospy.Publisher('/grasp_status', sensor_msgs.msg.JointState, queue_size=10)
-
+        self.grasp_all_proposals_pub=rospy.Publisher('/grasp_all_proposals',Float32MultiArray,queue_size = 10)
+        self.grasp_proposal_pub=rospy.Publisher('/grasp_proposal',Float32MultiArray,queue_size = 10)
         rospy.sleep(0.5)
 
     ###############################
@@ -139,7 +140,8 @@ class TaskPlanner(object):
         self.all_grasp_proposals = np.asarray(self.passive_vision_state.grasp_proposals)
         self.all_grasp_proposals = self.all_grasp_proposals.reshape(len(self.all_grasp_proposals)/self.param_grasping, self.param_grasping)
 #        visualize_grasping_proposals(self.proposal_viz_array_pub, self.all_grasp_proposals, False)
-        
+        #Publish proposals
+        self.grasp_all_proposals_pub.publish(self.all_grasp_proposals)
         #Sorting all points
         grasp_permutation = self.all_grasp_proposals[:,self.param_grasping-1].argsort()[::-1]
         self.all_grasp_proposals = self.all_grasp_proposals[grasp_permutation]
@@ -269,6 +271,7 @@ class TaskPlanner(object):
 
     def run_grasping(self, container = None):
         self.getBestGraspingPoint(container)
+        self.grasp_proposal_pub.publish(self.grasp_point)
         if self.grasp_point is None:
             print('It was suppose to do grasping, but there is no grasp proposal')
             self.execution_possible = False

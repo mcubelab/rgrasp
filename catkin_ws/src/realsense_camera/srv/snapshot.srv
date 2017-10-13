@@ -1,0 +1,12 @@
+# Input parameters
+string camera_serial_number # serial number of camera to capture snapshot from
+---
+# Point cloud data
+float32[] point_cloud_xyz # 480x640x3 (row-major order) XYZ camera coordinates, (0,0,0) are invalid points
+uint8[] point_cloud_rgb # 480x640x3 (row-major order) corresponding RGB values
+
+# Camera parameters
+float32[] color_camera_intrinsics # 3x3 (row-major order) color camera intrinsics
+
+# File paths
+string[] file_paths # 3 strings with locations to camera information file (.txt), saved color image file (.png), saved depth image file (.png)

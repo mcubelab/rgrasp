@@ -1,0 +1,36 @@
+Notes:
+MATLAB cannot handle folder name with space 
+TODO:
+use drop location
+Add segmentation for local adjectment
+GPU 
+
+
+
+Done
+0. SpeedUP change detection 
+0. Precompute background subtraction once
+0. PreLoad Object Model in MetaData
+0. Sort image data
+0. PointCould data: 
+    1. center it 
+    2. align PCA 
+    2. denoise
+0. Test estimatePoseICP make sure it won't flip thing upside down
+0. move  ACRUnit.objectList  ACRUnit.numodobject to cameraData.
+0. Object on top of each other
+    eachobject add visibility label: max(visable part in each view)
+    if occluded not update Local 
+0. Check occlusion check
+
+0. Why so many local updates: 
+    it will try to update when object reappear after occluded (good)
+    find other failure cases
+0. Read tote YAML file 
+0. Add sift flow
+0. Object without depth->>> for add
+
+Compare 
+seg -> pose
+state track -> pose
+state track + seg -> pose

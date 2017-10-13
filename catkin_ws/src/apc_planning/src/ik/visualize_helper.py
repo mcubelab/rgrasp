@@ -13,11 +13,6 @@ def visualize_grasping_proposals(proposal_viz_array_pub, proposals, listener, br
     if n>0 and proposals[0] is None:
         return
 
-    color = (0, 1, 1, 1)  # rgba
-    color_bar = (0.5, 0.5, 0.5, 0.5)  # rgba
-    if is_selected:
-        color = (0, 1, 0, 1)
-        color_bar = (0, .5, 0, .5)  # rgba
     scale = (0.001,0.02,0.2)
     markers_msg = MarkerArray()
     #if not is_selected:  # don't delete other candidate
@@ -32,8 +27,16 @@ def visualize_grasping_proposals(proposal_viz_array_pub, proposals, listener, br
          #~get grasp pose and gripper opening from vision
         if len(objInput)==12:
             graspPos, hand_X, hand_Y, hand_Z, grasp_width = helper.get_picking_params_from_12(objInput)
+            grasp_score = objInput[-1]
         elif len(objInput)==7:
             graspPos, hand_X, hand_Y, hand_Z, grasp_width = helper.get_picking_params_from_7(objInput, 'dummy', listener, br)
+            grasp_score = 1
+
+        color = (1-grasp_score, 0, grasp_score, 1)  # rgba
+        color_bar = (0.5-grasp_score/2, 0.5, grasp_score/2, 0.5)  # rgba
+        if is_selected:
+            color = (0, 1, 0, 1)
+            color_bar = (0, .5, 0, .5)  # rgba
         
         scale_bar = (grasp_width,0.003,0.2)
         #import ipdb; ipdb.set_trace()

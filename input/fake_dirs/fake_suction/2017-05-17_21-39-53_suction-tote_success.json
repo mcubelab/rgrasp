@@ -1,0 +1,51 @@
+{
+    "ID_objects": [
+        "Avery_Binder", 
+        "Black_Fashion_Gloves", 
+        "Burts_Bees_Baby_Wipes", 
+        "Fiskars_Scissors", 
+        "Poland_Spring_Water"
+    ], 
+    "active_vision_ID": "Avery_Binder", 
+    "bad_grasping_points": [], 
+    "bad_suction_points": [], 
+    "excution_date": "2017-05-17_21-39-53", 
+    "excution_result": true, 
+    "excution_time": 97.88074898719788, 
+    "execution_possible": true, 
+    "human_supervision": true, 
+    "next_experiment_name": "/home/mcube/arcdata/planner_experiments/2017-05-17_21-40-59_suction-tote_success.json", 
+    "num_objects": 5, 
+    "obj_ID": "Avery_Binder", 
+    "obj_pose": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+    ], 
+    "previous_experiment_name": null, 
+    "primitive": "suction-tote", 
+    "primitive_output": {
+        "success_flag": true, 
+        "suction_check": true, 
+        "tcp_rotate_angle": 0, 
+        "vac_level_after_contact": 747.0, 
+        "vac_level_before_contact": 867.0
+    }, 
+    "primitive_point": [
+        0.827782087802887, 
+        -0.3327507605552673, 
+        -0.18596988320350646, 
+        0.0, 
+        0.0, 
+        1.0
+    ], 
+    "primitive_score": 0.9999430179595947, 
+    "primitive_version": 1, 
+    "tote_ID": 0, 
+    "validity_experiment": true, 
+    "vision_info": "/home/mcube/arcdata/loopdata/1495071496/log.txt", 
+    "weight_info": null
+}

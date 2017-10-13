@@ -1,0 +1,84 @@
+{
+    "ID_objects": [
+        "Composition_Book", 
+        "Pie_Plates", 
+        "Scotch_Sponges", 
+        "Table_Cloth", 
+        "Toilet_Brush", 
+        "no_item"
+    ], 
+    "active_vision_ID": "Avery_Binder", 
+    "bad_grasping_points": [], 
+    "bad_suction_points": [], 
+    "excution_date": "2017-05-25_00-34-40", 
+    "excution_result": true, 
+    "excution_time": 87.27290105819702, 
+    "execution_possible": true, 
+    "human_supervision": true, 
+    "next_experiment_name": "/home/mcube/arcdata/planner_experiments/2017-05-25_00-35-55_grasp-tote_success.json", 
+    "num_objects": 6, 
+    "obj_ID": "unkown", 
+    "obj_pose": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+    ], 
+    "previous_experiment_name": null, 
+    "primitive": "grasp-tote", 
+    "primitive_output": {
+        "collision": false, 
+        "execution_possible": true, 
+        "gelsight_data": [], 
+        "graspPose": [
+            0.9006125926971436, 
+            -0.5708463191986084, 
+            -0.2200000062584877, 
+            -0.195090320278747, 
+            0.9807852731877138, 
+            0.0, 
+            0.0
+        ], 
+        "grasp_possible": true, 
+        "gripper_opening": 0.05956216049194336, 
+        "plan_possible": true
+    }, 
+    "primitive_point": [
+        0.9006125926971436, 
+        -0.5708463191986084, 
+        -0.1497149020433426, 
+        0.0, 
+        0.0, 
+        -1.0, 
+        0.07028510421514511, 
+        0.07999999821186066, 
+        -0.9238795042037964, 
+        -0.3826834261417389, 
+        0.0, 
+        1.0
+    ], 
+    "primitive_score": 1.0, 
+    "primitive_version": 1, 
+    "tote_ID": 0, 
+    "validity_experiment": false, 
+    "vision_info": "/home/mcube/arcdata/loopdata/planner/1495686793/log.txt", 
+    "weight_info": {
+        "probs": [
+            0.0, 
+            0.0, 
+            0.0, 
+            0.0, 
+            0.0, 
+            0.0
+        ], 
+        "weights": [
+            0.0, 
+            0.0, 
+            0.0, 
+            0.0, 
+            0.0
+        ]
+    }
+}

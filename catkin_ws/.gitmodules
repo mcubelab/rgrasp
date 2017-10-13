@@ -4,12 +4,6 @@
 [submodule "catkin_ws/src/pr_msgs"]
 	path = catkin_ws/src/pr_msgs
 	url = https://github.com/mcubelab/pr_msgs.git
-[submodule "catkin_ws/src/realsense_camera"]
-	path = catkin_ws/src/realsense_camera
-	url = https://github.com/mcubelab/realsense_camera
-[submodule "catkin_ws/src/passive_vision"]
-	path = catkin_ws/src/passive_vision
-	url = https://github.com/mcubelab/passive_vision
 [submodule "catkin_ws/src/active_vision"]
 	path = catkin_ws/src/active_vision
 	url = https://github.com/mcubelab/active_vision

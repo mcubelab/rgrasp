@@ -1,0 +1,98 @@
+{
+    "ID_objects": [
+        "Black_Fashion_Gloves", 
+        "Epsom_Salts", 
+        "Robots_DVD", 
+        "Ticonderoga_Pencils", 
+        "White_Facecloth", 
+        "no_item"
+    ], 
+    "active_vision_ID": "Avery_Binder", 
+    "bad_grasping_points": [
+        [
+            1.1806125640869141, 
+            -0.51084631681442261, 
+            -0.18531510233879089, 
+            0.0, 
+            0.0, 
+            -1.0, 
+            0.034684892743825912, 
+            0.10000000149011612, 
+            -0.92387950420379639, 
+            -0.38268342614173889, 
+            0.0, 
+            0.87619048357009888
+        ]
+    ], 
+    "bad_suction_points": [], 
+    "excution_date": "2017-05-25_00-11-47", 
+    "excution_result": false, 
+    "excution_time": 33.91515493392944, 
+    "execution_possible": false, 
+    "human_supervision": true, 
+    "num_objects": 6, 
+    "obj_ID": "Black_Fashion_Gloves", 
+    "obj_pose": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+    ], 
+    "previous_experiment_name": "/home/mcube/arcdata/planner_experiments/2017-05-25_00-11-07_grasp-tote_success.json", 
+    "primitive": "grasp-tote", 
+    "primitive_output": {
+        "collision": true, 
+        "execution_possible": false, 
+        "gelsight_data": [], 
+        "graspPose": [
+            1.1806125640869141, 
+            -0.51084631681442261, 
+            -0.21999999508261681, 
+            -0.19509032027874701, 
+            0.9807852731877138, 
+            0.0, 
+            0.0
+        ], 
+        "grasp_possible": true, 
+        "gripper_opening": 0.0, 
+        "plan_possible": false
+    }, 
+    "primitive_point": [
+        1.1806125640869141, 
+        -0.51084631681442261, 
+        -0.18531510233879089, 
+        0.0, 
+        0.0, 
+        -1.0, 
+        0.034684892743825912, 
+        0.10000000149011612, 
+        -0.92387950420379639, 
+        -0.38268342614173889, 
+        0.0, 
+        0.87619048357009888
+    ], 
+    "primitive_score": 0.87619048357009888, 
+    "primitive_version": 1, 
+    "tote_ID": 0, 
+    "validity_experiment": false, 
+    "vision_info": "/home/mcube/arcdata/loopdata/planner/1495685363/log.txt", 
+    "weight_info": {
+        "probs": [
+            0.0, 
+            0.0, 
+            0.0, 
+            0.0, 
+            0.0, 
+            0.0
+        ], 
+        "weights": [
+            0.0, 
+            0.0, 
+            0.0, 
+            0.0, 
+            0.0
+        ]
+    }
+}

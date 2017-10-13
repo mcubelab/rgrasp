@@ -222,30 +222,28 @@ def grasp(objInput,
         ## EXECUTION ###
         ################
         #We start recording now
-#        gdr = GraspDataCollector(grasp_id=0, directory='/home/mcube/rgraspdata') #Handler instatiation
-#        gdr.start_recording()
         
         if isExecute and plan_possible:
             executePlanForward(plans, withPause)
-            
-#        gdr.stop_recording(save_dict=True, save_raw_copy=True, plot_ws=True)
+
+        #gdr.stop_recording(save_dict=True, save_raw_copy=True, plot_ws=True)
     
         #~Check if picking success
         low_threshold = 0.0035
         high_threshold = 0.015
         if isExecute and plan_possible:
-            rospy.sleep(0.2)
+            rospy.sleep(1)
             gripper_opening=gripper.getGripperopening()
-#            if gripper_opening > high_threshold:
-#                rospy.loginfo('[Picking] ***************')
-#                rospy.loginfo('[Picking] Pick Successful (Gripper Opening Test)')
-#                rospy.loginfo('[Picking] ***************')
-#                execution_possible = True
-#            else:
-            rospy.loginfo('[Picking] ***************')
-            rospy.loginfo( '[Picking] Pick Inconclusive (Gripper Opening Test)')
-            rospy.loginfo( '[Picking] ***************')
-            execution_possible = None
+            if gripper_opening > high_threshold:
+                rospy.loginfo('[Picking] ***************')
+                rospy.loginfo('[Picking] Pick Successful (Gripper Opening Test)')
+                rospy.loginfo('[Picking] ***************')
+                execution_possible = True
+            else:
+                rospy.loginfo('[Picking] ***************')
+                rospy.loginfo( '[Picking] Pick Inconclusive (Gripper Opening Test)')
+                rospy.loginfo( '[Picking] ***************')
+                execution_possible = None
                 
         elif not isExecute:
             execution_possible=plan_possible

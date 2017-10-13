@@ -8,9 +8,6 @@ import ik.visualize_helper
 import numpy as np
 import os
 from ik.marker_helper import createDeleteAllMarker
-#from sensor_msgs.msg import Image as RosImage
-import sensor_msgs.msg
-from std_msgs.msg import Float32MultiArray
 
 try:
     import passive_vision.srv
@@ -25,10 +22,11 @@ from grasping17 import grasp
 from ik.helper import fake_bbox_info_1, Timer, vision_transform_precise_placing_with_visualization, get_params_yaml
 from visualization_msgs.msg import MarkerArray
 
+import sensor_msgs.msg
+from std_msgs.msg import Float32MultiArray
 
 class TaskPlanner(object):
     def __init__(self, opt):
-        
         
         self.passiveVisionTypes = {'real' : self.call_passive_vision,
                                    'file' : self.call_passive_vision,
@@ -50,7 +48,10 @@ class TaskPlanner(object):
         self.listener = tf.TransformListener()
         self.br = tf.TransformBroadcaster()
         #Vision
+        self.haverobot = rospy.get_param('/have_robot', True)
         self.visionType = opt.visionType
+        if not self.haverobot:
+            self.visionType = 'virtual'
         if self.visionType == 'real':
             self.getPassiveVisionEstimate = rospy.ServiceProxy('/passive_vision/estimate', passive_vision.srv.state)
         self.FAKE_PASSIVE_VISION_DIR = os.environ['CODE_BASE'] + '/input/fake_dirs/fake_passive_vision/'
@@ -92,6 +93,12 @@ class TaskPlanner(object):
         #~frank edit: continuous switch between totes 0 and 1
 #        self.tote_ID = self.switch_dict[self.tote_ID]
         self.fails_in_row = 0
+        if self.visionType == 'real': # 2. Passive vision update bins
+            number_bins = 2
+            for bin_id in range(number_bins): 
+                print("getPassiveVisionEstimate 'update hm sg', '', ", bin_id)
+                    self.getPassiveVisionEstimate('update hm sg', '', bin_id)
+
 
     def remove_old_points(self, points, times, limit):
         new_points = []
@@ -113,7 +120,11 @@ class TaskPlanner(object):
             DATA = json.load(infile)
         self.all_grasp_proposals = [float(i) for i in DATA['grasp_proposals']]
         self.all_grasp_proposals = np.array(self.all_grasp_proposals)
-        self.all_grasp_proposals = self.all_grasp_proposals.reshape(len(self.all_grasp_proposals)/12, 12)
+        #Publish proposals
+        grasp_all_proposals_msgs = Float32MultiArray()
+        grasp_all_proposals_msgs.data = self.all_grasp_proposals
+        self.grasp_all_proposals_pub.publish(grasp_all_proposals_msgs)
+        self.all_grasp_proposals = self.all_grasp_proposals.reshape(len(self.all_grasp_proposals)/self.param_grasping, self.param_grasping)
 
     def callFakeGrasping(self, prob, container):
         print('------- DOING GRASPING ------- ')
@@ -140,10 +151,12 @@ class TaskPlanner(object):
 
         print('Received grasp proposals.')
         self.all_grasp_proposals = np.asarray(self.passive_vision_state.grasp_proposals)
+        #Publish proposals
+        grasp_all_proposals_msgs = Float32MultiArray()
+        grasp_all_proposals_msgs.data = self.all_grasp_proposals
+        self.grasp_all_proposals_pub.publish(grasp_all_proposals_msgs)
         self.all_grasp_proposals = self.all_grasp_proposals.reshape(len(self.all_grasp_proposals)/self.param_grasping, self.param_grasping)
 #        visualize_grasping_proposals(self.proposal_viz_array_pub, self.all_grasp_proposals, False)
-        #Publish proposals
-        self.grasp_all_proposals_pub.publish(self.all_grasp_proposals)
         #Sorting all points
         grasp_permutation = self.all_grasp_proposals[:,self.param_grasping-1].argsort()[::-1]
         self.all_grasp_proposals = self.all_grasp_proposals[grasp_permutation]
@@ -273,7 +286,9 @@ class TaskPlanner(object):
 
     def run_grasping(self, container = None):
         self.getBestGraspingPoint(container)
-        self.grasp_proposal_pub.publish(self.grasp_point)
+        grasp_proposal_msgs = Float32MultiArray()
+        grasp_proposal_msgs.data = self.grasp_point
+        self.grasp_proposal_pub.publish(grasp_proposal_msgs)
         if self.grasp_point is None:
             print('It was suppose to do grasping, but there is no grasp proposal')
             self.execution_possible = False
@@ -339,8 +354,9 @@ class TaskPlanner(object):
             
             if self.execution_possible != False: # 5. Check the weight
                 self.weight_info[self.tote_ID] = self.weightSensor.readWeightSensor(item_list = [], withSensor=self.withSensorWeight, binNum=self.tote_ID, givenWeights=-11)
+                print('-----------------------------\n Execution_possible according to primitive = {} \n-----------------------------'.format(self.execution_possible) )
                 print('Detected weight:',  self.weight_info[self.tote_ID]['weights'])
-                
+                rospy.sleep(5)
                 if self.weight_info[self.tote_ID]['weights'] > 10: #frank question: what does the 10 represent?
                     self.execution_possible = True
                 

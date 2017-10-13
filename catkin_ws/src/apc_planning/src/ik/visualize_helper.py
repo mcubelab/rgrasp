@@ -6,6 +6,7 @@ from marker_helper import createCubeMarker2, createDeleteAllMarker
 from roshelper import pubFrame
 #from helper import reference_frames, get_params_yaml, quat_from_matrix
 import helper
+import matplotlib.cm
 
 def visualize_grasping_proposals(proposal_viz_array_pub, proposals, listener, br, is_selected = False):
 
@@ -32,11 +33,9 @@ def visualize_grasping_proposals(proposal_viz_array_pub, proposals, listener, br
             graspPos, hand_X, hand_Y, hand_Z, grasp_width = helper.get_picking_params_from_7(objInput, 'dummy', listener, br)
             grasp_score = 1
 
-        color = (1-grasp_score, 0, grasp_score, 1)  # rgba
-        color_bar = (1-grasp_score, 0, grasp_score, 1)  # rgba
+        color = matplotlib.cm.seismic(255*(1-grasp_score))
         if is_selected:
             color = (0, 1, 0, 1)
-            color_bar = (0, 1, 0, 1)  # rgba
         
         scale_bar = (grasp_width,0.003,0.2)
         #import ipdb; ipdb.set_trace()
@@ -47,7 +46,7 @@ def visualize_grasping_proposals(proposal_viz_array_pub, proposals, listener, br
 
         m1 = createCubeMarker2(rgba = color, scale = scale, offset = tuple(graspPos+hand_X*grasp_width/2), orientation= tuple(quat), marker_id = i*3, ns = 'pick_proposals')
         m2 = createCubeMarker2(rgba = color, scale = scale, offset = tuple(graspPos-hand_X*grasp_width/2), orientation= tuple(quat), marker_id = i*3+1, ns = 'pick_proposals')
-        m3 = createCubeMarker2(rgba = color_bar, scale = scale_bar, offset = tuple(graspPos), orientation= tuple(quat), marker_id = i*3+2, ns = 'pick_proposals')
+        m3 = createCubeMarker2(rgba = color, scale = scale_bar, offset = tuple(graspPos), orientation= tuple(quat), marker_id = i*3+2, ns = 'pick_proposals')
 
         markers_msg.markers.append(m1)
         markers_msg.markers.append(m2)

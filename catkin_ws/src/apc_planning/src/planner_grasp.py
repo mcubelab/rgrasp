@@ -91,6 +91,12 @@ class TaskPlanner(object):
         #~frank edit: continuous switch between totes 0 and 1
 #        self.tote_ID = self.switch_dict[self.tote_ID]
         self.fails_in_row = 0
+        if self.visionType == 'real': # 2. Passive vision update bins
+            number_bins = 2
+            for bin_id in range(number_bins): 
+                print("getPassiveVisionEstimate 'update hm sg', '', ", bin_id)
+                    self.getPassiveVisionEstimate('update hm sg', '', bin_id)
+
 
     def remove_old_points(self, points, times, limit):
         new_points = []
@@ -348,7 +354,7 @@ class TaskPlanner(object):
                 self.weight_info[self.tote_ID] = self.weightSensor.readWeightSensor(item_list = [], withSensor=self.withSensorWeight, binNum=self.tote_ID, givenWeights=-11)
                 print('-----------------------------\n Execution_possible according to primitive = {} \n-----------------------------'.format(self.execution_possible) )
                 print('Detected weight:',  self.weight_info[self.tote_ID]['weights'])
-                rospy.sleep(30)
+                rospy.sleep(5)
                 if self.weight_info[self.tote_ID]['weights'] > 10: #frank question: what does the 10 represent?
                     self.execution_possible = True
                 

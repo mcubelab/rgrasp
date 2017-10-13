@@ -33,10 +33,10 @@ def visualize_grasping_proposals(proposal_viz_array_pub, proposals, listener, br
             grasp_score = 1
 
         color = (1-grasp_score, 0, grasp_score, 1)  # rgba
-        color_bar = (0.5-grasp_score/2, 0.5, grasp_score/2, 0.5)  # rgba
+        color_bar = (1-grasp_score, 0, grasp_score, 1)  # rgba
         if is_selected:
             color = (0, 1, 0, 1)
-            color_bar = (0, .5, 0, .5)  # rgba
+            color_bar = (0, 1, 0, 1)  # rgba
         
         scale_bar = (grasp_width,0.003,0.2)
         #import ipdb; ipdb.set_trace()

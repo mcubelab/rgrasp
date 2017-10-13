@@ -8,9 +8,6 @@ import ik.visualize_helper
 import numpy as np
 import os
 from ik.marker_helper import createDeleteAllMarker
-#from sensor_msgs.msg import Image as RosImage
-import sensor_msgs.msg
-
 try:
     import passive_vision.srv
 except:
@@ -27,7 +24,6 @@ import sensor_msgs.msg
 
 class TaskPlanner(object):
     def __init__(self, opt):
-        
         
         self.passiveVisionTypes = {'real' : self.call_passive_vision,
                                    'file' : self.call_passive_vision,
@@ -48,7 +44,10 @@ class TaskPlanner(object):
         self.listener = tf.TransformListener()
         self.br = tf.TransformBroadcaster()
         #Vision
+        self.haverobot = rospy.get_param('/have_robot', True)
         self.visionType = opt.visionType
+        if not self.haverobot:
+            self.visionType = 'virtual'
         if self.visionType == 'real':
             self.getPassiveVisionEstimate = rospy.ServiceProxy('/passive_vision/estimate', passive_vision.srv.state)
         self.FAKE_PASSIVE_VISION_DIR = os.environ['CODE_BASE'] + '/input/fake_dirs/fake_passive_vision/'

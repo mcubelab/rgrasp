@@ -71,7 +71,8 @@ class TaskPlanner(object):
         self.viz_array_pub = rospy.Publisher('/visualization_marker_array', MarkerArray, queue_size=10)
         self.proposal_viz_array_pub = rospy.Publisher('/proposal_visualization_marker_array', MarkerArray, queue_size=10)
         self.grasp_status_pub = rospy.Publisher('/grasp_status', sensor_msgs.msg.JointState, queue_size=10)
-
+        self.grasp_all_proposals_pub=rospy.Publisher('/grasp_all_proposals',Float32MultiArray,queue_size = 10)
+        self.grasp_proposal_pub=rospy.Publisher('/grasp_proposal',Float32MultiArray,queue_size = 10)
         rospy.sleep(0.5)
 
     ###############################
@@ -139,26 +140,20 @@ class TaskPlanner(object):
         print('Received grasp proposals.')
         self.all_grasp_proposals = np.asarray(self.passive_vision_state.grasp_proposals)
         self.all_grasp_proposals = self.all_grasp_proposals.reshape(len(self.all_grasp_proposals)/self.param_grasping, self.param_grasping)
-        self.grasp_object_list = np.asarray(self.passive_vision_state.grasp_object_list)
-        self.grasp_object_confidence = np.asarray(self.passive_vision_state.grasp_object_confidence)
 #        visualize_grasping_proposals(self.proposal_viz_array_pub, self.all_grasp_proposals, False)
-        
+        #Publish proposals
+        self.grasp_all_proposals_pub.publish(self.all_grasp_proposals)
         #Sorting all points
         grasp_permutation = self.all_grasp_proposals[:,self.param_grasping-1].argsort()[::-1]
         self.all_grasp_proposals = self.all_grasp_proposals[grasp_permutation]
-        self.grasp_object_list = self.grasp_object_list[grasp_permutation]
-        self.grasp_object_confidence = self.grasp_object_confidence[grasp_permutation]
     
     def GetGraspPoints(self, num_points, container):
         if self.all_grasp_proposals is None:
             print('I am trying to get proposals')
             self.passiveVisionTypes[self.visionType](container)
-        if self.visionType == 'virtual':
-            self.grasp_object_list = ['Null']*len(self.all_grasp_proposals)
-            self.grasp_object_confidence = ['Null']*len(self.all_grasp_proposals)
         #Add grasp proposals if possible
+        print('There are {} grasp proposals'.format(len(self.all_grasp_proposals)))
         print('There are ', len(self.bad_grasping_points), ' bad_grasping_points ',': ', self.bad_grasping_points)
-        print('I GOT {} proposals'.format(len(self.all_grasp_proposals)))
         ## Filter out outdated bad_grasping_point
         self.bad_grasping_points, self.bad_grasping_times = self.remove_old_points(self.bad_grasping_points, self.bad_grasping_times, 60*3)
         if len(self.all_grasp_proposals) > 0:            
@@ -173,28 +168,18 @@ class TaskPlanner(object):
                 if not is_bad:
                     not_bad_grasp_points_indices.append(i)
             not_bad_grasp_points = np.zeros((len(not_bad_grasp_points_indices), self.param_grasping))
-            not_bad_grasp_ids = ['NULL']*len(not_bad_grasp_points_indices)
-            not_bad_grasp_confidence = [0]*len(not_bad_grasp_points_indices)
             for i in range(0, len(not_bad_grasp_points_indices)):
                 not_bad_grasp_points[i] = self.all_grasp_proposals[not_bad_grasp_points_indices[i], :]
-                not_bad_grasp_ids[i] = self.grasp_object_list[not_bad_grasp_points_indices[i]]
-                not_bad_grasp_confidence[i] = self.grasp_object_confidence[not_bad_grasp_points_indices[i]]
             if len(not_bad_grasp_points) > 0:
                 self.all_grasp_proposals = not_bad_grasp_points
-                self.grasp_object_list = not_bad_grasp_ids
-                self.grasp_object_confidence = not_bad_grasp_confidence
             print 'bad_points_grasping: ', self.bad_grasping_points
             num_points_grasp = min(num_points, len(self.all_grasp_proposals))
             self.all_pick_proposals = list(self.all_grasp_proposals[0:num_points_grasp, 0:self.param_grasping])
             self.all_pick_scores = list(self.all_grasp_proposals[0:num_points_grasp, self.param_grasping-1])
-            self.all_pick_ids = list(self.grasp_object_list[0:num_points_grasp])
-            self.all_pick_confidence = list(self.grasp_object_confidence[0:num_points_grasp])
         else:
             self.all_pick_proposals = []
             self.all_pick_scores = []
-            self.all_pick_ids = []
-            self.all_pick_confidence = []
-        
+                    
         self.all_pick_scores.sort(reverse=True)
         self.all_pick_proposals.sort(key=lambda x: x[-1], reverse=True)
         self.num_pick_proposals = len(self.all_pick_scores)
@@ -287,6 +272,7 @@ class TaskPlanner(object):
 
     def run_grasping(self, container = None):
         self.getBestGraspingPoint(container)
+        self.grasp_proposal_pub.publish(self.grasp_point)
         if self.grasp_point is None:
             print('It was suppose to do grasping, but there is no grasp proposal')
             self.execution_possible = False
@@ -378,6 +364,7 @@ class TaskPlanner(object):
             grasp_status_msgs = sensor_msgs.msg.JointState()
             grasp_status_msgs.name = ['grasp_success', 'code_version', 'tote_ID'] #grasp proposals, grasp_point, scores, score, 
             grasp_status_msgs.position = [self.execution_possible, self.version, self.tote_ID]
+            print '***********************************************************'
             self.grasp_status_pub.publish(grasp_status_msgs)
             if self.fails_in_row > 4: # 10. Failed too many times, take action
                 if self.infinite_looping:

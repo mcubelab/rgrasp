@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Export-Package: manual_fit;version="0.0.0";uses:="geometry_msgs,org.ro
+ s.internal.message,pr_msgs"
+Bundle-Version: 0.0.0
+Tool: Bnd-2.1.0.20130426-122213
+Bundle-Name: manual_fit
+Bnd-LastModified: 1493689632000
+Created-By: 1.7.0_60 (Oracle Corporation)
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.ros.rosjava_messages.manual_fit
+Import-Package: geometry_msgs;version="[1.10,2)",org.ros.internal.mess
+ age,pr_msgs;version="[0.0,1)"
+

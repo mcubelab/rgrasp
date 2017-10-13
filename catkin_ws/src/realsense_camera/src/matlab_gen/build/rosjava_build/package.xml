@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+   <name>rosjava_build</name>
+   <version>1.0</version>
+   <build_depend>rosjava_build_tools</build_depend>
+   <build_depend>rosjava_bootstrap</build_depend><!-- Add the packages you want to build on the following lines --><!-- e.g. <build_depend>std_msgs</build_depend> -->
+   <build_depend>abb_irb1600id_moveit_config</build_depend>
+   <build_depend>active_vision</build_depend>
+   <build_depend>apc_arduino</build_depend>
+   <build_depend>apc_config</build_depend>
+   <build_depend>apc_perception</build_depend>
+   <build_depend>apc_planning</build_depend>
+   <build_depend>capsen_vision</build_depend>
+   <build_depend>manual_fit</build_depend>
+   <build_depend>passive_vision</build_depend>
+   <build_depend>pr_msgs</build_depend>
+   <build_depend>realsense_camera</build_depend>
+</package>

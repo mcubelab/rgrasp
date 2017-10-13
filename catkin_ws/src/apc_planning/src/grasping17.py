@@ -203,7 +203,7 @@ def grasp(objInput,
         plans.append(grasp_plan)
         
         #~8. Close gripper
-        grasp_plan = EvalPlan('helper.graspinGripper(%f,%f)'%(200,50))
+        grasp_plan = EvalPlan('helper.graspinGripper(%f,%f)'%(800,50))
         plans.append(grasp_plan)
         
         #~9. sleep
@@ -222,12 +222,10 @@ def grasp(objInput,
         ## EXECUTION ###
         ################
         #We start recording now
-        #gdr = GraspDataCollector(grasp_id=0, directory='/home/mcube/rgraspdata') #Handler instatiation
-        #gdr.start_recording()
         
         if isExecute and plan_possible:
             executePlanForward(plans, withPause)
-            
+
         #gdr.stop_recording(save_dict=True, save_raw_copy=True, plot_ws=True)
     
         #~Check if picking success

@@ -1,0 +1,87 @@
+{
+    "ID_objects": [
+        "Composition_Book", 
+        "Pie_Plates", 
+        "Scotch_Sponges", 
+        "Table_Cloth", 
+        "Toilet_Brush", 
+        "no_item", 
+        "no_item"
+    ], 
+    "active_vision_ID": "Avery_Binder", 
+    "bad_grasping_points": [], 
+    "bad_suction_points": [], 
+    "excution_date": "2017-05-25_00-35-55", 
+    "excution_result": true, 
+    "excution_time": 71.10489296913147, 
+    "execution_possible": true, 
+    "human_supervision": true, 
+    "next_experiment_name": "/home/mcube/arcdata/planner_experiments/2017-05-25_00-37-30_grasp-tote_success.json", 
+    "num_objects": 7, 
+    "obj_ID": "no_item", 
+    "obj_pose": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+    ], 
+    "previous_experiment_name": "/home/mcube/arcdata/planner_experiments/2017-05-25_00-34-40_grasp-tote_success.json", 
+    "primitive": "grasp-tote", 
+    "primitive_output": {
+        "collision": false, 
+        "execution_possible": true, 
+        "gelsight_data": [], 
+        "graspPose": [
+            0.8897886872291565, 
+            -0.5000224113464355, 
+            -0.2199999950826168, 
+            -0.5555702172473269, 
+            0.8314696104313551, 
+            0.0, 
+            0.0
+        ], 
+        "grasp_possible": true, 
+        "gripper_opening": 0.060408920288085935, 
+        "plan_possible": true
+    }, 
+    "primitive_point": [
+        0.8897886872291565, 
+        -0.5000224113464355, 
+        -0.18399003148078918, 
+        0.0, 
+        0.0, 
+        -1.0, 
+        0.03600996360182762, 
+        0.10000000149011612, 
+        -0.3826834261417389, 
+        -0.9238795042037964, 
+        0.0, 
+        0.8485714197158813
+    ], 
+    "primitive_score": 0.8485714197158813, 
+    "primitive_version": 1, 
+    "tote_ID": 0, 
+    "validity_experiment": false, 
+    "vision_info": "/home/mcube/arcdata/loopdata/planner/1495686793/log.txt", 
+    "weight_info": {
+        "probs": [
+            0.0, 
+            0.0, 
+            0.0, 
+            0.0, 
+            0.0, 
+            0.0, 
+            0.0
+        ], 
+        "weights": [
+            0.0, 
+            0.0, 
+            0.0, 
+            0.0, 
+            0.0, 
+            0.0
+        ]
+    }
+}

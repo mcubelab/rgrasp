@@ -8,6 +8,7 @@ import ik.visualize_helper
 import numpy as np
 import os
 from ik.marker_helper import createDeleteAllMarker
+
 try:
     import passive_vision.srv
 except:
@@ -20,6 +21,7 @@ import goToHome
 from grasping17 import grasp
 from ik.helper import fake_bbox_info_1, Timer, vision_transform_precise_placing_with_visualization, get_params_yaml
 from visualization_msgs.msg import MarkerArray
+
 import sensor_msgs.msg
 from std_msgs.msg import Float32MultiArray
 

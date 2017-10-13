@@ -1,0 +1,77 @@
+# Update command
+string update_command # a single string to indicate what kind of update should happen. "update hm" means to update height map, "update hm sg" means to update height map and suction points and grasp proposals, "update hm state sg" means to update the height map and state and suction and grasp proposals, "update state" means to only update the state. "request job_id" tries to get response for job_id
+
+string state_command # a single string to indicate the state command, which is a substring to indicate that an object has been added/removed from a bin, or a disturbance has occured to a bin and a local update is required from vision. Format is: 'bin mode obj', where bin is the bin ID, mode is 'add' or 'rm' or 'mv', and 'obj' is the object name. Example: '1 add Expo_Eraser' (indicates that an expo eraser has been added to bin #1). Example: '0 mv' (indicates that a disturbance has occured in bin 0 and an update from vision is required). 
+
+# Bin ID Number
+int32 bin_id # ID number of bin to get vision output for (bin #0 is tote, bin #1 is first half of storage system next to tote, bin #2 is second half of storage system, bin #3 is the extendable part of the storage system)
+
+# int32 job_id
+
+---
+
+
+
+# Job ID information
+
+
+# int32[] job_id # if recieved an update command, returns an associated job ID
+
+# bool job_done # if recieved a request command, returns whether the job is completed
+
+
+
+
+
+
+
+# Height map
+float32[] height_map # 300x200 matrix (row-major order, in meters) centered over the tote where each pixel is 0.002m^2
+
+
+
+
+
+
+
+
+
+# Suction Point List
+float32[] suction_points # Nx7 matrix (row-major order, [x,y,z,nx,ny,nz,c]) of N suction proposals with suction point (x,y,z), surface normal (nx,ny,nz), and confidence value (c) per row
+
+# Suction Point Object List
+string[] suction_object_list # list of N object names corresponding to suction proposals
+
+float32[] suction_object_confidence
+
+float32[] suctionside_points
+string[] suctionside_object_list
+float32[] suctionside_object_confidence
+
+# Grasp Proposals List
+float32[] grasp_proposals # Mx12 matrix (row-major order, [x,y,z,dx,dy,dz,d,w,gx,gy,gz,c]) of M grasp proposals with the position of the top of the surface (x,y,z) in world coordinates, the direction of approach as the gripper moves closer to the object (dx,dy,dz), how far perception thinks is safe to move the gripper down the direction of approach past the top surface point without collision to fingers (d) in meters, the width of the space between the fingers when moving the gripper downwards (w) in meters, the direction that is parallel to the motion of the fingers when they close and is perpendicular to the direction of approach (gx,gy,gz), and the confidence score (c) for the this grasp proposal
+
+# Grasp Proposals Object List
+string[] grasp_object_list # list of M object names corresponding to grasp proposals
+
+float32[] grasp_object_confidence
+
+# Flush Grasp Proposal List
+float32[] flush_grasp_proposals # Px6 matrix (row-major order, [x,y,z,d,w,c]) of P flush grasp proposals with the position of the top of the surface (x,y,z) in world coordinates (use y axis value to determine which bin wall to flush against, use x axis value to determine location of grasp), how far perception thinks is safe to move the gripper down past the top surface point without collision to fingers (d) in meters, the width of the space between the fingers when moving the gripper downwards (w) in meters, and the confidence score (c) for the this flush grasp proposal
+
+# Flush Grasp Proposals Object List
+string[] flush_grasp_object_list # list of P object names corresponding to flush grasp proposals
+
+float32[] flush_grasp_object_confidence
+
+
+
+
+
+
+# Bin state information
+string[] state_object_list # list of N objects 
+string[] state_object_list_ontop # list of N objects and which objects are on top of each other (by object name), example: 'obj1 3 obj2 obj4 obj7 obj3 2 obj5 obj6' means that obj1 has 3 objects on top of it (obj2,obj4,obj7) and obj3 has 2 objects on top of it (obj5,obj6)
+float32[] state_object_pose # Nx7 matrix containing poses of all N objects (row-major order, [qx,qy,qz,qw,tx,ty,tz] in world coordinates) with rotation quaternion (qx,qy,qz,qw), translation (tx,ty,tz)
+float32[] state_object_confidence # Nx1 array containing confidence scores of all N objects
+float32[] state_object_visibility # Nx1 array containing visibility scores of all N objects (values between 0 to 1 where 1 means object is 100% visible)

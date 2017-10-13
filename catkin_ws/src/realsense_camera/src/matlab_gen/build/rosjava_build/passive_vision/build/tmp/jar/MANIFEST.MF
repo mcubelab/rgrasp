@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Export-Package: passive_vision;version="1.0.0";uses:="org.ros.internal
+ .message"
+Bundle-Version: 1.0.0
+Tool: Bnd-2.1.0.20130426-122213
+Bundle-Name: passive_vision
+Bnd-LastModified: 1493689632000
+Created-By: 1.7.0_60 (Oracle Corporation)
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.ros.rosjava_messages.passive_vision
+Import-Package: org.ros.internal.message
+

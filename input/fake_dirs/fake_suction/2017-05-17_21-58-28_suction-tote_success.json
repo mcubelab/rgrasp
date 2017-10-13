@@ -1,0 +1,51 @@
+{
+    "ID_objects": [
+        "Avery_Binder", 
+        "Composition_Book", 
+        "Measuring_Spoons", 
+        "Scotch_Sponges", 
+        "Table_Cloth"
+    ], 
+    "active_vision_ID": "Avery_Binder", 
+    "bad_grasping_points": [], 
+    "bad_suction_points": [], 
+    "excution_date": "2017-05-17_21-58-28", 
+    "excution_result": true, 
+    "excution_time": 90.65842413902283, 
+    "execution_possible": true, 
+    "human_supervision": true, 
+    "next_experiment_name": "/home/mcube/arcdata/planner_experiments/2017-05-17_22-00-04_suction-tote_success.json", 
+    "num_objects": 5, 
+    "obj_ID": "Avery_Binder", 
+    "obj_pose": [
+        0, 
+        0, 
+        0, 
+        0, 
+        0, 
+        0
+    ], 
+    "previous_experiment_name": null, 
+    "primitive": "suction-tote", 
+    "primitive_output": {
+        "success_flag": true, 
+        "suction_check": true, 
+        "tcp_rotate_angle": 0, 
+        "vac_level_after_contact": 747.0, 
+        "vac_level_before_contact": 849.0
+    }, 
+    "primitive_point": [
+        0.9949660234451294, 
+        -0.31999867463111875, 
+        -0.18540118038654327, 
+        0.0, 
+        0.0, 
+        1.0
+    ], 
+    "primitive_score": 0.9999325275421143, 
+    "primitive_version": 1, 
+    "tote_ID": 0, 
+    "validity_experiment": true, 
+    "vision_info": "/home/mcube/arcdata/loopdata/1495072618/log.txt", 
+    "weight_info": null
+}

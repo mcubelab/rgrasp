@@ -95,7 +95,7 @@ class TaskPlanner(object):
             number_bins = 2
             for bin_id in range(number_bins): 
                 print("getPassiveVisionEstimate 'update hm sg', '', ", bin_id)
-                    self.getPassiveVisionEstimate('update hm sg', '', bin_id)
+                self.getPassiveVisionEstimate('update hm sg', '', bin_id)
 
 
     def remove_old_points(self, points, times, limit):

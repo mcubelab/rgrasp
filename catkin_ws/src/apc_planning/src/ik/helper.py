@@ -15,6 +15,7 @@ from numpy import linalg as la
 from roshelper import lookupTransform, poseTransform
 import gripper
 import std_msgs.msg
+import collision_detection.collision_projection
 #from suction_projection import suction_projection_func
 import sensor_msgs.msg 
 
@@ -397,7 +398,7 @@ def pose_transform_precise_placing(rel_pose,BoxBody,place_pose,base_pose,bin_pts
     bin_ptsXY=bin_pts[:,0:2]
     finger_ptsXY= np.concatenate((finger_pts[:,0:2],BoxBody_base_pose[:,0:2]),axis=0)
     
-    (shape_translation,dist_val_min,feasible_solution,nearest_point)=suction_projection_func(bin_ptsXY,finger_ptsXY,np.array(place_pose[0:2],ndmin=2),np.array(BoxOrigin_base_pose[0:2],ndmin=2),theta,show_plot,margin)
+    (shape_translation,dist_val_min,feasible_solution,nearest_point)=collision_detection.collision_projection.projection_func(bin_ptsXY,finger_ptsXY,np.array(place_pose[0:2],ndmin=2),np.array(BoxOrigin_base_pose[0:2],ndmin=2),theta,show_plot,margin)
 
     p0=BoxBody[0]
     px=BoxBody[4]

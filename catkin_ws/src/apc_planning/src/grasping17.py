@@ -17,6 +17,7 @@ import ik.visualize_helper
 import sensor_msgs.msg
 import std_msgs.msg
 from visualization_msgs.msg import MarkerArray
+from grasp_data_recorder import GraspDataCollector
 
 def grasp(objInput,
           listener,
@@ -220,8 +221,14 @@ def grasp(objInput,
         ################
         ## EXECUTION ###
         ################
+        #We start recording now
+        gdr = GraspDataCollector(grasp_id=0, directory='/home/mcube/rgraspdata') #Handler instatiation
+        gdr.start_recording()
+        
         if isExecute and plan_possible:
             executePlanForward(plans, withPause)
+            
+        gdr.stop_recording(save_dict=True, save_raw_copy=True, plot_ws=True)
     
         #~Check if picking success
         low_threshold = 0.0035

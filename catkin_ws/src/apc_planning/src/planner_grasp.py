@@ -36,6 +36,7 @@ class TaskPlanner(object):
         self.tote_ID = 0 
         self.fails_in_row = 0     
         self.switch_dict = {0:1,1:0}
+        self.version = 1.0
         # Configuration
         self.withPause = opt.withPause
         self.experiment = opt.experiment
@@ -362,6 +363,7 @@ class TaskPlanner(object):
             grasp_status_msgs = sensor_msgs.msg.JointState()
             grasp_status_msgs.name = ['grasp_success', 'code_version', 'tote_ID'] #grasp proposals, grasp_point, scores, score, 
             grasp_status_msgs.position = [self.execution_possible, self.version, self.tote_ID]
+            print '***********************************************************'
             self.grasp_status_pub.publish(grasp_status_msgs)
             if self.fails_in_row > 4: # 10. Failed too many times, take action
                 if self.infinite_looping:

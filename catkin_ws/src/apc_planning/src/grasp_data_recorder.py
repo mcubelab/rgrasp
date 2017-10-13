@@ -7,11 +7,14 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 import matplotlib.pyplot as plt
 import numpy as np
+import threading
 
-class GraspDataCollector:
+class GraspDataCollector:#(threading.Thread):
   ##This class creates a package with the information gathered through the sensors
-  def __init__(self, grasp_id, directory):
+  def __init__(self, grasp_id, directory, node):
+    #threading.Thread.__init__(self)
     self.bridge = CvBridge()
+    self.node = node
 
     #Dictionary with all the topics that we will need to subscribe (HARDCODED)
     self.topic_dict = {
@@ -21,6 +24,7 @@ class GraspDataCollector:
                     'gs_image': {'topic':'rpi/gelsight/raw_image', 'msg_format':Image},
                     'ws_deflection': {'topic':'rpi/gelsight/deflection', 'msg_format':Int32},
                     'ws_contactarea': {'topic':'rpi/gelsight/contactarea', 'msg_format':gelsight_contactarea}
+                    #'grasp_status': {'topic':'/grasp_status', 'msg_format':sensor_msgs.msg.JointState},
                     }
 
     #We create the dictionary that will host all the info
@@ -30,6 +34,7 @@ class GraspDataCollector:
     return
 
   def __callback(self, data, key):
+    print 'a'
     ##This function is called everytime a msg is published to one of our subscribed topics, it stores the data
     if self.topic_dict[key]['msg_format'] == Image:
         try:
@@ -46,7 +51,6 @@ class GraspDataCollector:
       except:
         print 'Non-standard msg received'
         self.data_recorded[key][rospy.get_time()] = data #Usually this exception is raised when data doesn't have a data field
-          
     return
 
   def __plot_ws_evol(self):
@@ -80,8 +84,12 @@ class GraspDataCollector:
 
 
   def start_recording(self):
-    rospy.init_node('grasp_data_collector', anonymous=True) #We intialize the listener node
-
+    try:
+        #rospy.init_node('grasp_data_collector', anonymous=True) #We intialize the listener node
+        pass
+    except e:
+        print e
+    
     self.subscribers = {}
     for key in self.topic_dict: #We subscribe to every topic in the topic_dict
         topic = self.topic_dict[key]['topic']
@@ -108,11 +116,12 @@ class GraspDataCollector:
         self.__plot_ws_evol()
     return
 
-
-gdr = GraspDataCollector(grasp_id=0, directory='/home/mcube/rgraspdata') #Handler instatiation
+#node = rospy.init_node('grasp_data_collector', anonymous=True) #We intialize the listener node
+gdr = GraspDataCollector(grasp_id=0, directory='/home/mcube/rgraspdata')#, node=node) #Handler instatiation
 
 gdr.start_recording()
 time.sleep(5)
 gdr.stop_recording(save_dict=True, save_raw_copy=True, plot_ws=True)
 #print gdr.data_recorded
+
 

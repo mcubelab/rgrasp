@@ -1,4 +1,4 @@
-import rospy, signal, sys, time, os, cv2
+import rospy, signal, sys, time, os, cv2, pickle
 from std_msgs.msg import Int32
 from std_msgs.msg import Float64
 from std_msgs.msg import String
@@ -8,111 +8,111 @@ from cv_bridge import CvBridge, CvBridgeError
 import matplotlib.pyplot as plt
 import numpy as np
 
-
-
-class grasp_data_collector:
+class GraspDataCollector:
   ##This class creates a package with the information gathered through the sensors
-  def __init__(self):
-    self.ws_lectures = []
-    
+  def __init__(self, grasp_id, directory):
     self.bridge = CvBridge()
-    self.gs_lectures_image = []
-    self.gs_lectures_deflection = []
-    self.gs_lectures_contact_area = []
+
+    #Dictionary with all the topics that we will need to subscribe (HARDCODED)
+    self.topic_dict = {
+                    'ws_0': {'topic':'ws_stream{}'.format(1), 'msg_format':Float64},
+                    'ws_1': {'topic':'ws_stream{}'.format(0), 'msg_format':Float64},
+                    'ws_2': {'topic':'ws_stream{}'.format(2), 'msg_format':Float64},
+                    'gs_image': {'topic':'rpi/gelsight/raw_image', 'msg_format':Image},
+                    'ws_deflection': {'topic':'rpi/gelsight/deflection', 'msg_format':Int32},
+                    'ws_contactarea': {'topic':'rpi/gelsight/contactarea', 'msg_format':gelsight_contactarea}
+                    }
+
+    #We create the dictionary that will host all the info
+    self.data_recorded = {'grasp_id': grasp_id, 'directory':directory}
+    for key in self.topic_dict:
+        self.data_recorded[key] = {}
     return
-    
-  def __ws_callback_0(self, data):
-    #Reads and stores the messages published on the ws_stream
-    print data.data
-    self.ws_lectures.append(data.data)
-  
-  def __gs_callback_image(self, data):
-    print("Received an image!")
-    try:
-        # Convert your ROS Image message to OpenCV2
-        cv2_img = self.bridge.imgmsg_to_cv2(data, "bgr8")
-    except CvBridgeError, e:
-        print(e)
+
+  def __callback(self, data, key):
+    ##This function is called everytime a msg is published to one of our subscribed topics, it stores the data
+    if self.topic_dict[key]['msg_format'] == Image:
+        try:
+            cv2_img = self.bridge.imgmsg_to_cv2(data, "bgr8") # Convert your ROS Image message to OpenCV2
+        except CvBridgeError, e:
+            print(e)
+        else:
+            print 'Image received!'
+            self.data_recorded[key][rospy.get_time()] = cv2_img # Save your OpenCV2 image as a jpeg
     else:
-        # Save your OpenCV2 image as a jpeg
-        self.gs_lectures_image.append(cv2_img)
+      try:
+        print data.data
+        self.data_recorded[key][rospy.get_time()] = data.data
+      except:
+        print 'Non-standard msg received'
+        self.data_recorded[key][rospy.get_time()] = data #Usually this exception is raised when data doesn't have a data field
+          
     return
-  
-  def __gs_callback_deflection(self, data):
-    #print("Received deflection value")
-    #print data
-    self.gs_lectures_deflection.append(data.data)
-    return
-  
-  def __gs_callback_contactarea(self, data):
-    #Reads and stores the messages published on the contactarea topic
-    print data
-    self.gs_lectures_contact_area.append(data)
-    return
-  
-  #~ def __create_dict(grasp_id):
-    
-    
-  
+
   def __plot_ws_evol(self):
     print 'Plotting result'
-    plt.plot(self.ws_lectures)
+    #plt.plot(list(self.data_recorded['ws_0'].values()))
+    plt.plot(list(self.data_recorded['ws_1'].values()))
+    #plt.plot(list(self.data_recorded['ws_2'].values()))
     plt.show()
 
+  def __save_raw_copy(self):
+      directory = self.data_recorded['directory'] +'/grasp_'+ str(self.data_recorded['grasp_id'])
+      if not os.path.exists(directory): #If the directory does not exist, we create it
+          os.makedirs(directory)
+      
+      for key in self.data_recorded:
+          if key in self.topic_dict:
+              if self.topic_dict[key]['msg_format'] == Image:
+                  if not os.path.exists(directory + '/gs_images'): #If the directory does not exist, we create it
+                    os.makedirs(directory + '/gs_images')
+                  i = 0
+                  for item in self.data_recorded[key].values():
+                    path = directory + '/gs_images' + '/' + key + '_' + str(i) + '.jpeg'
+                    cv2.imwrite(path, item)
+                    i += 1
+              else:
+                  path = directory + '/' + key + '.txt'
+                  ws_file = open(path, 'w')
+                  for elem in self.data_recorded[key]:
+                      val = str(elem) + ' ' + str(self.data_recorded[key][elem]) #val = time + data
+                      ws_file.write("%s\n" % val)
+
+
   def start_recording(self):
-    rospy.init_node('grasp_data_collector', anonymous=True)
+    rospy.init_node('grasp_data_collector', anonymous=True) #We intialize the listener node
+
+    self.subscribers = {}
+    for key in self.topic_dict: #We subscribe to every topic in the topic_dict
+        topic = self.topic_dict[key]['topic']
+        msg_format = self.topic_dict[key]['msg_format']
+        self.subscribers[key] = rospy.Subscriber(topic, msg_format, self.__callback, key)
+
+  def stop_recording(self, save_dict=True, save_raw_copy=False, plot_ws=False):
+    #We unregister from the topics
+    for key in self.subscribers:
+        self.subscribers[key].unregister()
     
-    #Weight sensor
-    rospy.Subscriber('ws_stream{}'.format(0), Float64, self.__ws_callback_0) #Tote 1
-    #rospy.Subscriber('ws_stream{}'.format(1), Float64, self.callback_1) #Tote 0
-    #rospy.Subscriber('ws_stream{}'.format(2), Float64, self.callback_2) #Tote 2
-    
-    #Gelsight data
-    rospy.Subscriber('rpi/gelsight/raw_image', Image, self.__gs_callback_image) 
-    rospy.Subscriber('rpi/gelsight/deflection', Int32, self.__gs_callback_deflection)
-    rospy.Subscriber('rpi/gelsight/contactarea', gelsight_contactarea, self.__gs_callback_contactarea)
-    
-  def stop_recording(self, grasp_id, directory, plot_ws=False):
     #Saving info package
-    directory = directory + str(grasp_id)
-    if not os.path.exists(directory): #If the directory does not exist, we create one
+    if not os.path.exists(self.data_recorded['directory']): #If the directory does not exist, we create one
       os.makedirs(directory)
-      print 'Directory created!'
-    else:
-      print 'Grasp id already existed! Data will be replaced'
-    
-    #Saving ws values
-    path = directory + '/ws_values.txt'
-    ws_file = open(path, 'w')
-    for item in self.ws_lectures:
-        ws_file.write("%s\n" % item)
-    print 'Weight evolution saved'
-    
-    #Saving GS raw images
-    i = 0
-    for item in self.gs_lectures_image:
-      path = directory + '/gs_image_' + str(i) + '.jpeg'
-      cv2.imwrite(path, item)
-      i += 1
-    
-    #Saving GS deflection
-    path = directory + '/gs_deflection.txt'
-    ws_file = open(path, 'w')
-    for item in self.gs_lectures_deflection:
-        ws_file.write("%s\n" % item)
-    print 'GelSight deflection evolution saved'
-    
-    
+
+    if save_dict:
+        path = self.data_recorded['directory'] + '/grasp_' + str(self.data_recorded['grasp_id']) + '_info.p'
+        pickle.dump(self.data_recorded, open(path, "wb"))
+
+    if save_raw_copy:
+        self.__save_raw_copy()
+
     if plot_ws:
-      self.__plot_ws_evol()
+        self.__plot_ws_evol()
     return
 
 
-
-
-
-gdr = grasp_data_collector() #Handler instatiation
+gdr = GraspDataCollector(grasp_id=0, directory='/home/mcube/rgraspdata') #Handler instatiation
 
 gdr.start_recording()
 time.sleep(5)
-gdr.stop_recording(grasp_id='grasp_0', directory='/home/mcube/rgraspdata/', plot_ws=True)
+gdr.stop_recording(save_dict=True, save_raw_copy=True, plot_ws=True)
+#print gdr.data_recorded
+

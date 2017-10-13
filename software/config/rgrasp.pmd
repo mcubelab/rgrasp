@@ -52,6 +52,10 @@ cmd "7-apcgui" {
     exec = "rosrun apc_planning arcgui.py";
     host = "localhost";
 }
+cmd "8-grasp_proposal_visualize" {
+    exec = "rosrun apc_planning topic_initializer.py";
+    host = "localhost";
+}
 group "calibration" {
     cmd "1-transform-calibapriltag" {
         exec = "rosrun tf static_transform_publisher -0.1725 0 0.0175 1.57079632679 0 0 /link_6 /link6_apriltag 100";

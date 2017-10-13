@@ -15,11 +15,11 @@ from numpy import linalg as la
 from roshelper import lookupTransform, poseTransform
 import gripper
 import std_msgs.msg
-from suction_projection import suction_projection_func
+#from suction_projection import suction_projection_func
 import sensor_msgs.msg 
 
 obj_dim_data = []
-gripper_command_pub = rospy.Publisher('/gripper_command', sensor_msgs.msg.JointState, queue_size=10)
+gripper_command_pub = rospy.Publisher('/hand_commands', sensor_msgs.msg.JointState, queue_size=10)
 
 def get_obj_dim(objId):
     global obj_dim_data

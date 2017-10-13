@@ -225,31 +225,26 @@ def grasp(objInput,
     
         #~Check if picking success
         low_threshold = 0.0035
-        high_threshold = 0.006
+        high_threshold = 0.015
         if isExecute and plan_possible:
             rospy.sleep(0.2)
             gripper_opening=gripper.getGripperopening()
-            if gripper_opening > high_threshold:
-                rospy.loginfo('[Picking] ***************')
-                rospy.loginfo('[Picking] Pick Successful (Gripper Opening Test)')
-                rospy.loginfo('[Picking] ***************')
-                execution_possible = True
-            else:
-                rospy.loginfo('[Picking] ***************')
-                rospy.loginfo( '[Picking] Pick Inconclusive (Gripper Opening Test)')
-                rospy.loginfo( '[Picking] ***************')
-                execution_possible = None
+#            if gripper_opening > high_threshold:
+#                rospy.loginfo('[Picking] ***************')
+#                rospy.loginfo('[Picking] Pick Successful (Gripper Opening Test)')
+#                rospy.loginfo('[Picking] ***************')
+#                execution_possible = True
+#            else:
+            rospy.loginfo('[Picking] ***************')
+            rospy.loginfo( '[Picking] Pick Inconclusive (Gripper Opening Test)')
+            rospy.loginfo( '[Picking] ***************')
+            execution_possible = None
                 
         elif not isExecute:
             execution_possible=plan_possible
     
         return compose_output()
-       
-    ###################
-    ## Active vision ##
-    ###################
-    elif flag == 1:
-        return compose_output()
+
         
     #############
     ## Placing ##
@@ -272,7 +267,7 @@ def grasp(objInput,
         
         #~Predrop: go to top middle bin surface fast without guarded move
         predrop_pos=np.array(drop_pose[0:3])
-        predrop_pos[2] = bin_pose[2] + 0.2
+        predrop_pos[2] = bin_pose[2] + 0.05
          
         ######################
         ##  Generate plans ##
@@ -286,7 +281,7 @@ def grasp(objInput,
         
         #~0.go up to avoid collision with tote walls
         current_pose = ik.helper.get_tcp_pose(listener, tcp_offset = l3)
-        current_pose[2] = current_pose[2] + 0.3 
+        current_pose[2] = current_pose[2] + 0.25
         plan, qf, plan_possible = generatePlan(q_initial, current_pose[0:3], current_pose[3:7], tip_hand_transform, 'faster',  plan_name = 'go_up')
         if plan_possible:
             plans.append(plan)

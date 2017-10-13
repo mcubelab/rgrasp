@@ -8,8 +8,8 @@ import ik.visualize_helper
 import numpy as np
 import os
 from ik.marker_helper import createDeleteAllMarker
-from sensor_msgs.msg import Image as RosImage
-
+#from sensor_msgs.msg import Image as RosImage
+import sensor_msgs.msg
 
 try:
     import passive_vision.srv
@@ -70,6 +70,7 @@ class TaskPlanner(object):
         self.viz_array_pub = rospy.Publisher('/visualization_marker_array', MarkerArray, queue_size=10)
         self.proposal_viz_array_pub = rospy.Publisher('/proposal_visualization_marker_array', MarkerArray, queue_size=10)
         self.grasp_status_pub = rospy.Publisher('/grasp_status', sensor_msgs.msg.JointState, queue_size=10)
+
         rospy.sleep(0.5)
 
     ###############################
@@ -280,10 +281,11 @@ class TaskPlanner(object):
         markers_msg = MarkerArray()
         m0 = createDeleteAllMarker('pick_proposals')
         markers_msg.markers.append(m0)
-        p.proposal_viz_array_pub.publish(markers_msg)
-        ik.visualize_helper.visualize_grasping_proposals(self.proposal_viz_array_pub, np.asarray([self.grasp_point]),  self.listener, self.br, True)
+        for i in range(10):
+            p.proposal_viz_array_pub.publish(markers_msg)
         ik.visualize_helper.visualize_grasping_proposals(self.proposal_viz_array_pub, self.all_grasp_proposals,  self.listener, self.br)
-        
+        ik.visualize_helper.visualize_grasping_proposals(self.proposal_viz_array_pub, np.asarray([self.grasp_point]),  self.listener, self.br, True)
+
         self.grasping_output = grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container, flag=0,
                                  withPause=self.withPause, viz_pub=self.proposal_viz_array_pub)
@@ -306,6 +308,7 @@ class TaskPlanner(object):
                          isExecute=self.isExecute, binId=fixed_container[0], flag=2, withPause=self.withPause,
                          rel_pose=self.rel_pose, BoxBody=self.BoxBody, place_pose=drop_pose,
                          viz_pub=self.viz_array_pub, is_drop = False)
+
     def run_data_collection(self): 
         #######################
         ## initialize system ##
@@ -357,7 +360,7 @@ class TaskPlanner(object):
             grasp_status_msgs = sensor_msgs.msg.JointState()
             grasp_status_msgs.name = ['grasp_success', 'code_version', 'tote_ID'] #grasp proposals, grasp_point, scores, score, 
             grasp_status_msgs.position = [self.execution_possible, self.version, self.tote_ID]
-            grasp_status_pub.publish(grasp_status_msgs)
+            self.grasp_status_pub.publish(grasp_status_msgs)
             if self.fails_in_row > 4: # 10. Failed too many times, take action
                 if self.infinite_looping:
                     self.switch_tote()
@@ -389,4 +392,5 @@ if __name__ == '__main__':
     (opt, args) = parser.parse_args()
 
     p = TaskPlanner(opt)
+    
     p.run_data_collection()

@@ -50,7 +50,7 @@ if __name__=='__main__':
     markers_msg.markers.append(m0)
     for i in range(0,100):
         p.proposal_viz_array_pub.publish(markers_msg)
-        
+    print('I will print: {} grasp proposals'.format(len(p.all_grasp_proposals)))
     ik.visualize_helper.visualize_grasping_proposals(p.proposal_viz_array_pub, p.all_grasp_proposals,  p.listener, p.br)
     ik.visualize_helper.visualize_grasping_proposals(p.proposal_viz_array_pub, np.asarray([p.grasp_point]),  p.listener, p.br,  is_selected =True)
     

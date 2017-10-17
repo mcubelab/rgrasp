@@ -17,10 +17,8 @@ def visualize_grasping_proposals(proposal_viz_array_pub, proposals, listener, br
     markers_msg = MarkerArray()
     #if not is_selected:  # don't delete other candidate
     #    markers_msg.markers.append(createDeleteAllMarker('pick_proposals'))
-    subrate = 1
-    if n > 5:
-        subrate = n/5
-    for i in xrange(0,n,subrate):
+    
+    for i in range(0,min(n, 10)):
         pick_proposal = proposals[i,:]
         objInput = pick_proposal
         

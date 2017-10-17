@@ -456,7 +456,7 @@ void UpdateBinState(passive_vision::state::Request req) {
 
   //tstart = tic();
   if (update_command_type == 2 || update_command_type == 3) {
-
+    
     // Read binary file containing suction predictions
     std::string suction_output_file = data_directory + "tmpdata/passive-vision-suction." + std::to_string(bin_id) + ".output.bin";
     FILE *fp = fopen(suction_output_file.c_str(), "rb");
@@ -510,7 +510,7 @@ void UpdateBinState(passive_vision::state::Request req) {
       res.suctionside_object_confidence = suctionside_object_confidence[bin_id];
       res.suctionside_object_list = suctionside_object_list[bin_id];
     }
-
+    
     // Read binary file containing grasp predictions
     std::string grasp_output_file = data_directory + "tmpdata/passive-vision-grasp." + std::to_string(bin_id) + ".output.bin";
     fp = fopen(grasp_output_file.c_str(), "rb");

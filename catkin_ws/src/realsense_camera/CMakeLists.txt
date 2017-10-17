@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   std_msgs
   image_transport
+  cv_bridge
   pcl_conversions
   pcl_ros
 )

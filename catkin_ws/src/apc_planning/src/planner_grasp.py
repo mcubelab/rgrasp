@@ -356,7 +356,7 @@ class TaskPlanner(object):
                 self.weight_info[self.tote_ID] = self.weightSensor.readWeightSensor(item_list = [], withSensor=self.withSensorWeight, binNum=self.tote_ID, givenWeights=-11)
                 print('-----------------------------\n Execution_possible according to primitive = {} \n-----------------------------'.format(self.execution_possible) )
                 print('Detected weight:',  self.weight_info[self.tote_ID]['weights'])
-                rospy.sleep(5)
+                
                 if self.weight_info[self.tote_ID]['weights'] > 10: #frank question: what does the 10 represent?
                     self.execution_possible = True
                 

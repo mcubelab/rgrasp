@@ -34,10 +34,10 @@ class GraspDataRecorder:#(threading.Thread):
                     'joint_states':{'topic':'/joint_states', 'msg_format':JointState},
                     'grasp_all_proposals': {'topic':'/grasp_all_proposals', 'msg_format':Float32MultiArray},
                     'grasp_proposal': {'topic':'/grasp_proposal', 'msg_format':Float32MultiArray},
-                    'camera_bin0': {'topic':'/arc_1/camera_bin0', 'msg_format':Image},
-                    'camera_bin1': {'topic':'/arc_1/camera_bin1', 'msg_format':Image},
-                    'camera_depth_bin0': {'topic':'/arc_1/camera_bin0/compressedDepth', 'msg_format':CompressedImage},
-                    'camera_depth_bin1': {'topic':'/arc_1/camera_bin0/compressedDepth', 'msg_format':CompressedImage},
+#                    'rgb_bin0': {'topic':'/arc_1/rgb_bin0', 'msg_format':Image},
+#                    'rgb_bin1': {'topic':'/arc_1/rgb_bin1', 'msg_format':Image},
+                    'depth_bin0': {'topic':'/arc_1/depth_bin0', 'msg_format':Image},
+                    'depth_bin1': {'topic':'/arc_1/depth_bin1', 'msg_format':Image},
                     'wsg_driver': {'topic':'/wsg_50_driver/status', 'msg_format':Status}
                     }
 
@@ -51,7 +51,7 @@ class GraspDataRecorder:#(threading.Thread):
     ##This function is called everytime a msg is published to one of our subscribed topics, it stores the data
     if self.topic_dict[key]['msg_format'] == Image:
         try:
-            cv2_img = self.bridge.imgmsg_to_cv2(data, "bgr8") # Convert your ROS Image message to OpenCV2
+            cv2_img = self.bridge.imgmsg_to_cv2(data, "mono16") # Convert your ROS Image message to OpenCV2
         except CvBridgeError, e:
             print(e)
         else:

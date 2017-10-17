@@ -25,11 +25,11 @@ void publish_depth(const uint16_t * depth_values, int frame_height, int frame_wi
       depth_mat.at<unsigned short>(y, x) = depth_short;
 //      std::cout<<depth_short<<std::endl;
     }
-  std::vector<int> compression_params;
-  compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
-  compression_params.push_back(9);
+//  std::vector<int> compression_params;
+//  compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
+//  compression_params.push_back(9);
 //  std::cout<<"publish depth"<<std::endl;
-  cv::imwrite(data_directory + "tmpdata/passive-vision-input2 " + std::to_string(counter) +".1.depth.png", depth_mat, compression_params);
+//  cv::imwrite(data_directory + "tmpdata/passive-vision-input2 " + std::to_string(counter) +".1.depth.png", depth_mat, compression_params);
 
   //publish to ros image topic
   cv_bridge::CvImage img_bridge;
@@ -155,6 +155,43 @@ void publish_pointcloud2_msg(std::string requested_camera_serial_number)
 bool srv_set_save_data(std_srvs::SetBool::Request& req,
                        std_srvs::SetBool::Response& res){
   save_data = req.data;
+}
+
+bool srv_start_lasers(realsense_camera::start_lasers::Request& req,
+                      realsense_camera::start_lasers::Response& res){
+
+  try {
+    if (req.bin_id == 0) { active_dev_bin0->set_option(rs::option::f200_laser_power, 16); }
+    else if (req.bin_id == 1) { active_dev_bin1->set_option(rs::option::f200_laser_power, 16); }
+    else if (req.bin_id == 2) { active_dev_bin2->set_option(rs::option::f200_laser_power, 16); }
+    res.success = true;
+  }
+  catch (int e){
+    res.success = false;
+  }
+
+  printf("Laser of bin_id %d camera is activated", req.bin_id);
+}
+
+bool srv_stop_lasers(realsense_camera::start_lasers::Request& req,
+                     realsense_camera::start_lasers::Response& res){
+
+  try {
+    if (req.bin_id == 0) { active_dev_bin0->set_option(rs::option::f200_laser_power, 0); }
+    else if (req.bin_id == 1) { active_dev_bin1->set_option(rs::option::f200_laser_power, 0); }
+    else if (req.bin_id == 2) { active_dev_bin2->set_option(rs::option::f200_laser_power, 0); }
+    res.success = true;
+  }
+  catch (int e){
+    res.success = false;
+  }
+
+  printf("Laser of bin_id %d camera is deactivated", req.bin_id);
+}
+
+bool callback(std_srvs::Empty::Request& request, std_srvs::Empty::Response& response)
+{
+  return true;
 }
 
 // Service: stream data from sensor
@@ -354,7 +391,10 @@ int main(int argc, char **argv) {
   ros::NodeHandle n;
   ros::ServiceServer service_stream = n.advertiseService("realsense_camera/capture", srv_capture);
   ros::ServiceServer service_stream2 = n.advertiseService("realsense_camera/set_save_data", srv_set_save_data);
-
+//  ros::ServiceServer service_stream3 = n.advertiseService("realsense_camera/set_save_data1", srv_set_save_data);
+  ros::ServiceServer start_lasers = n.advertiseService("realsense_camera/start_lasers", srv_start_lasers);
+  ros::ServiceServer stop_lasers = n.advertiseService("realsense_camera/stop_lasers", srv_stop_lasers);
+//  ros::ServiceServer service = n.advertiseService("my_service", callback);
   // Get parameters from ROS call
   ros::NodeHandle priv_nh("~");
   priv_nh.param("display", display, false);
@@ -370,11 +410,12 @@ int main(int argc, char **argv) {
   rgb_cvmat_bin1 = cv::Mat(frame_height, frame_width, CV_8UC3, rgb_cvmat_buffer_bin1);
   image_transport::ImageTransport image_transport_(n);
   rgb_image_pub = image_transport_.advertiseCamera("realsense", 1);
-  rgb_image_pub_bin0 = image_transport_.advertiseCamera("camera_bin0", 1);
-  rgb_image_pub_bin1 = image_transport_.advertiseCamera("camera_bin1", 1);
-  rgb_image_pub_bin2 = image_transport_.advertiseCamera("camera_bin2", 1);
+  rgb_image_pub_bin0 = image_transport_.advertiseCamera("rgb_bin0", 1);
+  rgb_image_pub_bin1 = image_transport_.advertiseCamera("rgb_bin1", 1);
+  rgb_image_pub_bin2 = image_transport_.advertiseCamera("rgb_bin2", 1);
   depth_image_pub_bin0 = image_transport_.advertiseCamera("depth_bin0", 1);
   depth_image_pub_bin1 = image_transport_.advertiseCamera("depth_bin1", 1);
+  depth_image_pub_bin2 = image_transport_.advertiseCamera("depth_bin2", 1);
 
   pointcloud_pub = n.advertise<sensor_msgs::PointCloud2>(topic_pointcloud, 1);
 
@@ -533,17 +574,19 @@ int main(int argc, char **argv) {
 //  if(display){
     ros::Rate r(50); // 50 hz
 
-  //activate camera
+  //deactivate camera
   active_dev->set_option(rs::option::f200_laser_power, 0);
-  active_dev = ctx.get_device(active_dev_idx);
-  active_dev->set_option(rs::option::f200_laser_power, 16);
+//  active_dev = ctx.get_device(active_dev_idx);
+//  active_dev->set_option(rs::option::f200_laser_power, 16);
 
 
 //      active_dev_bin0->set_option(rs::option::f200_laser_power, 0);
   active_dev_bin0 = ctx.get_device(camera_bin0_id);
   active_dev_bin1 = ctx.get_device(camera_bin1_id);
-  active_dev_bin0->set_option(rs::option::f200_laser_power, 16);
-  active_dev_bin1->set_option(rs::option::f200_laser_power, 16);
+  active_dev_bin0->set_option(rs::option::f200_laser_power, 0);
+//  active_dev_bin2 = ctx.get_device(camera_bin2_id);
+//  active_dev_bin0->set_option(rs::option::f200_laser_power, 16);
+//  active_dev_bin1->set_option(rs::option::f200_laser_power, 16);
 
 
     while ((!display && ros::ok()) || (display && ros::ok())) {
@@ -571,68 +614,61 @@ int main(int argc, char **argv) {
 
       // Get new RGBD frame data
       if (display) glfwPollEvents();
-      active_dev->wait_for_frames();
+//      active_dev->wait_for_frames();
       active_dev_bin0->wait_for_frames();
       active_dev_bin1->wait_for_frames();
+//      active_dev_bin2->wait_for_frames();
 
-      active_dev_bin0->set_option(rs::option::f200_laser_power, 16);
-      active_dev_bin1->set_option(rs::option::f200_laser_power, 16);
+//      active_dev_bin0->set_option(rs::option::f200_laser_power, 16);
+//      active_dev_bin1->set_option(rs::option::f200_laser_power, 16);
 
 
       //get rgb
-      const uint8_t * color_data = (const uint8_t *)active_dev->get_frame_data(rs::stream::rectified_color);
+
       const uint8_t * color_data_bin0 = (const uint8_t *)active_dev_bin0->get_frame_data(rs::stream::rectified_color);
       const uint8_t * color_data_bin1 = (const uint8_t *)active_dev_bin1->get_frame_data(rs::stream::rectified_color);
-      memcpy(rgb_cvmat_buffer, color_data, frame_width * frame_height * 3);
+//      const uint8_t * color_data_bin2 = (const uint8_t *)active_dev_bin2->get_frame_data(rs::stream::rectified_color);
       memcpy(rgb_cvmat_buffer_bin0, color_data_bin0, frame_width * frame_height * 3);
       memcpy(rgb_cvmat_buffer_bin1, color_data_bin1, frame_width * frame_height * 3);
-      //publish rgb data
-      publish_rgb_image_msg(rgb_cvmat, rtrim(cam_serial_nums[active_dev_idx]), rgb_image_pub);
+//      memcpy(rgb_cvmat_buffer_bin2, color_data_bin2, frame_width * frame_height * 3);
+      //publish rgb dat
       publish_rgb_image_msg(rgb_cvmat_bin0, rtrim(cam_serial_nums[camera_bin0_id]), rgb_image_pub_bin0);
       publish_rgb_image_msg(rgb_cvmat_bin1, rtrim(cam_serial_nums[camera_bin1_id]), rgb_image_pub_bin1);
+//      publish_rgb_image_msg(rgb_cvmat_bin2, rtrim(cam_serial_nums[camera_bin2_id]), rgb_image_pub_bin2);
       //get depth
       const uint16_t * depth_data_bin0 = (const uint16_t *)active_dev_bin0->get_frame_data(rs::stream::depth_aligned_to_rectified_color);
       const uint16_t * depth_data_bin1 = (const uint16_t *)active_dev_bin1->get_frame_data(rs::stream::depth_aligned_to_rectified_color);
+//      const uint16_t * depth_data_bin2 = (const uint16_t *)active_dev_bin2->get_frame_data(rs::stream::depth_aligned_to_rectified_color);
       float depth_scale_bin0 = active_dev_bin0->get_depth_scale();
       float depth_scale_bin1 = active_dev_bin1->get_depth_scale();
-
-//      std::vector<double> xyzoffset = map_pointcloud_xyzoffset[rtrim(cam_serial_nums[camera_bin0_id])];
-//      rs::intrinsics color_cam_k = active_dev->get_stream_intrinsics(rs::stream::rectified_color);
-//
-//      for (int dy = 0; dy < im_height; dy++) {
-//          int row_shift = dy * im_width;
-//          for (int dx = 0; dx < im_width; dx++) {
-//            int row_shift_plus_dx_times_3 = (row_shift + dx) * 3;
-//
-//            // Retrieve the raw and aligned-to-color depth value and map it into a depth in meters
-//            uint16_t depth_value_bin0 = depth_data_bin0[row_shift + dx];
-//            uint16_t depth_value_bin1 = depth_data_bin1[row_shift + dx];
-//            float depth_in_meters_bin0 = depth_value_bin0 * depth_scale_bin0;
-//            float depth_in_meters_bin1 = depth_value_bin1 * depth_scale_bin1;
-//
-//            input0_depth_buffer[dy * im_width + dx] = depth_in_meters_bin0;
-//            input1_depth_buffer[dy * im_width + dx] = depth_in_meters_bin1;
-//
-//          }
-//        }
+//      float depth_scale_bin2 = active_dev_bin2->get_depth_scale();
 
       publish_depth(depth_data_bin0, im_height, im_width, depth_image_pub_bin0, counter);
       publish_depth(depth_data_bin1, im_height, im_width, depth_image_pub_bin1, counter);
+//      publish_depth(depth_data_bin2, im_height, im_width, depth_image_pub_bin2, counter);
 
 
 
 
 //        }
 
-//      if (display) {
+      if (display) {
         glClear(GL_COLOR_BUFFER_BIT);
         glPixelZoom(1, -1);
 
         // Display depth data by linearly mapping depth between 0 and 2 meters to the red channel
         glRasterPos2f(-1, 1);
-        glPixelTransferf(GL_RED_SCALE, 0xFFFF * active_dev->get_depth_scale() / 2.0f);
-        glDrawPixels(640, 480, GL_RED, GL_UNSIGNED_SHORT, active_dev->get_frame_data(rs::stream::depth_aligned_to_rectified_color));
+        glPixelTransferf(GL_RED_SCALE, 0xFFFF * active_dev_bin0->get_depth_scale() / 2.0f);
+        glDrawPixels(640, 480, GL_RED, GL_UNSIGNED_SHORT, active_dev_bin0->get_frame_data(rs::stream::depth_aligned_to_rectified_color));
         glPixelTransferf(GL_RED_SCALE, 1.0f);
+
+        // Display depth data by linearly mapping depth between 0 and 2 meters to the red channel
+        glRasterPos2f( 0, 1);
+        glPixelTransferf(GL_RED_SCALE, 0xFFFF * active_dev_bin1->get_depth_scale() / 2.0f);
+        glDrawPixels(640, 480, GL_RED, GL_UNSIGNED_SHORT, active_dev_bin1->get_frame_data(rs::stream::depth_aligned_to_rectified_color));
+        glPixelTransferf(GL_RED_SCALE, 1.0f);        // Display depth data by linearly mapping depth between 0 and 2 meters to the red channel
+
+
 
         // Display color image as RGB triples
 //        glRasterPos2f(0, 1);
@@ -643,7 +679,7 @@ int main(int argc, char **argv) {
 //        publish_rgb_image_msg(rgb_cvmat, rtrim(cam_serial_nums[active_dev_idx]), rgb_image_pub);
 
         glfwSwapBuffers(win);
-//      }
+      }
 
       // ROS loop
       ros::spinOnce();

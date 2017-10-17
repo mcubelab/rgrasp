@@ -11,7 +11,7 @@ import tf
 from ik.ik import generatePlan, EvalPlan, WeightGuard, executePlanForward
 #from ik.helper import get_joints, mat2quat, get_params_yaml, reference_frames, drop_pose_transform
 from collision_detection.collisionHelper import collisionFree
-import gripper
+import gripper, lasers
 import ik.helper
 import ik.visualize_helper
 import sensor_msgs.msg
@@ -96,6 +96,7 @@ def grasp(objInput,
     delta_vision_pose = ik.helper.get_params_yaml('vision_pose_picking')
     vision_pos=np.array(bin_pose[0:3])+np.array(delta_vision_pose[0:3])
     plans = []
+    plans_guarded = []
     graspPose=[]
     plan_possible = False
     execution_possible = False
@@ -173,48 +174,47 @@ def grasp(objInput,
             
        #~2. Open gripper
         grasp_plan = EvalPlan('helper.moveGripper(%f, 200)' % grasp_width)
-        plans.append(grasp_plan)
+        plans_guarded.append(grasp_plan)
 
         #~ 3. Open spatula  
         grasp_plan = EvalPlan('spatula.open()')
-        plans.append(grasp_plan)
+        plans_guarded.append(grasp_plan)
         
-       #~4. Go down  
         grasp_targetPosition=deepcopy(graspPos)
         rospy.loginfo('[Picking] Grasp Target %s', grasp_targetPosition)
         
-        #~5. sleep
+        #~4. sleep
         sleep_plan = EvalPlan('rospy.sleep(0.2)')
-        plans.append(sleep_plan)
+        plans_guarded.append(sleep_plan)
         
-         #~6. perform guarded move down
+         #~5. perform guarded move down
         grasp_targetPosition[2] = bin_pose[2] -  rospy.get_param('/tote/height') + 0.000 #~frank hack for safety
         if binId==0:
             grasp_targetPosition[2] = grasp_targetPosition[2] +0.005
 
         plan, qf, plan_possible = generatePlan(q_initial, grasp_targetPosition, hand_orient_quat, tip_hand_transform, 'faster', guard_on=WeightGuard(binId, threshold = 100), plan_name = 'guarded_pick')
         if plan_possible:
-            plans.append(plan)
+            plans_guarded.append(plan)
             q_initial = qf
         else:
             return compose_output()
             
         #~7. Close spatula
         grasp_plan = EvalPlan('spatula.close()')
-        plans.append(grasp_plan)
+        plans_guarded.append(grasp_plan)
         
         #~8. Close gripper
         grasp_plan = EvalPlan('helper.graspinGripper(%f,%f)'%(800,50))
-        plans.append(grasp_plan)
+        plans_guarded.append(grasp_plan)
         
         #~9. sleep
         sleep_plan = EvalPlan('rospy.sleep(0.2)')
-        plans.append(sleep_plan)
+        plans_guarded.append(sleep_plan)
 
         #~10. Move to a location above the bin
         plan, qf, plan_possible = generatePlan(q_initial, vision_pos, delta_vision_pose[3:7], tip_hand_transform, 'fastest', plan_name = 'go_to_active_vision')
         if plan_possible:
-            plans.append(plan)
+            plans_guarded.append(plan)
             q_initial = qf
         else:
             return compose_output()
@@ -223,14 +223,19 @@ def grasp(objInput,
         ## EXECUTION ###
         ################
         
-        #We start recording now
-        gdr = GraspDataRecorder(grasp_id=datetime.datetime.now(), directory='/home/mcube/rgraspdata')#, node=node) #Handler instatiation
-        gdr.start_recording()
+        
         
         if isExecute and plan_possible:
+ 
             executePlanForward(plans, withPause)
 
-        gdr.stop_recording(save_dict=True, save_raw_copy=True, plot_ws=False)
+            #We start recording now
+            lasers.start(binId)
+            gdr = GraspDataRecorder(grasp_id=datetime.datetime.now(), directory='/home/mcube/rgraspdata')#, node=node) #Handler instatiation
+            gdr.start_recording()
+            executePlanForward(plans_guarded, withPause)
+            gdr.stop_recording(save_dict=True, save_raw_copy=True, plot_ws=False)
+            lasers.stop(binId)
     
         #~Check if picking success
         low_threshold = 0.0035

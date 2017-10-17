@@ -4,6 +4,9 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
+        - /Realsense 01
+        - /Realsense 11
+        - /Realsense 21
         - /TF1/Frames1
         - /InteractiveMarkers2
         - /Heightmap1
@@ -64,7 +67,7 @@ Visualization Manager:
       Value: false
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /arc_1/camera_bin0
+      Image Topic: /arc_1/rgb_bin0
       Max Value: 1
       Median window: 5
       Min Value: 0
@@ -76,7 +79,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /arc_1/camera_bin1
+      Image Topic: /arc_1/rgb_bin1
       Max Value: 1
       Median window: 5
       Min Value: 0
@@ -88,7 +91,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /arc_1/camera_bin2
+      Image Topic: /arc_1/realsense
       Max Value: 1
       Median window: 5
       Min Value: 0
@@ -194,16 +197,6 @@ Visualization Manager:
           Value: true
         hand_mount:
           Value: true
-        link_1:
-          Value: true
-        link_2:
-          Value: true
-        link_3:
-          Value: true
-        link_4:
-          Value: true
-        link_5:
-          Value: true
         link_6:
           Value: true
         link_wrist:
@@ -260,22 +253,7 @@ Visualization Manager:
       Tree:
         map:
           base_link:
-            link_1:
-              link_2:
-                link_3:
-                  link_4:
-                    link_5:
-                      link_6:
-                        link_wrist:
-                          bot_finger:
-                            {}
-                          hand_mount:
-                            {}
-                          top_finger:
-                            top_spatula:
-                              {}
-                          wsg50_base_link:
-                            {}
+            {}
           realsense:
             {}
           realsense_612201002220:
@@ -419,7 +397,7 @@ Visualization Manager:
       Marker Topic: /visualization_marker
       Name: Visualization
       Namespaces:
-        object_bounding_box_for_collision2: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -427,7 +405,7 @@ Visualization Manager:
       Marker Topic: visualization_marker
       Name: Planner_viz
       Namespaces:
-        object_bounding_box_for_collision2: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/Camera
@@ -458,10 +436,10 @@ Visualization Manager:
           Image_placing_score: true
           Value: true
         IK VIsualize: true
-        Image_realsense1: true
-        Image_realsense2: true
         InteractiveMarkers: true
         Planner_viz: true
+        Realsense 0: true
+        Realsense 1: true
         Realsense 2: true
         RobotModel: true
         SGProposalMarker: true
@@ -751,7 +729,7 @@ Visualization Manager:
       Marker Topic: /proposal_visualization_marker
       Name: SGProposalMarker
       Namespaces:
-        pick_proposals: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/MarkerArray
@@ -794,7 +772,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 2.84298038
+      Distance: 3.56623459
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
@@ -808,10 +786,10 @@ Visualization Manager:
       Focal Shape Size: 0.0500000007
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.889797926
+      Pitch: 0.499798417
       Target Frame: link1_parent
       Value: Orbit (rviz)
-      Yaw: 6.06187057
+      Yaw: 5.76687384
     Saved:
       - Class: rviz/Orbit
         Distance: 1.74232996

@@ -22,8 +22,8 @@ def visualize_grasping_proposals(proposal_viz_array_pub, proposals, listener, br
     if n > 5:
         subrate = n/5
     proposals_score = proposals[:, 11]
-    max_score = max(proposals_score)
-    min_score = min(proposals_score)
+    max_score = np.amax(proposals_score)
+    min_score = np.amin(proposals_score)
     for i in xrange(0,n,subrate):
         pick_proposal = proposals[i,:]
         objInput = pick_proposal

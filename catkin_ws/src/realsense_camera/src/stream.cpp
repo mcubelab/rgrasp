@@ -15,6 +15,20 @@ void WriteDepth(const std::string &depth_file, float * depth_values, int frame_h
   cv::imwrite(depth_file, depth_mat, compression_params);
 }
 
+//void publish_passive_vision(float * depth_values, int frame_height, int frame_width) {
+//  cv::Mat depth_mat(frame_height, frame_width, CV_16UC1);
+//  for (size_t y = 0; y < frame_height; y++)
+//    for (size_t x = 0; x < frame_width; x++) {
+//      unsigned short depth_short = (unsigned short)(depth_values[y * frame_width + x] * 10000);
+//      depth_mat.at<unsigned short>(y, x) = depth_short;
+//    }
+//  std::vector<int> compression_params;
+////  compression_params.push_back(CV_IMWRITE_PXM_BINARY);
+//  compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
+//  compression_params.push_back(9);
+//  cv::imwrite(depth_file, depth_mat, compression_params);
+//}
+
 void publish_depth(const uint16_t * depth_values, int frame_height, int frame_width, image_transport::CameraPublisher _depth_image_pub, int counter) {
   sensor_msgs::ImagePtr rgb_img(new sensor_msgs::Image);
 
@@ -37,7 +51,7 @@ void publish_depth(const uint16_t * depth_values, int frame_height, int frame_wi
   std_msgs::Header header; // empty header
   header.seq = header_sequence_id; // user defined counter
   header.stamp = header_time_stamp; // time
-  img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::RGB8, depth_mat);
+  img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO16, depth_mat);
   img_bridge.toImageMsg(img_msg); // from cv_bridge to sensor_msgs::Image
   _depth_image_pub.publish(img_msg, rgb_camera_info); // ros::Publisher pub_img = node.advertise<sensor_msgs
 }

@@ -16,17 +16,15 @@ from multiprocessing import Process
 
 class GraspDataRecorder:#(threading.Thread):
   ##This class creates a package with the information gathered through the sensors
-  def __init__(self, grasp_id, directory):
+  def __init__(self):
     self.bridge = CvBridge()
-    
-    self.data_recorded = {'grasp_id': grasp_id, 'directory':directory}
     return
-    
-  def __reset_vars(self, tote_num, frame_rate_ratio):
+
+  def __reset_vars(self, grasp_id, directory, tote_num, frame_rate_ratio, image_size):
     #Dictionary with all the topics that we will need to subscribe (HARDCODED)
     self.topic_dict = {
-                    'ws_0': {'topic':'ws_stream{}'.format(1), 'msg_format':Float64},
-                    'ws_1': {'topic':'ws_stream{}'.format(0), 'msg_format':Float64},
+                    'ws_0': {'topic':'ws_stream{}'.format(0), 'msg_format':Float64},
+                    'ws_1': {'topic':'ws_stream{}'.format(1), 'msg_format':Float64},
                     'ws_2': {'topic':'ws_stream{}'.format(2), 'msg_format':Float64},
                     'gs_image': {'topic':'rpi/gelsight/raw_image', 'msg_format':Image},
                     'gs_deflection': {'topic':'rpi/gelsight/deflection', 'msg_format':Int32},
@@ -38,11 +36,12 @@ class GraspDataRecorder:#(threading.Thread):
                     'grasp_proposal': {'topic':'/grasp_proposal', 'msg_format':Float32MultiArray},
                     'rgb_bin0': {'topic':'/arc_1/rgb_bin0', 'msg_format':Image},
                     'rgb_bin1': {'topic':'/arc_1/rgb_bin1', 'msg_format':Image},
-                    #'depth_bin0': {'topic':'/arc_1/depth_bin0', 'msg_format':Image},
-                    #'depth_bin1': {'topic':'/arc_1/depth_bin1', 'msg_format':Image},
-                    'wsg_driver': {'topic':'/wsg_50_driver/status', 'msg_format':Status}
+                    'depth_bin0': {'topic':'/arc_1/depth_bin0', 'msg_format':Image},
+                    'depth_bin1': {'topic':'/arc_1/depth_bin1', 'msg_format':Image},
+                    'wsg_driver': {'topic':'/wsg_50_driver/status', 'msg_format':Status},
+                    'exp_comments': {'topic':'/exp_comments', 'msg_format':String}
                     }
-    
+
     #We delete the sensors we do not want to record
     if tote_num == 0:
         del self.topic_dict['ws_1']
@@ -68,7 +67,7 @@ class GraspDataRecorder:#(threading.Thread):
             pass
 
     #We create the dictionary that will host all the info
-    self.data_recorded = {'grasp_id':self.data_recorded['grasp_id'], 'directory':self.data_recorded['directory'], 'tote_num':tote_num, 'frame_rate_ratio':frame_rate_ratio, 'rgb_count':0, 'depth_count':0}
+    self.data_recorded = {'grasp_id':grasp_id, 'directory':directory, 'tote_num':tote_num, 'frame_rate_ratio':frame_rate_ratio, 'rgb_count':0, 'depth_count':0, 'image_size':image_size}
     for key in self.topic_dict:
         self.data_recorded[key] = {}
 
@@ -79,23 +78,29 @@ class GraspDataRecorder:#(threading.Thread):
             self.data_recorded['rgb_count'] +=1
             if self.data_recorded['rgb_count']%self.data_recorded['frame_rate_ratio'] == 0:
                 try:
-                    cv2_img = self.bridge.imgmsg_to_cv2(data, 'rgb8') # Convert your ROS Image message to OpenCV2
+                    cv2_img = self.bridge.imgmsg_to_cv2(data, 'bgr8') # Convert your ROS Image message to OpenCV2
+                    if self.data_recorded['image_size'] != -1:
+                        cv2_img = cv2.resize(cv2_img, self.data_recorded['image_size'])
                 except CvBridgeError, e:
                     print(e)
                 else:
                     self.data_recorded[key][rospy.get_time()] = cv2_img # Save your OpenCV2 image as a jpeg
-        elif key == 'rgb_bin0' or key=='rgb_bin1':
+        elif key == 'depth_bin0' or key=='depth_bin1':
             self.data_recorded['depth_count'] +=1
             if self.data_recorded['depth_count']%self.data_recorded['frame_rate_ratio'] == 0:
                 try:
-                    cv2_img = self.bridge.imgmsg_to_cv2(data, '32FC1') # Convert your ROS Image message to OpenCV2
+                    cv2_img = self.bridge.imgmsg_to_cv2(data, 'mono16') # Convert your ROS Image message to OpenCV2
+                    if self.data_recorded['image_size'] != -1:
+                        cv2_img = cv2.resize(cv2_img, self.data_recorded['image_size'])
                 except CvBridgeError, e:
                     print(e)
                 else:
                     self.data_recorded[key][rospy.get_time()] = cv2_img # Save your OpenCV2 image as a jpeg
         else:
             try:
-                cv2_img = self.bridge.imgmsg_to_cv2(data, '32FC1') # Convert your ROS Image message to OpenCV2
+                cv2_img = self.bridge.imgmsg_to_cv2(data, 'bgr8') # Convert your ROS Image message to OpenCV2
+                if self.data_recorded['image_size'] != -1:
+                    cv2_img = cv2.resize(cv2_img, self.data_recorded['image_size'])
             except CvBridgeError, e:
                 print(e)
             else:
@@ -109,17 +114,26 @@ class GraspDataRecorder:#(threading.Thread):
 
   def __plot_ws_evol(self):
     print 'Plotting result'
-    #plt.plot(list(self.data_recorded['ws_0'].values()))
-    plt.plot(list(self.data_recorded['ws_1'].values()))
-    #plt.plot(list(self.data_recorded['ws_2'].values()))
+    try:
+        plt.plot(list(self.data_recorded['ws_0'].values()))
+    except:
+        pass
+    try:
+        plt.plot(list(self.data_recorded['ws_1'].values()))
+    except:
+        pass
+    try:
+        plt.plot(list(self.data_recorded['ws_2'].values()))
+    except:
+        pass
     plt.show()
 
   def __save_raw_copy(self):
       print 'Saving raw copy'
-      directory = self.data_recorded['directory'] +'/grasp_'+ str(self.data_recorded['grasp_id'])
+      directory = self.data_recorded['directory'] +'/'+ str(self.data_recorded['grasp_id'])
       if not os.path.exists(directory): #If the directory does not exist, we create it
           os.makedirs(directory)
-      
+
       for key in self.data_recorded:
           if key in self.topic_dict:
               if self.topic_dict[key]['msg_format'] == Image:
@@ -144,11 +158,12 @@ class GraspDataRecorder:#(threading.Thread):
       pickle.dump(self.data_recorded, open(path, "wb"))
       print 'Dictionary saved'
 
-  def start_recording(self, tote_num=1, frame_rate_ratio=10):
+
+  def start_recording(self, grasp_id, directory, tote_num=1, frame_rate_ratio=10, image_size=-1):
     print '################## RECORDING_NOW ############################'
-    
-    self.__reset_vars(tote_num=tote_num, frame_rate_ratio=frame_rate_ratio)
-    
+
+    self.__reset_vars(grasp_id=grasp_id, directory=directory, tote_num=tote_num, frame_rate_ratio=frame_rate_ratio, image_size=image_size)
+
     self.subscribers = {}
     for key in self.topic_dict: #We subscribe to every topic in the topic_dict
         topic = self.topic_dict[key]['topic']
@@ -160,10 +175,17 @@ class GraspDataRecorder:#(threading.Thread):
     #We unregister from the topics
     for key in self.subscribers:
         self.subscribers[key].unregister()
-        
+
     del self.data_recorded['rgb_count']
     del self.data_recorded['depth_count']
-    
+
+    for elem in self.data_recorded:
+        try:
+            num_elem = len(self.data_recorded[elem].values())
+        except:
+            num_elem = 0
+        print str(elem) + ': ' + str(num_elem)
+
     #Saving info package
     if not os.path.exists(self.data_recorded['directory']): #If the directory does not exist, we create one
       os.makedirs(directory)
@@ -179,7 +201,7 @@ class GraspDataRecorder:#(threading.Thread):
     if save_raw_copy:
         saving_raw = Process(target=self.__save_raw_copy)
         saving_raw.start()
-        
+
     if saving_dict and saving_raw:
         saving_dict.join()
         saving_raw.join()
@@ -196,5 +218,3 @@ class GraspDataRecorder:#(threading.Thread):
 #time.sleep(5)
 #gdr.stop_recording(save_dict=True, save_raw_copy=True, plot_ws=True)
 #print gdr.data_recorded
-
-

@@ -23,7 +23,7 @@ from ik.helper import fake_bbox_info_1, Timer, vision_transform_precise_placing_
 from visualization_msgs.msg import MarkerArray
 
 import sensor_msgs.msg
-from std_msgs.msg import Float32MultiArray
+from std_msgs.msg import Float32MultiArray, String
 
 class TaskPlanner(object):
     def __init__(self, opt):
@@ -40,6 +40,7 @@ class TaskPlanner(object):
         self.fails_in_row = 0     
         self.switch_dict = {0:1,1:0}
         self.version = 1.0
+        self.experiment_description = "Version: 1.0, Objects: Scotch Brite Sponges, Comments: Only grasping is recorded (not placing), Passive vision pointcloud and rgb-d are not recorded."
         # Configuration
         self.withPause = opt.withPause
         self.experiment = opt.experiment
@@ -72,9 +73,10 @@ class TaskPlanner(object):
         #Class Publishers 
         self.viz_array_pub = rospy.Publisher('/visualization_marker_array', MarkerArray, queue_size=10)
         self.proposal_viz_array_pub = rospy.Publisher('/proposal_visualization_marker_array', MarkerArray, queue_size=10)
-        self.grasp_status_pub = rospy.Publisher('/grasp_status', sensor_msgs.msg.JointState, queue_size=10)
-        self.grasp_all_proposals_pub=rospy.Publisher('/grasp_all_proposals',Float32MultiArray,queue_size = 10)
-        self.grasp_proposal_pub=rospy.Publisher('/grasp_proposal',Float32MultiArray,queue_size = 10)
+        self.grasp_status_pub = rospy.Publisher('/grasp_status', sensor_msgs.msg.JointState, queue_size=10, latch=True)
+        self.grasp_all_proposals_pub=rospy.Publisher('/grasp_all_proposals',Float32MultiArray,queue_size = 10, latch=True)
+        self.grasp_proposal_pub=rospy.Publisher('/grasp_proposal',Float32MultiArray,queue_size = 10, latch=True)
+        self.experiment_comments_pub=rospy.Publisher('/exp_comments',String,queue_size = 10, latch=True)
         rospy.sleep(0.5)
 
     ###############################
@@ -289,6 +291,11 @@ class TaskPlanner(object):
         grasp_proposal_msgs = Float32MultiArray()
         grasp_proposal_msgs.data = self.grasp_point
         self.grasp_proposal_pub.publish(grasp_proposal_msgs)
+        
+        comments_msgs = String()
+        comments_msgs.data = self.experiment_description
+        self.experiment_comments_pub.publish(comments_msgs)
+        
         if self.grasp_point is None:
             print('It was suppose to do grasping, but there is no grasp proposal')
             self.execution_possible = False
@@ -356,7 +363,7 @@ class TaskPlanner(object):
                 self.weight_info[self.tote_ID] = self.weightSensor.readWeightSensor(item_list = [], withSensor=self.withSensorWeight, binNum=self.tote_ID, givenWeights=-11)
                 print('-----------------------------\n Execution_possible according to primitive = {} \n-----------------------------'.format(self.execution_possible) )
                 print('Detected weight:',  self.weight_info[self.tote_ID]['weights'])
-                rospy.sleep(5)
+                
                 if self.weight_info[self.tote_ID]['weights'] > 10: #frank question: what does the 10 represent?
                     self.execution_possible = True
                 

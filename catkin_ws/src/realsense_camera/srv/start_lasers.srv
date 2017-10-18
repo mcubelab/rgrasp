@@ -1,0 +1,5 @@
+# Input parameters
+uint8 bin_id # id of active tote
+---
+# Point cloud data
+bool success   # indicate successful run of triggered service

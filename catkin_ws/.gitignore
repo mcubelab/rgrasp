@@ -30,6 +30,8 @@ catkin_ws/build
 catkin_ws/devel
 catkin_ws/matlab_gen
 catkin_ws/.catkin_workspace
+catkin_ws/.catkin_workspace
+catkin_ws/src/realsense_camera/.idea
 catkin_ws/src/CMakeLists.txt
 *~
 *.gz

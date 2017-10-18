@@ -7,6 +7,8 @@ project(apc_planning)
 find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
+  OpenCV
+  cv_bridge
   sensor_msgs
   geometry_msgs
   message_generation

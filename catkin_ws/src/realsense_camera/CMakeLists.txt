@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   std_msgs
   image_transport
+  cv_bridge
   pcl_conversions
   pcl_ros
 )
@@ -25,6 +26,7 @@ set (CMAKE_CXX_FLAGS "-Wno-unused-variable -g ${CMAKE_CXX_FLAGS}")
 add_service_files(
   FILES
   snapshot.srv
+  start_lasers.srv
 )
 
 ## Generate added messages and services with any dependencies listed here

@@ -18,25 +18,27 @@ def visualize_grasping_proposals(proposal_viz_array_pub, proposals, listener, br
     markers_msg = MarkerArray()
     #if not is_selected:  # don't delete other candidate
     #    markers_msg.markers.append(createDeleteAllMarker('pick_proposals'))
-    subrate = 1
-    if n > 5:
-        subrate = n/5
-    proposals_score = proposals[:, 11]
-    max_score = np.amax(proposals_score)
-    min_score = np.amin(proposals_score)
-    for i in xrange(0,n,subrate):
+    
+    proposals_score = proposals[0:min(n, 10), 11]
+    if len(proposals_score) > 0:
+        max_score = np.amax(proposals_score)
+        min_score = np.amin(proposals_score)   
+        print max_score, min_score 
+    for i in range(0,min(n, 10)):
         pick_proposal = proposals[i,:]
         objInput = pick_proposal
         
          #~get grasp pose and gripper opening from vision
         if len(objInput)==12:
             graspPos, hand_X, hand_Y, hand_Z, grasp_width = helper.get_picking_params_from_12(objInput)
+            graspPos = graspPos + hand_X*0.02*1
             grasp_score = objInput[-1]
         elif len(objInput)==7:
             graspPos, hand_X, hand_Y, hand_Z, grasp_width = helper.get_picking_params_from_7(objInput, 'dummy', listener, br)
+            graspPos = graspPos + hand_X*0.02*1
             grasp_score = 1
-
-        color = matplotlib.cm.seismic(255*(1-(grasp_score-min_score)./max_score))
+        
+        color = matplotlib.cm.seismic((1-(grasp_score-min_score)/(max_score-min_score)))
         if is_selected:
             color = (0, 1, 0, 1)
         
@@ -54,6 +56,7 @@ def visualize_grasping_proposals(proposal_viz_array_pub, proposals, listener, br
         markers_msg.markers.append(m1)
         markers_msg.markers.append(m2)
         markers_msg.markers.append(m3)
+        
     for i in range(0,10):
         proposal_viz_array_pub.publish(markers_msg)
     #pauseFunc(True)

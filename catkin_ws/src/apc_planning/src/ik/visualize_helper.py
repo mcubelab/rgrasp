@@ -21,6 +21,9 @@ def visualize_grasping_proposals(proposal_viz_array_pub, proposals, listener, br
     subrate = 1
     if n > 5:
         subrate = n/5
+    proposals_score = proposals[:, 11]
+    max_score = max(proposals_score)
+    min_score = min(proposals_score)
     for i in xrange(0,n,subrate):
         pick_proposal = proposals[i,:]
         objInput = pick_proposal
@@ -33,7 +36,7 @@ def visualize_grasping_proposals(proposal_viz_array_pub, proposals, listener, br
             graspPos, hand_X, hand_Y, hand_Z, grasp_width = helper.get_picking_params_from_7(objInput, 'dummy', listener, br)
             grasp_score = 1
 
-        color = matplotlib.cm.seismic(255*(1-grasp_score))
+        color = matplotlib.cm.seismic(255*(1-(grasp_score-min_score)./max_score))
         if is_selected:
             color = (0, 1, 0, 1)
         

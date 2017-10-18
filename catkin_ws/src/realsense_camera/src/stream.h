@@ -7,6 +7,7 @@
 #include "ros/ros.h"
 
 #include "realsense_camera/snapshot.h"
+#include "realsense_camera/start_lasers.h"
 #include <librealsense/rs.hpp>
 #include <GLFW/glfw3.h>
 
@@ -20,6 +21,7 @@
 #include <image_transport/image_transport.h>
 #include <sensor_msgs/image_encodings.h>
 #include <sensor_msgs/PointCloud2.h>
+#include <cv_bridge/cv_bridge.h>
 #include "helper.h"
 
 #include <pcl/conversions.h>
@@ -34,6 +36,7 @@
 #include <locale>
 #include <ros/console.h>
 #include <std_srvs/SetBool.h>
+#include <std_srvs/Empty.h>
 
 using pcl::PointXYZRGB;
 typedef PointXYZRGB PointType;
@@ -76,6 +79,9 @@ image_transport::CameraPublisher rgb_image_pub;
 image_transport::CameraPublisher rgb_image_pub_bin0;
 image_transport::CameraPublisher rgb_image_pub_bin1;
 image_transport::CameraPublisher rgb_image_pub_bin2;
+image_transport::CameraPublisher depth_image_pub_bin0;
+image_transport::CameraPublisher depth_image_pub_bin1;
+image_transport::CameraPublisher depth_image_pub_bin2;
 ros::Publisher pointcloud_pub;
 std::map<std::string, ros::Publisher> map_pointcloud_pub;
 std::map<std::string, std::vector<double> > map_pointcloud_xyzoffset;
@@ -93,5 +99,8 @@ ros::Time header_time_stamp;
 
 bool srv_capture(realsense_camera::snapshot::Request  &req,
                  realsense_camera::snapshot::Response &res);
+void start_laset(int bin_id);
 
-#endif //PROJECT_STREAM_H
+
+
+#endif

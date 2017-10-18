@@ -4,10 +4,14 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
+        - /Realsense 01
+        - /Realsense 11
+        - /Realsense 21
         - /TF1/Frames1
+        - /InteractiveMarkers2
         - /Heightmap1
       Splitter Ratio: 0.436031342
-    Tree Height: 609
+    Tree Height: 652
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -27,7 +31,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: Image_realsense1
+    SyncSource: Realsense 0
   - Class: rviz/Displays
     Help Height: 78
     Name: Displays
@@ -63,11 +67,11 @@ Visualization Manager:
       Value: false
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /arc_1/realsense
+      Image Topic: /arc_1/rgb_bin0
       Max Value: 1
       Median window: 5
       Min Value: 0
-      Name: Image_realsense1
+      Name: Realsense 0
       Normalize Range: true
       Queue Size: 2
       Transport Hint: compressed
@@ -75,11 +79,23 @@ Visualization Manager:
       Value: true
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /arc_2/realsense
+      Image Topic: /arc_1/rgb_bin1
       Max Value: 1
       Median window: 5
       Min Value: 0
-      Name: Image_realsense2
+      Name: Realsense 1
+      Normalize Range: true
+      Queue Size: 2
+      Transport Hint: raw
+      Unreliable: false
+      Value: true
+    - Class: rviz/Image
+      Enabled: true
+      Image Topic: /arc_1/realsense
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Realsense 2
       Normalize Range: true
       Queue Size: 2
       Transport Hint: raw
@@ -149,31 +165,6 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        scorpion_tail_bot_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        scorpion_tail_platform:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        scorpion_tail_top_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        suction_below_centered:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        suction_cup:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
         top_finger:
           Alpha: 1
           Show Axes: false
@@ -202,7 +193,7 @@ Visualization Manager:
         All Enabled: false
         base_link:
           Value: true
-        cup:
+        bot_finger:
           Value: true
         hand_mount:
           Value: true
@@ -245,16 +236,6 @@ Visualization Manager:
         realsense_616205005772:
           Value: true
         realsense_617205001931:
-          Value: true
-        scorpion_tail_bot_link:
-          Value: true
-        scorpion_tail_platform:
-          Value: true
-        scorpion_tail_top_link:
-          Value: true
-        suction_below_centered:
-          Value: true
-        suction_cup:
           Value: true
         top_finger:
           Value: true
@@ -384,31 +365,6 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        scorpion_tail_bot_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        scorpion_tail_platform:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        scorpion_tail_top_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        suction_below_centered:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        suction_cup:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
         top_finger:
           Alpha: 1
           Show Axes: false
@@ -466,16 +422,25 @@ Visualization Manager:
         Collision Visualize: true
         Grid: true
         Group_pointcloud:
-          "": true
           Value: true
+          bin0_active_far: true
+          bin0_passive_far: true
+          bin0_passive_near: true
+          bin1_passive_far: true
+          bin1_passive_near: true
+          bin2_passive_far: true
+          bin2_passive_near: true
         Heightmap:
-          "": true
+          Image_map_post: true
+          Image_map_pre: true
+          Image_placing_score: true
           Value: true
         IK VIsualize: true
-        Image_realsense1: true
-        Image_realsense2: true
         InteractiveMarkers: true
         Planner_viz: true
+        Realsense 0: true
+        Realsense 1: true
+        Realsense 2: true
         RobotModel: true
         SGProposalMarker: true
         TF: true
@@ -807,24 +772,24 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 2.85842395
+      Distance: 3.56623459
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.320294768
-        Y: 0.0402822271
-        Z: -0.0161329098
+        X: 0.936319292
+        Y: -0.150354043
+        Z: -0.261860818
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.509797335
+      Pitch: 0.499798417
       Target Frame: link1_parent
       Value: Orbit (rviz)
-      Yaw: 5.50685978
+      Yaw: 5.76687384
     Saved:
       - Class: rviz/Orbit
         Distance: 1.74232996
@@ -859,11 +824,13 @@ Window Geometry:
     collapsed: false
   Image_placing_score:
     collapsed: false
-  Image_realsense1:
+  QMainWindow State: 000000ff00000000fd00000003000000000000016a00000452fc020000000ffb000000100044006900730070006c0061007900730100000028000002cd000000dd00fffffffc00000343000000a30000000000fffffffa000000000100000002fb0000001e0049006d006100670065005f006b0069006e0065006300740032005f00310100000000ffffffff0000000000000000fb0000001e0049006d006100670065005f006b0069006e0065006300740032005f00320000000000ffffffff0000000000000000fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006400fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000001c0049006d006100670065005f0061007000720069006c007400610067000000038c000000d20000000000000000fb0000000c00430061006d00650072006100000003590000006a0000001600fffffffb00000026005400720061006a006500630074006f007200790020002d00200053006c00690064006500720000000000ffffffff0000004a00fffffffb000000100044006900730070006c00610079007300000002ba0000012c000000dd00fffffffb0000000a005600690065007700730000000309000000dd000000b000fffffffb0000001000670065006c0073006900670068007401000002fb0000017f0000001600ffffff000000010000011900000452fc0200000009fb00000016005200650061006c00730065006e00730065002000300100000028000001220000001600fffffffb00000016005200650061006c00730065006e00730065002000310100000150000001670000001600fffffffb00000016005200650061006c00730065006e007300650020003201000002bd000001bd0000001600fffffffb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730000000028000001b0000000b000fffffffb0000001a0049006d006100670065005f006d00610070005f00700072006500000000280000010d0000001600fffffffb0000001c0049006d006100670065005f006d00610070005f0070006f007300740000000028000003070000001600fffffffb000000260049006d006100670065005f0070006c006100630069006e0067005f00730063006f007200650000000028000004520000001600fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b20000000000000000000000030000073f000000cdfc0100000002fb0000000800540069006d006500000000000000073f0000030000fffffffb0000000800540069006d00650100000000000004500000000000000000000004b00000045200000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Realsense 0:
     collapsed: false
-  Image_realsense2:
+  Realsense 1:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd00000003000000000000016a00000452fc0200000011fb000000100044006900730070006c0061007900730100000028000002a2000000dd00fffffffb000000200049006d006100670065005f007200650061006c00730065006e00730065003101000002d0000000590000001600fffffffb000000200049006d006100670065005f007200650061006c00730065006e007300650032010000032f000000160000001600fffffffc00000343000000a30000000000fffffffa000000000100000002fb0000001e0049006d006100670065005f006b0069006e0065006300740032005f00310100000000ffffffff0000000000000000fb0000001e0049006d006100670065005f006b0069006e0065006300740032005f00320000000000ffffffff0000000000000000fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006400fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000001c0049006d006100670065005f0061007000720069006c007400610067000000038c000000d20000000000000000fb0000000c00430061006d00650072006100000003590000006a0000001600fffffffb00000026005400720061006a006500630074006f007200790020002d00200053006c00690064006500720000000000ffffffff0000004a00fffffffb000000100044006900730070006c00610079007300000002ba0000012c000000dd00fffffffb0000000a005600690065007700730000000309000000dd000000b000fffffffb0000001000670065006c00730069006700680074010000034b0000012f0000001600ffffff000000010000010100000452fc0200000006fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730000000028000001b0000000b000fffffffb0000001a0049006d006100670065005f006d00610070005f00700072006500000000280000010d0000001600fffffffb0000001c0049006d006100670065005f006d00610070005f0070006f007300740000000028000003070000001600fffffffb000000260049006d006100670065005f0070006c006100630069006e0067005f00730063006f007200650000000028000004520000001600fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b20000000000000000000000030000073f000000cdfc0100000002fb0000000800540069006d006500000000000000073f0000030000fffffffb0000000800540069006d00650100000000000004500000000000000000000005cf0000045200000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Realsense 2:
+    collapsed: false
   Selection:
     collapsed: false
   Time:
@@ -878,4 +845,4 @@ Window Geometry:
   X: 65
   Y: 24
   gelsight:
-collapsed: false
+    collapsed: false

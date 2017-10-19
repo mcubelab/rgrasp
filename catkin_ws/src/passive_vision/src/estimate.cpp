@@ -33,7 +33,12 @@
 
 #include <map>
 
-#include <Eigen/Geometry> 
+#include <Eigen/Geometry>
+
+#include <stdio.h>
+#include <time.h>
+
+
 
 
 namespace pt = boost::property_tree;
@@ -116,6 +121,7 @@ std::vector<std::string> machine_per_bin(4);
 bool debug_mode;
 
 std::string data_directory = "/home/mcube/arcdata/";
+std::string rgraspdata_directory = "/home/mcube/rgraspdata/";
 std::string rgrasp_directory = "/home/mcube/rgrasp/";
 std::string camerainfo_directory = "/home/mcube/rgrasp/catkin_ws/src/passive_vision/camerainfo/";
 
@@ -152,6 +158,18 @@ std::string GetUnixTime() {
     std::stringstream ss;
     ss << unit_time;
     return ss.str();
+}
+
+const std::string currentDateTime() {
+  time_t     now = time(0);
+  struct tm  tstruct;
+  char       buf[80];
+  tstruct = *localtime(&now);
+  // Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
+  // for more information about date/time format
+  strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+
+  return buf;
 }
 
 void UpdateDebugMessage(int bin_id, std::string debug_message) {
@@ -255,9 +273,10 @@ void UpdateBinState(passive_vision::state::Request req) {
   {
     std::lock_guard<std::mutex> save_scoped_lock(save_mutex[bin_id]); 
     imwrite(data_directory + "tmpdata/passive-vision-input." + std::to_string(bin_id) + ".0.color.png", input1_color_mat_raw, compression_params);
+    imwrite(rgraspdata_directory + "passive_vision_data/passive-vision-input."  +  currentDateTime() + "." + std::to_string(bin_id) + ".0.color.png", input1_color_mat_raw, compression_params);
   }
   print_toc(tstart, "TIMING 6 Save input color image");
-  
+
   // Save aligned depth image to disk
   tstart = tic();
   float * input1_depth_buffer = new float[im_height * im_width];
@@ -267,6 +286,7 @@ void UpdateBinState(passive_vision::state::Request req) {
   {
     std::lock_guard<std::mutex> save_scoped_lock(save_mutex[bin_id]); 
     WriteDepth(data_directory + "tmpdata/passive-vision-input." + std::to_string(bin_id) + ".0.depth.png", input1_depth_buffer, im_height, im_width);
+    WriteDepth(rgraspdata_directory + "passive_vision_data/passive-vision-input."  +  currentDateTime() + "." + std::to_string(bin_id) + ".0.depth.png", input1_depth_buffer, im_height, im_width);
   }
   print_toc(tstart, "TIMING 7 Save aligned depth image to disk");
   // *********************************************************************************
@@ -294,6 +314,7 @@ void UpdateBinState(passive_vision::state::Request req) {
   {
     std::lock_guard<std::mutex> save_scoped_lock(save_mutex[bin_id]); 
     imwrite(data_directory + "tmpdata/passive-vision-input." + std::to_string(bin_id) + ".1.color.png", input2_color_mat_raw, compression_params);
+    imwrite(rgraspdata_directory + "passive_vision_data/passive-vision-input."  +  currentDateTime() + "." + std::to_string(bin_id) + ".1.color.png", input2_color_mat_raw, compression_params);
   }
   print_toc(tstart, "TIMING 8 Save input color image");
   
@@ -307,6 +328,7 @@ void UpdateBinState(passive_vision::state::Request req) {
   {
     std::lock_guard<std::mutex> save_scoped_lock(save_mutex[bin_id]); 
     WriteDepth(data_directory + "tmpdata/passive-vision-input." + std::to_string(bin_id) + ".1.depth.png", input2_depth_buffer, im_height, im_width);
+    WriteDepth(rgraspdata_directory + "passive_vision_data/passive-vision-input."  +  currentDateTime() + "." + std::to_string(bin_id) + ".1.depth.png", input2_depth_buffer, im_height, im_width);
   }
   print_toc(tstart, "TIMING 9 Save aligned depth");
   

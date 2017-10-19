@@ -39,7 +39,8 @@ class GraspDataRecorder:#(threading.Thread):
                     'depth_bin0': {'topic':'/arc_1/depth_bin0', 'msg_format':Image},
                     'depth_bin1': {'topic':'/arc_1/depth_bin1', 'msg_format':Image},
                     'wsg_driver': {'topic':'/wsg_50_driver/status', 'msg_format':Status},
-                    'exp_comments': {'topic':'/exp_comments', 'msg_format':String}
+                    'exp_comments': {'topic':'/exp_comments', 'msg_format':String},
+                    'impact_time': {'topic':'/impact_time', 'msg_format':String}
                     }
 
     #We delete the sensors we do not want to record

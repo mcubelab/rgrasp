@@ -17,13 +17,16 @@ import math
 import subprocess, os, time, socket
 import copy
 from std_msgs.msg import Float64
-from std_msgs.msg import Int32
+from std_msgs.msg import Int32, String
 from pr_msgs.msg import gelsightresult
+import datetime
 
 import helper
 
 #import moveit_commander
 import spatula
+
+impact_pub=rospy.Publisher('/impact_time', String, queue_size = 10, latch=False)
 
 from ctypes import cdll, c_void_p, c_int
 _dll = cdll.LoadLibrary(os.environ['CODE_BASE'] + '/catkin_ws/devel/lib/libikfast_python.so')
@@ -675,6 +678,9 @@ class GuardedPlan(Plan):
                         self.j_stopped = j - 1
                         if self.j_stopped < 0: self.j_stopped = 0
                         print '[Guarded Move] Contact detected!'
+                        impact_msgs = String()
+                        impact_msgs.data = 'Contact Detected'
+                        impact_pub.publish(impact_msgs)
                         break
                 setZone(1)
                 return True

@@ -1,5 +1,20 @@
 #include "stream.h"
 #include <ctime>
+#include <string>
+#include <stdio.h>
+#include <time.h>
+
+const std::string currentDateTime() {
+  time_t     now = time(0);
+  struct tm  tstruct;
+  char       buf[80];
+  tstruct = *localtime(&now);
+  // Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
+  // for more information about date/time format
+  strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+
+  return buf;
+}
 
 void WriteDepth(const std::string &depth_file, float * depth_values, int frame_height, int frame_width) {
   cv::Mat depth_mat(frame_height, frame_width, CV_16UC1);
@@ -15,20 +30,6 @@ void WriteDepth(const std::string &depth_file, float * depth_values, int frame_h
   cv::imwrite(depth_file, depth_mat, compression_params);
 }
 
-//void publish_passive_vision(float * depth_values, int frame_height, int frame_width) {
-//  cv::Mat depth_mat(frame_height, frame_width, CV_16UC1);
-//  for (size_t y = 0; y < frame_height; y++)
-//    for (size_t x = 0; x < frame_width; x++) {
-//      unsigned short depth_short = (unsigned short)(depth_values[y * frame_width + x] * 10000);
-//      depth_mat.at<unsigned short>(y, x) = depth_short;
-//    }
-//  std::vector<int> compression_params;
-////  compression_params.push_back(CV_IMWRITE_PXM_BINARY);
-//  compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
-//  compression_params.push_back(9);
-//  cv::imwrite(depth_file, depth_mat, compression_params);
-//}
-
 void publish_depth(const uint16_t * depth_values, int frame_height, int frame_width, image_transport::CameraPublisher _depth_image_pub, int counter) {
   sensor_msgs::ImagePtr rgb_img(new sensor_msgs::Image);
 
@@ -39,11 +40,12 @@ void publish_depth(const uint16_t * depth_values, int frame_height, int frame_wi
       depth_mat.at<unsigned short>(y, x) = depth_short;
 //      std::cout<<depth_short<<std::endl;
     }
-//  std::vector<int> compression_params;
-//  compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
-//  compression_params.push_back(9);
+
+  std::vector<int> compression_params;
+  compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
+  compression_params.push_back(9);
 //  std::cout<<"publish depth"<<std::endl;
-//  cv::imwrite(data_directory + "tmpdata/passive-vision-input2 " + std::to_string(counter) +".1.depth.png", depth_mat, compression_params);
+//  cv::imwrite(data_directory + "tmpdata/passive-vision-input2 " +  currentDateTime() + std::to_string(counter) +".1.depth.png", depth_mat, compression_params);
 
   //publish to ros image topic
   cv_bridge::CvImage img_bridge;

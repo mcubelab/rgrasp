@@ -420,13 +420,13 @@ def pose_transform_precise_placing(rel_pose,BoxBody,place_pose,base_pose,bin_pts
     actual_pose=transformTo(drop_pose,rel_pose)
     actual_pose[2]=place_pose[2]
 
-    if viz_pub!=None:
+    if False:
         markers_msg = MarkerArray()
         markers_msg.markers.append(createAllMarker('object_bounding_box_for_collision2'))
         m=createCubeMarker2(offset=tuple(place_pose[0:3]), marker_id = 4, rgba=(1,1,1,1), orientation=tuple(place_pose[3:7]), scale=tuple(box_dim), frame_id="/map", ns = 'object_bounding_box_for_collision2')
         m.frame_locked = True
         markers_msg.markers.append(m)
-	m=createCubeMarker2(offset=tuple(actual_pose[0:3]), marker_id = 5, rgba=(0,1,0,1), orientation=tuple(actual_pose[3:7]), scale=tuple(box_dim), frame_id="/map", ns = 'object_bounding_box_for_collision2')
+        m=createCubeMarker2(offset=tuple(actual_pose[0:3]), marker_id = 5, rgba=(0,1,0,1), orientation=tuple(actual_pose[3:7]), scale=tuple(box_dim), frame_id="/map", ns = 'object_bounding_box_for_collision2')
         m.frame_locked = True
         markers_msg.markers.append(m)
         viz_pub.publish(markers_msg)

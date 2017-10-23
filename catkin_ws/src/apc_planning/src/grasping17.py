@@ -97,6 +97,7 @@ def grasp(objInput,
     vision_pos=np.array(bin_pose[0:3])+np.array(delta_vision_pose[0:3])
     plans = []
     plans_grasping = []
+    plans_grasping2 = []
     plans_guarded = []
     plans_placing = []
     graspPose=[]
@@ -107,7 +108,8 @@ def grasp(objInput,
     gelsight_data=[]
     collision = False
     final_object_pose=None
-    impact_pub=rospy.Publisher('/impact_time', std_msgs.msg.String, queue_size = 10, latch=False)
+
+    liftoff_pub = rospy.Publisher('/liftoff_time', std_msgs.msg.String, queue_size = 10, latch=False)
 
     def compose_output():
         return {'collision':collision,'grasp_possible':grasp_possible,'plan_possible':plan_possible,'execution_possible':execution_possible,'gripper_opening':gripper_opening,'graspPose':graspPose,'gelsight_data':gelsight_data,'final_object_pose':final_object_pose}
@@ -205,15 +207,15 @@ def grasp(objInput,
             
         #~7. Close spatula
         grasp_plan = EvalPlan('spatula.close()')
-        plans_grasping.append(grasp_plan)
+        plans_guarded.append(grasp_plan)
         
         #~8. Close gripper
         grasp_plan = EvalPlan('helper.graspinGripper(%f,%f)'%(800,50))
-        plans_grasping.append(grasp_plan)
+        plans_guarded.append(grasp_plan)
         
         #~9. sleep
         sleep_plan = EvalPlan('rospy.sleep(0.2)')
-        plans_grasping.append(sleep_plan)
+        plans_guarded.append(sleep_plan)
 
         #~10. Move to a location above the bin
         plan, qf, plan_possible = generatePlan(q_initial, vision_pos, delta_vision_pose[3:7], tip_hand_transform, 'fastest', plan_name = 'retrieve_object')
@@ -237,13 +239,20 @@ def grasp(objInput,
             lasers.start(binId)
             gdr = GraspDataRecorder()#, node=node) #Handler instatiation
             grasp_id = 'grasping_' + str(datetime.datetime.now())
-            gdr.start_recording(grasp_id=grasp_id, directory='/home/mcube/rgraspdata', tote_num=binId, frame_rate_ratio=10, image_size=-1)
+            gdr.start_recording(grasp_id=grasp_id, directory='/home/mcube/rgraspdata', tote_num=binId, frame_rate_ratio=5, image_size=-1)
             
             #Execute guarded move
             executePlanForward(plans_guarded, withPause)                     
-            
+
+            #Publish liftoff time
+            liftoff_msgs = std_msgs.msg.String()
+            liftoff_msgs.data = 'Liftoff (Robot command)'
+            liftoff_pub.publish(liftoff_msgs)
+                        
             #Execute non-guarded grasp plan move
             executePlanForward(plans_grasping, withPause)
+            
+            
             gdr.stop_recording(save_dict=True, save_raw_copy=True, plot_ws=False)
             lasers.stop(binId)
     
@@ -305,7 +314,7 @@ def grasp(objInput,
         
         #~0.go up to avoid collision with tote walls
         current_pose = ik.helper.get_tcp_pose(listener, tcp_offset = l3)
-        current_pose[2] = current_pose[2] + 0.25
+        current_pose[2] = current_pose[2] + 0.15
         plan, qf, plan_possible = generatePlan(q_initial, current_pose[0:3], current_pose[3:7], tip_hand_transform, 'faster',  plan_name = 'go_up')
         if plan_possible:
             plans.append(plan)
@@ -313,8 +322,18 @@ def grasp(objInput,
         else:
             return compose_output()
 
+        #~0.1.fast motion to bin surface high
+        predrop_pos_high = predrop_pos
+        predrop_pos_high[2] = current_pose[2]
+        plan, qf, plan_possible = generatePlan(q_initial, predrop_pos_high, drop_pose[3:7], tip_hand_transform, 'faster',  plan_name = 'go_bin_surface_high')
+        if plan_possible:
+            plans.append(plan)
+            q_initial = qf
+        else:
+            return compose_output()
         
         #~1.fast motion to bin surface
+        predrop_pos[2] = bin_pose[2] + 0.05
         plan, qf, plan_possible = generatePlan(q_initial, predrop_pos, drop_pose[3:7], tip_hand_transform, 'faster',  plan_name = 'go_bin_surface')
         if plan_possible:
             plans.append(plan)
@@ -364,7 +383,7 @@ def grasp(objInput,
                 lasers.start(binId)
                 gdr = GraspDataRecorder()#, node=node) #Handler instatiation
                 grasp_id = 'placing_' + str(datetime.datetime.now())
-                gdr.start_recording(grasp_id=grasp_id, directory='/home/mcube/rgraspdata', tote_num=binId, frame_rate_ratio=10, image_size=-1)
+                gdr.start_recording(grasp_id=grasp_id, directory='/home/mcube/rgraspdata', tote_num=binId, frame_rate_ratio=5, image_size=-1)
                 executePlanForward(plans_placing, withPause)
                 gdr.stop_recording(save_dict=True, save_raw_copy=True, plot_ws=False)
                 lasers.stop(binId)

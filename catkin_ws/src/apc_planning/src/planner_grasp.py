@@ -40,7 +40,8 @@ class TaskPlanner(object):
         self.fails_in_row = 0     
         self.switch_dict = {0:1,1:0}
         self.version = 1.0
-        self.experiment_description = "Version: 1.0, Objects: Scotch Brite Sponges, Comments: Only grasping is recorded (not placing), Passive vision pointcloud and rgb-d are not recorded."
+        self.experiment_description = "Comments: Passive vision is recorded in passive_vision_data folder with time stamps."
+        self.objectType = opt.objectType
         # Configuration
         self.withPause = opt.withPause
         self.experiment = opt.experiment
@@ -77,6 +78,7 @@ class TaskPlanner(object):
         self.grasp_all_proposals_pub=rospy.Publisher('/grasp_all_proposals',Float32MultiArray,queue_size = 10, latch=True)
         self.grasp_proposal_pub=rospy.Publisher('/grasp_proposal',Float32MultiArray,queue_size = 10, latch=True)
         self.experiment_comments_pub=rospy.Publisher('/exp_comments',String,queue_size = 10, latch=True)
+        self.objectType_pub=rospy.Publisher('/objectType',String,queue_size = 10, latch=True)
         rospy.sleep(0.5)
 
     ###############################
@@ -296,6 +298,10 @@ class TaskPlanner(object):
         comments_msgs.data = self.experiment_description
         self.experiment_comments_pub.publish(comments_msgs)
         
+        objectType_msgs = String()
+        objectType_msgs.data = self.objectType
+        self.objectType_pub.publish(objectType_msgs)
+        
         if self.grasp_point is None:
             print('It was suppose to do grasping, but there is no grasp proposal')
             self.execution_possible = False
@@ -418,6 +424,8 @@ if __name__ == '__main__':
         help='To execute or not', default=True)
     parser.add_option('-e', '--experiment', action='store_true', dest='experiment',
         help='Whether to run passive vision experiments', default=False)
+    parser.add_option('-i', '--item', action='store', dest='objectType',
+        help='Name object considered', default='None')
     (opt, args) = parser.parse_args()
 
     p = TaskPlanner(opt)

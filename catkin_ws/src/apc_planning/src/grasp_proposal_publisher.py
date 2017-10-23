@@ -14,11 +14,7 @@ import  optparse, rospy, sys
 import ik
 import numpy as np
 
-
-if __name__=='__main__':
-    rospy.init_node('grasp_visualizer')
-    
-    
+def visualize_passive():
     ## Parse arguments
     parser = optparse.OptionParser()
     
@@ -33,6 +29,8 @@ if __name__=='__main__':
         help='To execute or not', default=True)
     parser.add_option('-e', '--experiment', action='store_true', dest='experiment',
         help='Whether to run passive vision experiments', default=False)
+    parser.add_option('-i', '--item', action='store', dest='objectType',
+        help='Name object considered', default='None')
     (opt, args) = parser.parse_args()
 
     p = TaskPlanner(opt)
@@ -55,3 +53,12 @@ if __name__=='__main__':
     ik.visualize_helper.visualize_grasping_proposals(p.proposal_viz_array_pub, np.asarray([p.grasp_point]),  p.listener, p.br,  is_selected =True)
     
     p.all_grasp_proposals = None
+
+
+if __name__=='__main__':
+    rospy.init_node('grasp_proposal_publisher')
+    
+    visualize_passive()
+    
+    
+    

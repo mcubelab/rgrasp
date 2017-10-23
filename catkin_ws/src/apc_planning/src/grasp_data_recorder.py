@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import threading
 from multiprocessing import Process
+#from PIL import Image
+#from img_viewer import imgViewer
 
 class GraspDataRecorder:#(threading.Thread):
   ##This class creates a package with the information gathered through the sensors
@@ -40,13 +42,17 @@ class GraspDataRecorder:#(threading.Thread):
                     'depth_bin1': {'topic':'/arc_1/depth_bin1', 'msg_format':Image},
                     'wsg_driver': {'topic':'/wsg_50_driver/status', 'msg_format':Status},
                     'exp_comments': {'topic':'/exp_comments', 'msg_format':String},
-                    'impact_time': {'topic':'/impact_time', 'msg_format':String}
+                    'impact_time': {'topic':'/impact_time', 'msg_format':String},
+                    'objectType': {'topic':'/objectType', 'msg_format':String}
+                    #'depth_arr_bin0': {'topic':'/arc_1/depth_arr_bin0', 'msg_format':Float32MultiArray},
+                    #'depth_arr_bin1': {'topic':'/arc_1/depth_arr_bin1', 'msg_format':Float32MultiArray}
                     }
 
     #We delete the sensors we do not want to record
     if tote_num == 0:
         del self.topic_dict['ws_1']
         del self.topic_dict['ws_2']
+        #del self.topic_dict['depth_arr_bin1']
         try:
             del self.topic_dict['rgb_bin1']
         except:
@@ -58,6 +64,7 @@ class GraspDataRecorder:#(threading.Thread):
     elif tote_num == 1:
         del self.topic_dict['ws_0']
         del self.topic_dict['ws_2']
+        #del self.topic_dict['depth_arr_bin0']
         try:
             del self.topic_dict['rgb_bin0']
         except:
@@ -71,6 +78,17 @@ class GraspDataRecorder:#(threading.Thread):
     self.data_recorded = {'grasp_id':grasp_id, 'directory':directory, 'tote_num':tote_num, 'frame_rate_ratio':frame_rate_ratio, 'rgb_count':0, 'depth_count':0, 'image_size':image_size}
     for key in self.topic_dict:
         self.data_recorded[key] = {}
+
+  def __get_image(self, data):
+      arr = np.asarray(data)
+      #~ min_val = np.amin(arr)
+      #~ max_val = np.amax(arr)
+      #~ mat = arr.reshape(480, 640)
+      #return Image.fromarray(mat, "L")
+      print mat
+      iv = imgViewer(mat, min_val, max_val) 
+      return mat
+      
 
   def __callback(self, data, key):
     ##This function is called everytime a msg is published to one of our subscribed topics, it stores the data
@@ -90,7 +108,7 @@ class GraspDataRecorder:#(threading.Thread):
             self.data_recorded['depth_count'] +=1
             if self.data_recorded['depth_count']%self.data_recorded['frame_rate_ratio'] == 0:
                 try:
-                    cv2_img = self.bridge.imgmsg_to_cv2(data, 'mono16') # Convert your ROS Image message to OpenCV2
+                    cv2_img = self.bridge.imgmsg_to_cv2(data, 'bgr16') # Convert your ROS Image message to OpenCV2
                     if self.data_recorded['image_size'] != -1:
                         cv2_img = cv2.resize(cv2_img, self.data_recorded['image_size'])
                 except CvBridgeError, e:
@@ -99,13 +117,18 @@ class GraspDataRecorder:#(threading.Thread):
                     self.data_recorded[key][rospy.get_time()] = cv2_img # Save your OpenCV2 image as a jpeg
         else:
             try:
-                cv2_img = self.bridge.imgmsg_to_cv2(data, 'bgr8') # Convert your ROS Image message to OpenCV2
+                cv2_img = self.bridge.imgmsg_to_cv2(data, 'bgr16') # Convert your ROS Image message to OpenCV2
                 if self.data_recorded['image_size'] != -1:
                     cv2_img = cv2.resize(cv2_img, self.data_recorded['image_size'])
             except CvBridgeError, e:
                 print(e)
             else:
                 self.data_recorded[key][rospy.get_time()] = cv2_img # Save your OpenCV2 image as a jpeg
+    #~ elif key=='depth_arr_bin0' or key=='depth_arr_bin1':
+        #~ self.data_recorded['depth_count'] +=1
+        #~ if self.data_recorded['depth_count']%self.data_recorded['frame_rate_ratio'] == 0:
+            #~ image = self.__get_image(data.data)
+            #~ self.data_recorded[key][rospy.get_time()] = image
     else:
       try:
         self.data_recorded[key][rospy.get_time()] = data.data
@@ -134,16 +157,28 @@ class GraspDataRecorder:#(threading.Thread):
       directory = self.data_recorded['directory'] +'/'+ str(self.data_recorded['grasp_id'])
       if not os.path.exists(directory): #If the directory does not exist, we create it
           os.makedirs(directory)
-
+      if not os.path.exists(directory + '/images'): #If the directory does not exist, we create it
+          os.makedirs(directory + '/images')
+                    
       for key in self.data_recorded:
           if key in self.topic_dict:
               if self.topic_dict[key]['msg_format'] == Image:
-                  if not os.path.exists(directory + '/images'): #If the directory does not exist, we create it
-                    os.makedirs(directory + '/images')
                   i = 0
                   for item in self.data_recorded[key].values():
-                    path = directory + '/images' + '/' + key + '_' + str(i) + '.jpeg'
-                    cv2.imwrite(path, item)
+                    path = directory + '/images' + '/' + key + '_' + str(i) + '.png'
+                    params = list()
+                    params.append(16)
+                    params.append(9)
+                    cv2.imwrite(path, item, params)
+                    i += 1
+              #~ elif key=='depth_arr_bin0' or key=='depth_arr_bin1':
+                  #~ i = 0
+                  #~ for item in self.data_recorded[key].values():
+                    #~ params = list()
+                    #~ params.append(16)
+                    #~ params.append(9)
+                    #~ path = directory + '/images' + '/' + key + '_' + str(i) + '.png'
+                    #~ cv2.imwrite(path, item, params)
                     i += 1
               else:
                   path = directory + '/' + key + '.txt'
@@ -155,7 +190,7 @@ class GraspDataRecorder:#(threading.Thread):
 
   def __save_dict(self):
       print 'Saving dictionary'
-      path = self.data_recorded['directory'] + '/grasp_' + str(self.data_recorded['grasp_id']) + '_info.p'
+      path = self.data_recorded['directory'] + '/' + str(self.data_recorded['grasp_id']) + '_info.p'
       pickle.dump(self.data_recorded, open(path, "wb"))
       print 'Dictionary saved'
 

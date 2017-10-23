@@ -108,6 +108,9 @@ def grasp(objInput,
     gelsight_data=[]
     collision = False
     final_object_pose=None
+    rospy.set_param('is_record', False)
+    rospy.set_param('is_contact', False)
+
 
     liftoff_pub = rospy.Publisher('/liftoff_time', std_msgs.msg.String, queue_size = 10, latch=False)
 
@@ -180,18 +183,18 @@ def grasp(objInput,
             
        #~2. Open gripper
         grasp_plan = EvalPlan('helper.moveGripper(%f, 200)' % grasp_width)
-        plans_guarded.append(grasp_plan)
+        plans.append(grasp_plan)
 
         #~ 3. Open spatula  
         grasp_plan = EvalPlan('spatula.open()')
-        plans_guarded.append(grasp_plan)
+        plans.append(grasp_plan)
         
         grasp_targetPosition=deepcopy(graspPos)
 #        rospy.loginfo('[Picking] Grasp Target %s', grasp_targetPosition)
         
         #~4. sleep
         sleep_plan = EvalPlan('rospy.sleep(0.2)')
-        plans_guarded.append(sleep_plan)
+        plans.append(sleep_plan)
         
          #~5. perform guarded move down
         grasp_targetPosition[2] = bin_pose[2] -  rospy.get_param('/tote/height') + 0.000 #~frank hack for safety
@@ -237,12 +240,14 @@ def grasp(objInput,
 
             #We start recording now
             lasers.start(binId)
-            gdr = GraspDataRecorder()#, node=node) #Handler instatiation
-            grasp_id = 'grasping_' + str(datetime.datetime.now())
-            gdr.start_recording(grasp_id=grasp_id, directory='/home/mcube/rgraspdata', tote_num=binId, frame_rate_ratio=5, image_size=-1)
+#            gdr = GraspDataRecorder()#, node=node) #Handler instatiation
+#            grasp_id = 'grasping_' + str(datetime.datetime.now())
+#            gdr.start_recording(grasp_id=grasp_id, directory='/home/mcube/rgraspdata', tote_num=binId, frame_rate_ratio=5, image_size=-1)
             
             #Execute guarded move
-            executePlanForward(plans_guarded, withPause)                     
+            rospy.set_param('is_record', True)
+            executePlanForward(plans_guarded, withPause)      
+            rospy.set_param('is_record', False)               
 
             #Publish liftoff time
             liftoff_msgs = std_msgs.msg.String()
@@ -253,7 +258,7 @@ def grasp(objInput,
             executePlanForward(plans_grasping, withPause)
             
             
-            gdr.stop_recording(save_dict=True, save_raw_copy=True, plot_ws=False)
+#            gdr.stop_recording(save_dict=True, save_raw_copy=True, plot_ws=False)
             lasers.stop(binId)
     
         #~Check if picking success
@@ -381,11 +386,13 @@ def grasp(objInput,
                 executePlanForward(plans, withPause)
                 #We start recording now
                 lasers.start(binId)
-                gdr = GraspDataRecorder()#, node=node) #Handler instatiation
-                grasp_id = 'placing_' + str(datetime.datetime.now())
-                gdr.start_recording(grasp_id=grasp_id, directory='/home/mcube/rgraspdata', tote_num=binId, frame_rate_ratio=5, image_size=-1)
+#                gdr = GraspDataRecorder()#, node=node) #Handler instatiation
+#                grasp_id = 'placing_' + str(datetime.datetime.now())
+#                gdr.start_recording(grasp_id=grasp_id, directory='/home/mcube/rgraspdata', tote_num=binId, frame_rate_ratio=5, image_size=-1)
+                rospy.set_param('is_record', True)
                 executePlanForward(plans_placing, withPause)
-                gdr.stop_recording(save_dict=True, save_raw_copy=True, plot_ws=False)
+                rospy.set_param('is_record', False)
+#                gdr.stop_recording(save_dict=True, save_raw_copy=True, plot_ws=False)
                 lasers.stop(binId)
             
             execution_possible = True

@@ -2,7 +2,7 @@ import rospy, signal, sys, time, os, cv2, pickle, collections
 from std_msgs.msg import Int32
 from std_msgs.msg import Float64
 from std_msgs.msg import Float32MultiArray
-from std_msgs.msg import String
+from std_msgs.msg import String, Bool
 from pr_msgs.msg import gelsight_contactarea #~proper format: from <package> import <file>
 from sensor_msgs.msg import JointState
 from sensor_msgs.msg import Image
@@ -42,7 +42,7 @@ class GraspDataRecorder:#(threading.Thread):
                     'depth_bin1': {'topic':'/arc_1/depth_bin1', 'msg_format':Image},
                     'wsg_driver': {'topic':'/wsg_50_driver/status', 'msg_format':Status},
                     'exp_comments': {'topic':'/exp_comments', 'msg_format':String},
-                    'impact_time': {'topic':'/impact_time', 'msg_format':String},
+                    'impact_time': {'topic':'/impact_time', 'msg_format':Bool},
                     'objectType': {'topic':'/objectType', 'msg_format':String}
                     #'depth_arr_bin0': {'topic':'/arc_1/depth_arr_bin0', 'msg_format':Float32MultiArray},
                     #'depth_arr_bin1': {'topic':'/arc_1/depth_arr_bin1', 'msg_format':Float32MultiArray}

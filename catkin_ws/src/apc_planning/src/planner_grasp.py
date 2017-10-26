@@ -2,7 +2,7 @@
 
 
 from placing_grasp import PlacingPlanner
-import random, time, datetime, json, optparse, rospy, copy
+import random, time, datetime, json, optparse, rospy, copy, yaml
 import tf
 import ik.visualize_helper
 import numpy as np
@@ -98,6 +98,12 @@ class TaskPlanner(object):
             except:
                 print('Waiting Vision.')
 
+    def get_objects(self):
+        yaml_content = yaml.load(open(os.environ['CODE_BASE']+"/catkin_ws/src/apc_config/object_properties.yaml"))
+        obj_list = yaml_content['/obj'].keys()
+        obj_list.sort()
+        return obj_list
+        
     def switch_tote(self): 
         self.tote_ID = 1-self.tote_ID
         #~frank edit: continuous switch between totes 0 and 1
@@ -354,6 +360,17 @@ class TaskPlanner(object):
         #######################
         ## initialize system ##
         #######################
+        
+        #Get object list
+        obj_list = self.get_objects()
+        print(obj_list)
+        #assert(False)
+        obj_ans = raw_input('Are these the objects?(y/n)')
+        while obj_ans != 'y':
+            obj_list = self.get_objects()
+            print(obj_list)
+            obj_ans = raw_input('Are these the objects?(y/n)')
+        assert(False)
         goToHome.goToARC(slowDown=self.goHomeSlow) # 1. Initialize robot state
         if self.visionType == 'real': # 2. Passive vision update bins
             number_bins = 2
@@ -374,19 +391,29 @@ class TaskPlanner(object):
             self.all_grasp_proposals = None
             self.run_grasping(container = self.tote_ID) # 4. Run grasping
             
-            if self.execution_possible != False: #~ = None # 5. Check the weight
-                self.weight_info[self.tote_ID] = self.weightSensor.readWeightSensor(item_list = [], withSensor=self.withSensorWeight, binNum=self.tote_ID, givenWeights=-11)
+            self.obj_ID = 'no_item'
+            
+            if self.execution_possible != False: # 5. Check the weight
+                self.weight_info[self.tote_ID] = self.weightSensor.readWeightSensor(item_list = obj_list, withSensor=self.withSensorWeight, binNum=self.tote_ID, givenWeights=-11)
                 print('-----------------------------\n Execution_possible according to primitive = {} \n-----------------------------'.format(self.execution_possible) )
                 print('Detected weight:',  self.weight_info[self.tote_ID]['weights'])
                 
                 if self.weight_info[self.tote_ID]['weights'] > 10:
                     self.execution_possible = True
+                    
+                #Identify object
+                max_prob_index = (self.weight_info[self.tote_ID]['probs']).tolist().index(max(self.weight_info[self.tote_ID]['probs']))
+                self.obj_ID = obj_list[max_prob_index]
                 
                 if self.execution_possible == None:
                     self.execution_possible = False
 
             if self.visionType == 'real': # 7. Update vision state of the tote
                 self.getPassiveVisionEstimate('update hm sg', '', self.tote_ID)
+            #Publish experiment outcome
+            grasp_status_msgs = sensor_msgs.msg.JointState()
+            grasp_status_msgs.name = ['grasp_success', 'code_version', 'tote_ID', 'obj_ID'] #grasp proposals, grasp_point, scores, score, 
+            grasp_status_msgs.position = [self.execution_possible, self.version, self.tote_ID, self.obj_ID]
             
             print('-----------------------------\n Execution_possible = {} \n-----------------------------'.format(self.execution_possible) )
             if self.execution_possible: # 8. Placing
@@ -402,11 +429,7 @@ class TaskPlanner(object):
                     spatula.open()
                     self.bad_grasping_points.append(self.grasp_point)
                     self.bad_grasping_times.append(time.time())
-            #Publish experiment outcome
-#            if self.grasp_point is not None: # 9. Add to bad grasp points
-            grasp_status_msgs = sensor_msgs.msg.JointState()
-            grasp_status_msgs.name = ['grasp_success', 'code_version', 'tote_ID'] #grasp proposals, grasp_point, scores, score, 
-            grasp_status_msgs.position = [self.execution_possible, self.version, self.tote_ID]
+
             
             print '***********************************************************'
             self.grasp_status_pub.publish(grasp_status_msgs)

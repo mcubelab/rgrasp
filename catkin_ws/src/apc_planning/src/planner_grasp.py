@@ -99,8 +99,10 @@ class TaskPlanner(object):
                 print('Waiting Vision.')
 
     def get_objects(self):
-        yaml_content = yaml.load(open("object_properties.yaml"))
-        return yaml_content['/obj'].keys()
+        yaml_content = yaml.load(open(os.environ['CODE_BASE']+"/catkin_ws/src/apc_config/object_properties.yaml"))
+        obj_list = yaml_content['/obj'].keys()
+        obj_list.sort()
+        return obj_list
         
     def switch_tote(self): 
         self.tote_ID = 1-self.tote_ID
@@ -360,14 +362,15 @@ class TaskPlanner(object):
         #######################
         
         #Get object list
-        obj_list = get_objects()
+        obj_list = self.get_objects()
         print(obj_list)
+        #assert(False)
         obj_ans = raw_input('Are these the objects?(y/n)')
         while obj_ans != 'y':
-            obj_list = get_objects()
+            obj_list = self.get_objects()
             print(obj_list)
             obj_ans = raw_input('Are these the objects?(y/n)')
-        
+        assert(False)
         goToHome.goToARC(slowDown=self.goHomeSlow) # 1. Initialize robot state
         if self.visionType == 'real': # 2. Passive vision update bins
             number_bins = 2
@@ -388,7 +391,8 @@ class TaskPlanner(object):
             self.all_grasp_proposals = None
             self.run_grasping(container = self.tote_ID) # 4. Run grasping
             
-            self.obj_identity = 'empty'
+            self.obj_ID = 'no_item'
+            
             if self.execution_possible != False: # 5. Check the weight
                 self.weight_info[self.tote_ID] = self.weightSensor.readWeightSensor(item_list = obj_list, withSensor=self.withSensorWeight, binNum=self.tote_ID, givenWeights=-11)
                 print('-----------------------------\n Execution_possible according to primitive = {} \n-----------------------------'.format(self.execution_possible) )
@@ -399,10 +403,8 @@ class TaskPlanner(object):
                     
                 #Identify object
                 max_prob_index = (self.weight_info[self.tote_ID]['probs']).tolist().index(max(self.weight_info[self.tote_ID]['probs']))
-                if max_prob_index == len(self.weight_info[self.tote_ID]['probs'])-1:
-                    self.execution_possible = False
-                else:
-                    self.obj_identity = obj_list[max_prob_index]
+                self.obj_ID = obj_list[max_prob_index]
+                
                 if self.execution_possible == None:
                     self.execution_possible = False
 
@@ -410,8 +412,8 @@ class TaskPlanner(object):
                 self.getPassiveVisionEstimate('update hm sg', '', self.tote_ID)
             #Publish experiment outcome
             grasp_status_msgs = sensor_msgs.msg.JointState()
-            grasp_status_msgs.name = ['grasp_success', 'code_version', 'tote_ID'] #grasp proposals, grasp_point, scores, score, 
-            grasp_status_msgs.position = [self.execution_possible, self.version, self.tote_ID]
+            grasp_status_msgs.name = ['grasp_success', 'code_version', 'tote_ID', 'obj_ID'] #grasp proposals, grasp_point, scores, score, 
+            grasp_status_msgs.position = [self.execution_possible, self.version, self.tote_ID, self.obj_ID]
             
             print('-----------------------------\n Execution_possible = {} \n-----------------------------'.format(self.execution_possible) )
             if self.execution_possible: # 8. Placing

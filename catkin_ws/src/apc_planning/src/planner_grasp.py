@@ -450,5 +450,5 @@ if __name__ == '__main__':
     (opt, args) = parser.parse_args()
 
     p = TaskPlanner(opt)
-    
+
     p.run_data_collection()

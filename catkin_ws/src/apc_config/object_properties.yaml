@@ -1,0 +1,301 @@
+/obj:
+  avery_binder:
+    dimensions: [0.294, 0.266, 0.041]
+    name: avery_binder
+    type: book
+    weight: 0.383
+  balloons:
+    dimensions: [0.187, 0.142, 0.03]
+    name: balloons
+    type: deformable
+    weight: 0.0455
+  band_aid_tape:
+    dimensions: [0.126, 0.089, 0.03]
+    name: band_aid_tape
+    type: clamshell
+    weight: 0.0245
+  bath_sponge:
+    dimensions: [0.217, 0.136, 0.123]
+    name: bath_sponge
+    type: deformable
+    weight: 0.0667
+  black_fashion_gloves:
+    dimensions: [0.198, 0.124, 0.03]
+    name: black_fashion_gloves
+    type: deformable
+    weight: 0.0286
+  burts_bees_baby_wipes:
+    dimensions: [0.225, 0.119, 0.066]
+    name: burts_bees_baby_wipes
+    type: wrapped
+    weight: 0.4652
+  cherokee_easy_tee_shirt:
+    dimensions: [0.195, 0.15, 0.02]
+    name: cherokee_easy_tee_shirt
+    type: deformable
+    weight: 0.0609
+  cloud_b_plush_bear:
+    dimensions: [0.16, 0.063, 0.045]
+    name: cloud_b_plush_bear
+    type: other
+    weight: 0.0340
+  colgate_toothbrush_4pk:
+    dimensions: [0.227, 0.085, 0.023]
+    name: colgate_toothbrush_4pk
+    type: clamshell
+    weight: 0.0591
+  composition_book:
+    dimensions: [0.248, 0.191, 0.011]
+    name: composition_book
+    type: book
+    weight: 0.3086
+  cool_shot_glue_sticks:
+    dimensions: [0.11, 0.075, 0.017]
+    name: cool_shot_glue_sticks
+    type: wrapped
+    weight: 0.0616
+  crayons:
+    dimensions: [0.114, 0.072, 0.028]
+    name: crayons
+    type: box
+    weight: 0.1311
+  creativity_chenille_stems:
+    dimensions: [0.307, 0.08, 0.024]
+    name: creativity_chenille_stems
+    type: wrapped
+    weight: 0.0975
+  dove_beauty_bar:
+    dimensions: [0.092, 0.064, 0.034]
+    name: dove_beauty_bar
+    type: box
+    weight: 0.1217
+  dr_browns_bottle_brush:
+    dimensions: [0.305, 0.105, 0.063]
+    name: dr_browns_bottle_brush
+    type: clamshell
+    weight: 0.0739
+  duct_tape:
+    dimensions: [0.097, 0.096, 0.049]
+    name: duct_tape
+    type: cylinder
+    weight: 0.1428
+  easter_turtle_sippy_cup:
+    dimensions: [0.16, 0.13, 0.08]
+    name: easter_turtle_sippy_cup
+    type: other
+    weight: 0.1368
+  elmers_washable_no_run_school_glue:
+    dimensions: [0.145, 0.065, 0.028]
+    name: elmers_washable_no_run_school_glue
+    type: other
+    weight: 0.1455
+  epsom_salts:
+    dimensions: [0.252, 0.163, 0.068]
+    name: epsom_salts
+    type: deformable
+    weight: 0.9287
+  expo_eraser:
+    dimensions: [0.135, 0.055, 0.037]
+    name: expo_eraser
+    type: box
+    weight: 0.0209
+  fiskars_scissors:
+    dimensions: [0.124, 0.066, 0.011]
+    name: fiskars_scissors
+    type: other
+    weight: 0.0245
+  flashlight:
+    dimensions: [0.085, 0.03, 0.025]
+    name: flashlight
+    type: cylinder
+    weight: 0.0293
+  folgers_classic_roast_coffee:
+    dimensions: [0.135, 0.097, 0.097]
+    name: folgers_classic_roast_coffee
+    type: cylinder
+    weight: 0.3886
+  glue_sticks:
+    dimensions: [0.185, 0.102, 0.022]
+    name: glue_sticks
+    type: clamshell
+    weight: 0.1108
+  hand_weight:
+    dimensions: [0.144, 0.059, 0.057]
+    name: hand_weight
+    type: other
+    weight: 0.9726
+  hanes_socks:
+    dimensions: [0.267, 0.226, 0.072]
+    name: hanes_socks
+    type: wrapped
+    weight: 0.359
+  hinged_ruled_index_cards:
+    dimensions: [0.127, 0.104, 0.022]
+    name: hinged_ruled_index_cards
+    type: book
+    weight: 0.098
+  i_am_a_bunny_book:
+    dimensions: [0.201, 0.169, 0.005]
+    name: i_am_a_bunny_book
+    type: book
+    weight: 0.1101
+  ice_cube_tray:
+    dimensions: [0.33, 0.123, 0.043]
+    name: ice_cube_tray
+    type: wrapped
+    weight: 0.1167
+  irish_spring_soap:
+    dimensions: [0.1, 0.064, 0.039]
+    name: irish_spring_soap
+    type: box
+    weight: 0.1122
+  jane_eyre_dvd:
+    dimensions: [0.192, 0.136, 0.014]
+    name: jane_eyre_dvd
+    type: box
+    weight: 0.0779
+  kyjen_squeakin_eggs_plush_puppies:
+    dimensions: [0.116, 0.065, 0.065]
+    name: kyjen_squeakin_eggs_plush_puppies
+    type: deformable
+    weight: 0.0537
+  laugh_out_loud_jokes:
+    dimensions: [0.177, 0.108, 0.015]
+    name: laugh_out_loud_jokes
+    type: book
+    weight: 0.0811
+  marbles:
+    dimensions: [0.117, 0.113, 0.085]
+    name: marbles
+    type: deformable
+    weight: 0.3487
+  measuring_spoons:
+    dimensions: [0.145, 0.075, 0.027]
+    name: measuring_spoons
+    type: other
+    weight: 0.0726
+  mesh_cup:
+    dimensions: [0.144, 0.109, 0.108]
+    name: mesh_cup
+    type: cylinder
+    weight: 0.0887
+  mouse_traps:
+    dimensions: [0.186, 0.109, 0.036]
+    name: mouse_traps
+    type: wrapped
+    weight: 0.0956
+  oral_b_toothbrush_red:
+    dimensions: [0.2, 0.025, 0.018]
+    name: oral_b_toothbrush_red
+    type: clamshell
+    weight: 0.018
+  peva_shower_curtain_liner:
+    dimensions: [0.25, 0.147, 0.017]
+    name: peva_shower_curtain_liner
+    type: wrapped
+    weight: 0.2514
+  pie_plates:
+    dimensions: [0.258, 0.258, 0.05]
+    name: pie_plates
+    type: other
+    weight: 0.0995
+  plastic_wine_glass:
+    dimensions: [0.217, 0.079, 0.079]
+    name: plastic_wine_glass
+    type: other
+    weight: 0.0931
+  platinum_pets_dog_bowl:
+    dimensions: [0.12, 0.12, 0.033]
+    name: platinum_pets_dog_bowl
+    type: other
+    weight: 0.0379
+  poland_spring_water:
+    dimensions: [0.201, 0.066, 0.065]
+    name: poland_spring_water
+    type: cylinder
+    weight: 0.5032
+  rawlings_baseball:
+    dimensions: [0.073, 0.073, 0.073]
+    name: rawlings_baseball
+    type: other
+    weight: 0.1476
+  reynolds_wrap:
+    dimensions: [0.319, 0.047, 0.047]
+    name: reynolds_wrap
+    type: box
+    weight: 0.3927
+  robots_dvd:
+    dimensions: [0.192, 0.136, 0.016]
+    name: robots_dvd
+    type: box
+    weight: 0.073
+  robots_everywhere:
+    dimensions: [0.201, 0.168, 0.006]
+    name: robots_everywhere
+    type: book
+    weight: 0.1125
+  scotch_bubble_mailer:
+    dimensions: [0.288, 0.245, 0.005]
+    name: scotch_bubble_mailer
+    type: other
+    weight: 0.019
+  scotch_sponges:
+    dimensions: [0.159, 0.083, 0.072]
+    name: scotch_sponges
+    type: wrapped
+    weight: 0.0572
+  speed_stick:
+    dimensions: [0.144, 0.069, 0.061]
+    name: speed_stick
+    type: box
+    weight: 0.2752
+  staples_index_cards:
+    dimensions: [0.127, 0.076, 0.018]
+    name: staples_index_cards
+    type: wrapped
+    weight: 0.1222
+  table_cloth:
+    dimensions: [0.398, 0.187, 0.023]
+    name: table_cloth
+    type: deformable
+    weight: 0.1304
+  tennis_ball_container:
+    dimensions: [0.218, 0.077, 0.077]
+    name: tennis_ball_container
+    type: cylinder
+    weight: 0.2215
+  ticonderoga_pencils:
+    dimensions: [0.215, 0.093, 0.012]
+    name: ticonderoga_pencils
+    type: box
+    weight: 0.0753
+  tissue_box:
+    dimensions: [0.132, 0.116, 0.113]
+    name: tissue_box
+    type: box
+    weight: 0.1686
+  toilet_brush:
+    dimensions: [0.403, 0.168, 0.085]
+    name: toilet_brush
+    type: other
+    weight: 0.129
+  up_glucose_bottle:
+    dimensions: [0.136, 0.068, 0.068]
+    name: up_glucose_bottle
+    type: cylinder
+    weight: 0.272
+  white_facecloth:
+    dimensions: [0.182, 0.17, 0.039]
+    name: white_facecloth
+    type: deformable
+    weight: 0.0328
+  windex:
+    dimensions: [0.269, 0.103, 0.061]
+    name: windex
+    type: other
+    weight: 0.7519
+  woods_extension_cord:
+    dimensions: [0.17, 0.075, 0.027]
+    name: woods_extension_cord
+    type: other
+    weight: 0.1362

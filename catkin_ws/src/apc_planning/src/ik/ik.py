@@ -16,14 +16,16 @@ from robot_comm.srv import *
 import math
 import subprocess, os, time, socket
 import copy
-from std_msgs.msg import Float64
-from std_msgs.msg import Int32
+from std_msgs.msg import Int32, String,Bool, Float64
 from pr_msgs.msg import gelsightresult
+import datetime
 
 import helper
 
 #import moveit_commander
 import spatula
+
+impact_pub=rospy.Publisher('/impact_time', Bool, queue_size = 10, latch = False)
 
 from ctypes import cdll, c_void_p, c_int
 _dll = cdll.LoadLibrary(os.environ['CODE_BASE'] + '/catkin_ws/devel/lib/libikfast_python.so')
@@ -652,6 +654,7 @@ class GuardedPlan(Plan):
         R2D = 180.0 / math.pi
 
         try:
+            rospy.set_param('is_contact', False)
             if not haverobot:
                 raise Exception('No robot')
             setZone(1)
@@ -675,6 +678,10 @@ class GuardedPlan(Plan):
                         self.j_stopped = j - 1
                         if self.j_stopped < 0: self.j_stopped = 0
                         print '[Guarded Move] Contact detected!'
+                        impact_msgs = Bool()
+                        impact_msgs.data = True
+                        impact_pub.publish(impact_msgs)
+                        rospy.set_param('is_contact', True)
                         break
                 setZone(1)
                 return True
@@ -896,13 +903,13 @@ def generatePlan(q0, target_tip_pos, target_tip_ori, tip_hand_transform, speed, 
 		qf = plan.q_traj[-1]
         
     if plan_name is not None:
-        rospy.loginfo('[Generate Plan] Build plan %s',plan_name)
-        rospy.loginfo('[Generate Plan] Target position %s',target_tip_pos)
-        rospy.loginfo('[Generate Plan] Target orientation %s',target_tip_ori)
-        rospy.loginfo('[Generate Plan] Tip hand transform %s',tip_hand_transform) 
-        rospy.loginfo('[Generate Plan] Initial joint state %s',q0) 
-        rospy.loginfo('[Generate Plan] Computed joint state %s',qf) 
-        rospy.loginfo('[Generate Plan] Execution possible %s', execution_possible) 
+        rospy.logdebug('[Generate Plan] Build plan %s',plan_name)
+        rospy.logdebug('[Generate Plan] Target position %s',target_tip_pos)
+        rospy.logdebug('[Generate Plan] Target orientation %s',target_tip_ori)
+        rospy.logdebug('[Generate Plan] Tip hand transform %s',tip_hand_transform) 
+        rospy.logdebug('[Generate Plan] Initial joint state %s',q0) 
+        rospy.logdebug('[Generate Plan] Computed joint state %s',qf) 
+        rospy.logdebug('[Generate Plan] Execution possible %s', execution_possible) 
 
     return plan, qf, execution_possible
 

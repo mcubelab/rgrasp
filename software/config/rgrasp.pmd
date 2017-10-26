@@ -45,14 +45,18 @@ cmd "5-rviz" {
 }
 cmd "6-interactive-fitting" {
     auto_respawn = "true";
-    exec = "rosrun manual_fit manual_fit_obj_interactive.py -s -o _is_picking:=false";
+    exec = "rosrun manual_fit manual_fit_obj_interactive.py -s _is_picking:=false";
     host = "localhost";
 }
-cmd "7-apcgui" {
+cmd "7-start_gui" {
+    exec = "rosrun apc_planning start_procedure.py";
+    host = "localhost";
+}
+cmd "8-apcgui" {
     exec = "rosrun apc_planning arcgui.py";
     host = "localhost";
 }
-cmd "8-grasp_proposal_visualize" {
+cmd "9-grasp_proposal_visualize" {
     exec = "rosrun apc_planning topic_initializer.py";
     host = "localhost";
 }

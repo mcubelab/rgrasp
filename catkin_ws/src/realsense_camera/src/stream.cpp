@@ -1,5 +1,22 @@
 #include "stream.h"
 #include <ctime>
+#include <string>
+#include <stdio.h>
+#include <time.h>
+#include <std_msgs/Float32MultiArray.h>
+#include <std_msgs/MultiArrayDimension.h>
+
+const std::string currentDateTime() {
+  time_t     now = time(0);
+  struct tm  tstruct;
+  char       buf[80];
+  tstruct = *localtime(&now);
+  // Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
+  // for more information about date/time format
+  strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+
+  return buf;
+}
 
 void WriteDepth(const std::string &depth_file, float * depth_values, int frame_height, int frame_width) {
   cv::Mat depth_mat(frame_height, frame_width, CV_16UC1);
@@ -15,35 +32,27 @@ void WriteDepth(const std::string &depth_file, float * depth_values, int frame_h
   cv::imwrite(depth_file, depth_mat, compression_params);
 }
 
-//void publish_passive_vision(float * depth_values, int frame_height, int frame_width) {
-//  cv::Mat depth_mat(frame_height, frame_width, CV_16UC1);
-//  for (size_t y = 0; y < frame_height; y++)
-//    for (size_t x = 0; x < frame_width; x++) {
-//      unsigned short depth_short = (unsigned short)(depth_values[y * frame_width + x] * 10000);
-//      depth_mat.at<unsigned short>(y, x) = depth_short;
-//    }
-//  std::vector<int> compression_params;
-////  compression_params.push_back(CV_IMWRITE_PXM_BINARY);
-//  compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
-//  compression_params.push_back(9);
-//  cv::imwrite(depth_file, depth_mat, compression_params);
-//}
-
-void publish_depth(const uint16_t * depth_values, int frame_height, int frame_width, image_transport::CameraPublisher _depth_image_pub, int counter) {
+void publish_depth(const uint16_t * depth_values, int frame_height, int frame_width, image_transport::CameraPublisher _depth_image_pub, int counter, std::string serial) {
   sensor_msgs::ImagePtr rgb_img(new sensor_msgs::Image);
 
   cv::Mat depth_mat(frame_height, frame_width, CV_16UC1);
+//  std::cout<<depth_mat<<std::endl;
+  std_msgs::Float32MultiArray arr;
   for (size_t y = 0; y < frame_height; y++)
     for (size_t x = 0; x < frame_width; x++) {
-      unsigned short depth_short = (unsigned short)(depth_values[y * frame_width + x] * 10000);
+      unsigned short depth_short = (unsigned short)(depth_values[y * frame_width + x] * 1);
       depth_mat.at<unsigned short>(y, x) = depth_short;
+      arr.data.push_back(depth_short);
 //      std::cout<<depth_short<<std::endl;
     }
+////, ros::Publisher pub_depth_arr
+//  pub_depth_arr.publish(arr);
+//
 //  std::vector<int> compression_params;
 //  compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
 //  compression_params.push_back(9);
 //  std::cout<<"publish depth"<<std::endl;
-//  cv::imwrite(data_directory + "tmpdata/passive-vision-input2 " + std::to_string(counter) +".1.depth.png", depth_mat, compression_params);
+//  cv::imwrite(data_directory + "tmpdata/passive-vision-input2 " +  currentDateTime() + std::to_string(counter) +".1.depth.png", depth_mat, compression_params);
 
   //publish to ros image topic
   cv_bridge::CvImage img_bridge;
@@ -53,6 +62,7 @@ void publish_depth(const uint16_t * depth_values, int frame_height, int frame_wi
   header.stamp = header_time_stamp; // time
   img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::MONO16, depth_mat);
   img_bridge.toImageMsg(img_msg); // from cv_bridge to sensor_msgs::Image
+  rgb_camera_info.header.frame_id = rgb_frame_id + "_" + serial;
   _depth_image_pub.publish(img_msg, rgb_camera_info); // ros::Publisher pub_img = node.advertise<sensor_msgs
 }
 
@@ -433,6 +443,10 @@ int main(int argc, char **argv) {
 
   pointcloud_pub = n.advertise<sensor_msgs::PointCloud2>(topic_pointcloud, 1);
 
+  ros::Publisher pub_depth_arr_bin0 = n.advertise<std_msgs::Float32MultiArray>("/arc_1/depth_arr_bin0", 1);
+  ros::Publisher pub_depth_arr_bin1 = n.advertise<std_msgs::Float32MultiArray>("/arc_1/depth_arr_bin1", 1);
+  ros::Publisher pub_depth_arr_bin2 = n.advertise<std_msgs::Float32MultiArray>("/arc_2/depth_arr_bin2", 1);
+
   // prepare buffer for pcl
   realsense_xyzrgb_cloud.reset(new pcl::PointCloud<PointType>());
   realsense_xyzrgb_cloud->width = frame_width;
@@ -513,12 +527,12 @@ int main(int argc, char **argv) {
 
 
   // Open a GLFW window to display our output
-  if (display) {
-    glfwInit();
-    win = glfwCreateWindow(1280, 480, "Realsense RGB-D Stream", nullptr, nullptr);
-    glfwMakeContextCurrent(win);
-    ROS_INFO_STREAM_NAMED("realsense", "OpenGL Display enabled.");
-  }
+//  if (display) {
+//    glfwInit();
+//    win = glfwCreateWindow(1280, 480, "Realsense RGB-D Stream", nullptr, nullptr);
+//    glfwMakeContextCurrent(win);
+//    ROS_INFO_STREAM_NAMED("realsense", "OpenGL Display enabled.");
+//  }
 
   // Create a data folder (with a unix time name) to save frames
   data_path = data_directory + "cameradata/" + GetUnixTime() + "/";
@@ -576,7 +590,7 @@ int main(int argc, char **argv) {
   //std::cout << "Switching stream to camera: " << cam_serial_nums[active_dev_idx] << std::endl;
   // Spacebar key state
 
-  ROS_INFO_STREAM_NAMED("realsense", "Switching stream to camera: " << cam_serial_nums[active_dev_idx]);
+//  ROS_INFO_STREAM_NAMED("realsense", "Switching stream to camera: " << cam_serial_nums[active_dev_idx]);
 
   //std::cout << "\nReady.\n" << std::endl;
   ROS_INFO_STREAM_NAMED("realsense", "Ready.");
@@ -627,7 +641,7 @@ int main(int argc, char **argv) {
 //      }
 
       // Get new RGBD frame data
-      if (display) glfwPollEvents();
+//      if (display) glfwPollEvents();
 //      active_dev->wait_for_frames();
       active_dev_bin0->wait_for_frames();
       active_dev_bin1->wait_for_frames();
@@ -657,30 +671,26 @@ int main(int argc, char **argv) {
       float depth_scale_bin1 = active_dev_bin1->get_depth_scale();
 //      float depth_scale_bin2 = active_dev_bin2->get_depth_scale();
 
-      publish_depth(depth_data_bin0, im_height, im_width, depth_image_pub_bin0, counter);
-      publish_depth(depth_data_bin1, im_height, im_width, depth_image_pub_bin1, counter);
-//      publish_depth(depth_data_bin2, im_height, im_width, depth_image_pub_bin2, counter);
-
-
-
+      publish_depth(depth_data_bin0, im_height, im_width, depth_image_pub_bin0, counter,  rtrim(cam_serial_nums[camera_bin0_id]));
+      publish_depth(depth_data_bin1, im_height, im_width, depth_image_pub_bin1, counter,  rtrim(cam_serial_nums[camera_bin1_id]));
 
 //        }
 
-      if (display) {
-        glClear(GL_COLOR_BUFFER_BIT);
-        glPixelZoom(1, -1);
-
-        // Display depth data by linearly mapping depth between 0 and 2 meters to the red channel
-        glRasterPos2f(-1, 1);
-        glPixelTransferf(GL_RED_SCALE, 0xFFFF * active_dev_bin0->get_depth_scale() / 2.0f);
-        glDrawPixels(640, 480, GL_RED, GL_UNSIGNED_SHORT, active_dev_bin0->get_frame_data(rs::stream::depth_aligned_to_rectified_color));
-        glPixelTransferf(GL_RED_SCALE, 1.0f);
-
-        // Display depth data by linearly mapping depth between 0 and 2 meters to the red channel
-        glRasterPos2f( 0, 1);
-        glPixelTransferf(GL_RED_SCALE, 0xFFFF * active_dev_bin1->get_depth_scale() / 2.0f);
-        glDrawPixels(640, 480, GL_RED, GL_UNSIGNED_SHORT, active_dev_bin1->get_frame_data(rs::stream::depth_aligned_to_rectified_color));
-        glPixelTransferf(GL_RED_SCALE, 1.0f);        // Display depth data by linearly mapping depth between 0 and 2 meters to the red channel
+//      if (display) {
+//        glClear(GL_COLOR_BUFFER_BIT);
+//        glPixelZoom(1, -1);
+//
+//        // Display depth data by linearly mapping depth between 0 and 2 meters to the red channel
+//        glRasterPos2f(-1, 1);
+//        glPixelTransferf(GL_RED_SCALE, 0xFFFF * active_dev_bin0->get_depth_scale() / 2.0f);
+//        glDrawPixels(640, 480, GL_RED, GL_UNSIGNED_SHORT, active_dev_bin0->get_frame_data(rs::stream::depth_aligned_to_rectified_color));
+//        glPixelTransferf(GL_RED_SCALE, 1.0f);
+//
+//        // Display depth data by linearly mapping depth between 0 and 2 meters to the red channel
+//        glRasterPos2f( 0, 1);
+//        glPixelTransferf(GL_RED_SCALE, 0xFFFF * active_dev_bin1->get_depth_scale() / 2.0f);
+//        glDrawPixels(640, 480, GL_RED, GL_UNSIGNED_SHORT, active_dev_bin1->get_frame_data(rs::stream::depth_aligned_to_rectified_color));
+//        glPixelTransferf(GL_RED_SCALE, 1.0f);        // Display depth data by linearly mapping depth between 0 and 2 meters to the red channel
 
 
 
@@ -692,8 +702,8 @@ int main(int argc, char **argv) {
 //        memcpy(rgb_cvmat_buffer, color_data, frame_width * frame_height * 3);
 //        publish_rgb_image_msg(rgb_cvmat, rtrim(cam_serial_nums[active_dev_idx]), rgb_image_pub);
 
-        glfwSwapBuffers(win);
-      }
+//        glfwSwapBuffers(win);
+//      }
 
       // ROS loop
       ros::spinOnce();

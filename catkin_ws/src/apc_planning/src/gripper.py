@@ -3,6 +3,7 @@
 import rospy
 from wsg_50_common.srv import *
 from std_srvs.srv import *
+from std_msgs.msg import Bool
 import time
 import sensor_msgs.msg
 from ik.roshelper import ROS_Wait_For_Msg
@@ -25,6 +26,14 @@ def move(move_pos=110, move_speed=50):
     ack()
     command = 'move'
     srv=rospy.ServiceProxy('/wsg_50_driver/%s' % command, Move)
+    
+    #~publish command to impact_time is contact was not detected
+    if (rospy.get_param('is_contact') == False) and (rospy.get_param('is_record') == True) and havegripper:
+        impact_pub=rospy.Publisher('/impact_time', Bool, queue_size = 10, latch = False)
+        impact_msgs = Bool()
+        impact_msgs.data = False
+        impact_pub.publish(impact_msgs)
+        
     while True:
         try:
             if not havegripper:
@@ -48,6 +57,7 @@ def move(move_pos=110, move_speed=50):
         time.sleep(0.5)
 
 def open(speed=100):
+
     #we assume that grippers opens fully with speed = 100
     ack()
     if havegripper: time.sleep(0.1)
@@ -59,6 +69,7 @@ def open(speed=100):
 
 
 def close(speed=100):
+
     #we assume that grippers closes fully with speed = 100
     ack()
     if havegripper: time.sleep(0.1)
@@ -200,6 +211,15 @@ def nailControl(openNail=True, maxOpen=False):
         time.sleep(0.5)            
         
 def grasp_in(grasp_speed=50,grasp_force=10):
+    
+    #~publish command to impact_time is contact was not detected
+    if (rospy.get_param('is_contact') == False) and (rospy.get_param('is_record') == True) and havegripper:
+        impact_pub=rospy.Publisher('/impact_time', Bool, queue_size = 10, latch = False)
+        impact_msgs = Bool()
+        impact_msgs.data = False
+        impact_pub.publish(impact_msgs)
+        
+        
     ack()
     gripper_opening=(getGripperopening())*1000
     print gripper_opening

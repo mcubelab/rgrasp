@@ -8,6 +8,10 @@ import ik.visualize_helper
 import numpy as np
 import os
 from ik.marker_helper import createDeleteAllMarker
+from grasp_data_recorder import GraspDataRecorder
+import signal
+import sys
+import spatula, gripper
 
 try:
     import passive_vision.srv
@@ -27,6 +31,8 @@ from std_msgs.msg import Float32MultiArray, String
 
 class TaskPlanner(object):
     def __init__(self, opt):
+        self.original_sigint = signal.getsignal(signal.SIGINT)
+        signal.signal(signal.SIGINT, self.stop_running)
         
         self.passiveVisionTypes = {'real' : self.call_passive_vision,
                                    'file' : self.call_passive_vision,
@@ -40,7 +46,8 @@ class TaskPlanner(object):
         self.fails_in_row = 0     
         self.switch_dict = {0:1,1:0}
         self.version = 1.0
-        self.experiment_description = "Version: 1.0, Objects: Scotch Brite Sponges, Comments: Only grasping is recorded (not placing), Passive vision pointcloud and rgb-d are not recorded."
+        self.experiment_description = "Comments: Passive vision is recorded in passive_vision_data folder with time stamps."
+        self.objectType = opt.objectType
         # Configuration
         self.withPause = opt.withPause
         self.experiment = opt.experiment
@@ -77,6 +84,7 @@ class TaskPlanner(object):
         self.grasp_all_proposals_pub=rospy.Publisher('/grasp_all_proposals',Float32MultiArray,queue_size = 10, latch=True)
         self.grasp_proposal_pub=rospy.Publisher('/grasp_proposal',Float32MultiArray,queue_size = 10, latch=True)
         self.experiment_comments_pub=rospy.Publisher('/exp_comments',String,queue_size = 10, latch=True)
+        self.objectType_pub=rospy.Publisher('/objectType',String,queue_size = 10, latch=True)
         rospy.sleep(0.5)
 
     ###############################
@@ -129,7 +137,8 @@ class TaskPlanner(object):
         #Publish proposals
         grasp_all_proposals_msgs = Float32MultiArray()
         grasp_all_proposals_msgs.data = self.all_grasp_proposals
-        self.grasp_all_proposals_pub.publish(grasp_all_proposals_msgs)
+        if self.all_grasp_proposals is not None:
+            self.grasp_all_proposals_pub.publish(grasp_all_proposals_msgs)
         self.all_grasp_proposals = self.all_grasp_proposals.reshape(len(self.all_grasp_proposals)/self.param_grasping, self.param_grasping)
 
     def callFakeGrasping(self, prob, container):
@@ -294,11 +303,16 @@ class TaskPlanner(object):
         self.getBestGraspingPoint(container)
         grasp_proposal_msgs = Float32MultiArray()
         grasp_proposal_msgs.data = self.grasp_point
-        self.grasp_proposal_pub.publish(grasp_proposal_msgs)
+        if self.grasp_point is not None:
+            self.grasp_proposal_pub.publish(grasp_proposal_msgs)
         
         comments_msgs = String()
         comments_msgs.data = self.experiment_description
         self.experiment_comments_pub.publish(comments_msgs)
+        
+        objectType_msgs = String()
+        objectType_msgs.data = self.objectType
+        self.objectType_pub.publish(objectType_msgs)
         
         if self.grasp_point is None:
             print('It was suppose to do grasping, but there is no grasp proposal')
@@ -319,7 +333,7 @@ class TaskPlanner(object):
 
         self.grasping_output = grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container, flag=0,
-                                 withPause=self.withPause, viz_pub=self.proposal_viz_array_pub)
+                                 withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
         self.execution_possible = self.grasping_output['execution_possible']
 
     def planned_place(self, fixed_container = None):
@@ -338,7 +352,7 @@ class TaskPlanner(object):
         grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
                          isExecute=self.isExecute, binId=fixed_container[0], flag=2, withPause=self.withPause,
                          rel_pose=self.rel_pose, BoxBody=self.BoxBody, place_pose=drop_pose,
-                         viz_pub=self.viz_array_pub, is_drop = False)
+                         viz_pub=self.viz_array_pub, is_drop = False, recorder=self.gdr)
 
     def run_data_collection(self): 
         #######################
@@ -364,6 +378,7 @@ class TaskPlanner(object):
         ##################
         ## stowing loop ##
         ##################
+        self.gdr = GraspDataRecorder(directory='/home/mcube/rgraspdata') #We instantiate the recorder
         self.num_attempts = 0 
         self.num_attempts_failed = 0
         while True:
@@ -379,7 +394,7 @@ class TaskPlanner(object):
                 print('-----------------------------\n Execution_possible according to primitive = {} \n-----------------------------'.format(self.execution_possible) )
                 print('Detected weight:',  self.weight_info[self.tote_ID]['weights'])
                 
-                if self.weight_info[self.tote_ID]['weights'] > 10: #frank question: what does the 10 represent?
+                if self.weight_info[self.tote_ID]['weights'] > 10:
                     self.execution_possible = True
                     
                 #Identify object
@@ -390,8 +405,13 @@ class TaskPlanner(object):
                     self.obj_identity = obj_list[max_prob_index]
                 if self.execution_possible == None:
                     self.execution_possible = False
+
             if self.visionType == 'real': # 7. Update vision state of the tote
                 self.getPassiveVisionEstimate('update hm sg', '', self.tote_ID)
+            #Publish experiment outcome
+            grasp_status_msgs = sensor_msgs.msg.JointState()
+            grasp_status_msgs.name = ['grasp_success', 'code_version', 'tote_ID'] #grasp proposals, grasp_point, scores, score, 
+            grasp_status_msgs.position = [self.execution_possible, self.version, self.tote_ID]
             
             print('-----------------------------\n Execution_possible = {} \n-----------------------------'.format(self.execution_possible) )
             if self.execution_possible: # 8. Placing
@@ -403,12 +423,12 @@ class TaskPlanner(object):
                 self.num_attempts_failed += 1                
                 self.fails_in_row += 1
                 if self.grasp_point is not None: # 9. Add to bad grasp points
+                    gripper.open()
+                    spatula.open()
                     self.bad_grasping_points.append(self.grasp_point)
                     self.bad_grasping_times.append(time.time())
-            #Publish experiment outcome
-            grasp_status_msgs = sensor_msgs.msg.JointState()
-            grasp_status_msgs.name = ['grasp_success', 'code_version', 'tote_ID'] #grasp proposals, grasp_point, scores, score, 
-            grasp_status_msgs.position = [self.execution_possible, self.version, self.tote_ID]
+
+            
             print '***********************************************************'
             self.grasp_status_pub.publish(grasp_status_msgs)
             if self.fails_in_row > 4: # 10. Failed too many times, take action
@@ -421,10 +441,17 @@ class TaskPlanner(object):
         # Finished stowing
         goToHome.goToARC(slowDown = self.goHomeSlow)
         print("Planner is done")
+
+    def stop_running(self, signum, frame):
+        signal.signal(signal.SIGINT, self.original_sigint)
         
+        print 'Program manually stopped'
+        
+        self.gdr.kill_recorder()
+        
+        signal.signal(signal.SIGINT, self.stop_running)
 
 if __name__ == '__main__':
-    
     rospy.init_node('Planner')
     
     ## Parse arguments
@@ -439,6 +466,8 @@ if __name__ == '__main__':
         help='To execute or not', default=True)
     parser.add_option('-e', '--experiment', action='store_true', dest='experiment',
         help='Whether to run passive vision experiments', default=False)
+    parser.add_option('-i', '--item', action='store', dest='objectType',
+        help='Name object considered', default='None')
     (opt, args) = parser.parse_args()
 
     p = TaskPlanner(opt)

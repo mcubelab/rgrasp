@@ -11,6 +11,7 @@ import numpy as np
 import gripper, spatula
 import goToHome
 from subprocess import call
+import lasers
 
 rospy.init_node('gui', anonymous=True)
 
@@ -25,6 +26,8 @@ def testcam():
 def reset_gripper():
     gripper.open()
     spatula.open()
+    
+
     
 
 B1 = Tkinter.Button(top, text = 'gripper open', command = gripper.open)

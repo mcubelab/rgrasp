@@ -36,7 +36,7 @@ void publish_depth(const uint16_t * depth_values, int frame_height, int frame_wi
   sensor_msgs::ImagePtr rgb_img(new sensor_msgs::Image);
 
   cv::Mat depth_mat(frame_height, frame_width, CV_16UC1);
-  std::cout<<depth_mat<<std::endl;
+//  std::cout<<depth_mat<<std::endl;
   std_msgs::Float32MultiArray arr;
   for (size_t y = 0; y < frame_height; y++)
     for (size_t x = 0; x < frame_width; x++) {

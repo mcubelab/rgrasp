@@ -9,6 +9,8 @@
   <arg name="irb_1600id_v4" default="false" />
   <arg name="use_labjack" default = "false" />
   <arg name="fast_virtual" default = "false" />
+  <arg name="is_contact" default = "false" />
+  <arg name="is_record" default = "false" />
 
   <param if="$(arg irb_1600id_v4)" name="robot_description" textfile="$(find apc_config)/models/IRB1600ID/irb_1600id.urdf" />
   
@@ -50,6 +52,10 @@
   <rosparam unless="$(arg have_gripper)" param="have_gripper">false</rosparam>
   <rosparam if="$(arg toviz)" param="toviz">true</rosparam>
   <rosparam unless="$(arg toviz)" param="toviz">false</rosparam>
+  <rosparam if="$(arg is_record)" param="is_record">true</rosparam>
+  <rosparam unless="$(arg is_record)" param="is_record">false</rosparam>
+  <rosparam if="$(arg is_contact)" param="is_contact">true</rosparam>
+  <rosparam unless="$(arg is_contact)" param="is_contact">false</rosparam>
   
   
 </launch>

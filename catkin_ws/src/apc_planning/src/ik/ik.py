@@ -903,13 +903,13 @@ def generatePlan(q0, target_tip_pos, target_tip_ori, tip_hand_transform, speed, 
 		qf = plan.q_traj[-1]
         
     if plan_name is not None:
-        rospy.loginfo('[Generate Plan] Build plan %s',plan_name)
-        rospy.loginfo('[Generate Plan] Target position %s',target_tip_pos)
-        rospy.loginfo('[Generate Plan] Target orientation %s',target_tip_ori)
-        rospy.loginfo('[Generate Plan] Tip hand transform %s',tip_hand_transform) 
-        rospy.loginfo('[Generate Plan] Initial joint state %s',q0) 
-        rospy.loginfo('[Generate Plan] Computed joint state %s',qf) 
-        rospy.loginfo('[Generate Plan] Execution possible %s', execution_possible) 
+        rospy.logdebug('[Generate Plan] Build plan %s',plan_name)
+        rospy.logdebug('[Generate Plan] Target position %s',target_tip_pos)
+        rospy.logdebug('[Generate Plan] Target orientation %s',target_tip_ori)
+        rospy.logdebug('[Generate Plan] Tip hand transform %s',tip_hand_transform) 
+        rospy.logdebug('[Generate Plan] Initial joint state %s',q0) 
+        rospy.logdebug('[Generate Plan] Computed joint state %s',qf) 
+        rospy.logdebug('[Generate Plan] Execution possible %s', execution_possible) 
 
     return plan, qf, execution_possible
 

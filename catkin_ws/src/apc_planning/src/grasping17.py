@@ -13,11 +13,12 @@ from ik.ik import generatePlan, EvalPlan, WeightGuard, executePlanForward
 from collision_detection.collisionHelper import collisionFree
 import gripper, lasers
 import ik.helper
+import ws_prob
 import ik.visualize_helper
 import sensor_msgs.msg
 import std_msgs.msg
 from visualization_msgs.msg import MarkerArray
-from grasp_data_recorder import GraspDataRecorder
+#from grasp_data_recorder import GraspDataRecorder
 import datetime
 
 def grasp(objInput,
@@ -33,7 +34,8 @@ def grasp(objInput,
           place_pose = None,
           viz_pub = None,
           is_drop = True,
-          update_command = None):
+          update_command = None,
+          recorder = None):
 
     #########################################################
     # fhogan and nikhilcd
@@ -110,6 +112,7 @@ def grasp(objInput,
     final_object_pose=None
     rospy.set_param('is_record', False)
     rospy.set_param('is_contact', False)
+    weightSensor = ws_prob.WeightSensor()
 
 
     liftoff_pub = rospy.Publisher('/liftoff_time', std_msgs.msg.String, queue_size = 10, latch=False)
@@ -238,16 +241,14 @@ def grasp(objInput,
  
             executePlanForward(plans, withPause)
 
-            #We start recording now
+            ###We start recording now
             lasers.start(binId)
-#            gdr = GraspDataRecorder()#, node=node) #Handler instatiation
-#            grasp_id = 'grasping_' + str(datetime.datetime.now())
-#            gdr.start_recording(grasp_id=grasp_id, directory='/home/mcube/rgraspdata', tote_num=binId, frame_rate_ratio=5, image_size=-1)
+            recorder.start_recording(action='grasping', action_id=str(datetime.datetime.now()), tote_num=binId, frame_rate_ratio=5, image_size=-1)
             
             #Execute guarded move
             rospy.set_param('is_record', True)
-            executePlanForward(plans_guarded, withPause)      
-            rospy.set_param('is_record', False)               
+            executePlanForward(plans_guarded, withPause)
+            rospy.set_param('is_record', False)
 
             #Publish liftoff time
             liftoff_msgs = std_msgs.msg.String()
@@ -257,8 +258,8 @@ def grasp(objInput,
             #Execute non-guarded grasp plan move
             executePlanForward(plans_grasping, withPause)
             
-            
-#            gdr.stop_recording(save_dict=True, save_raw_copy=True, plot_ws=False)
+            ###We stop recording
+            recorder.stop_recording(save_action=True) 
             lasers.stop(binId)
     
         #~Check if picking success
@@ -268,14 +269,14 @@ def grasp(objInput,
             rospy.sleep(1)
             gripper_opening=gripper.getGripperopening()
             if gripper_opening > high_threshold:
-                rospy.logdebug('[Picking] ***************')
-                rospy.logdebug('[Picking] Pick Successful (Gripper Opening Test)')
-                rospy.logdebug('[Picking] ***************')
+                rospy.loginfo('[Picking] ***************')
+                rospy.loginfo('[Picking] Pick Successful (Gripper Opening Test)')
+                rospy.loginfo('[Picking] ***************')
                 execution_possible = True
             else:
-                rospy.logdebug('[Picking] ***************')
-                rospy.logdebug( '[Picking] Pick Inconclusive (Gripper Opening Test)')
-                rospy.logdebug( '[Picking] ***************')
+                rospy.loginfo('[Picking] ***************')
+                rospy.loginfo( '[Picking] Pick Inconclusive (Gripper Opening Test)')
+                rospy.loginfo( '[Picking] ***************')
                 execution_possible = None
                 
         elif not isExecute:
@@ -384,20 +385,20 @@ def grasp(objInput,
         if plan_possible:
             if isExecute:
                 executePlanForward(plans, withPause)
+                
                 #We start recording now
                 lasers.start(binId)
-#                gdr = GraspDataRecorder()#, node=node) #Handler instatiation
-#                grasp_id = 'placing_' + str(datetime.datetime.now())
-#                gdr.start_recording(grasp_id=grasp_id, directory='/home/mcube/rgraspdata', tote_num=binId, frame_rate_ratio=5, image_size=-1)
+                recorder.start_recording(action='placing', action_id=str(datetime.datetime.now()), tote_num=binId, frame_rate_ratio=5, image_size=-1)
+                
                 rospy.set_param('is_record', True)
                 executePlanForward(plans_placing, withPause)
                 rospy.set_param('is_record', False)
-#                gdr.stop_recording(save_dict=True, save_raw_copy=True, plot_ws=False)
+                
+                recorder.stop_recording(save_action=True)
                 lasers.stop(binId)
             
             execution_possible = True
             return compose_output()
-            
 
 
 def unit_test(listener, br):

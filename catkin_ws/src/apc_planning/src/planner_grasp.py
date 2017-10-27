@@ -370,7 +370,7 @@ class TaskPlanner(object):
             obj_list = self.get_objects()
             print(obj_list)
             obj_ans = raw_input('Are these the objects?(y/n)')
-        assert(False)
+        
         goToHome.goToARC(slowDown=self.goHomeSlow) # 1. Initialize robot state
         if self.visionType == 'real': # 2. Passive vision update bins
             number_bins = 2
@@ -392,13 +392,13 @@ class TaskPlanner(object):
             self.run_grasping(container = self.tote_ID) # 4. Run grasping
             
             self.obj_ID = 'no_item'
-            
+            self.obj_weight = 0
             if self.execution_possible != False: # 5. Check the weight
                 self.weight_info[self.tote_ID] = self.weightSensor.readWeightSensor(item_list = obj_list, withSensor=self.withSensorWeight, binNum=self.tote_ID, givenWeights=-11)
                 print('-----------------------------\n Execution_possible according to primitive = {} \n-----------------------------'.format(self.execution_possible) )
                 print('Detected weight:',  self.weight_info[self.tote_ID]['weights'])
-                
-                if self.weight_info[self.tote_ID]['weights'] > 10:
+                self.obj_weight = self.weight_info[self.tote_ID]['weights']
+                if self.obj_weight > 10:
                     self.execution_possible = True
                     
                 #Identify object
@@ -412,8 +412,8 @@ class TaskPlanner(object):
                 self.getPassiveVisionEstimate('update hm sg', '', self.tote_ID)
             #Publish experiment outcome
             grasp_status_msgs = sensor_msgs.msg.JointState()
-            grasp_status_msgs.name = ['grasp_success', 'code_version', 'tote_ID', 'obj_ID'] #grasp proposals, grasp_point, scores, score, 
-            grasp_status_msgs.position = [self.execution_possible, self.version, self.tote_ID, self.obj_ID]
+            grasp_status_msgs.name = ['grasp_success', 'code_version', 'tote_ID', 'obj_ID'] #, 'detected_weight'] #grasp proposals, grasp_point, scores, score, 
+            grasp_status_msgs.position = [self.execution_possible, self.version, self.tote_ID]  #, self.obj_ID, self.obj_weight ]
             
             print('-----------------------------\n Execution_possible = {} \n-----------------------------'.format(self.execution_possible) )
             if self.execution_possible: # 8. Placing
@@ -424,16 +424,15 @@ class TaskPlanner(object):
             else: 
                 self.num_attempts_failed += 1                
                 self.fails_in_row += 1
+                gripper.open()
+                spatula.open()
                 if self.grasp_point is not None: # 9. Add to bad grasp points
-                    gripper.open()
-                    spatula.open()
                     self.bad_grasping_points.append(self.grasp_point)
                     self.bad_grasping_times.append(time.time())
-
             
             print '***********************************************************'
             self.grasp_status_pub.publish(grasp_status_msgs)
-            if self.fails_in_row > 4: # 10. Failed too many times, take action
+            if self.fails_in_row > 3: # 10. Failed too many times, take action
                 if self.infinite_looping:
                     self.switch_tote()
                     print('The pick failed 4 times in a row, switching totes, the tote id is {}'.format(self.tote_ID))

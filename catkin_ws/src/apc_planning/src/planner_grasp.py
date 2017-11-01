@@ -103,10 +103,10 @@ class TaskPlanner(object):
     def save_passive_vision_images(self, bin_id):
         im_passive_vision = []
         for camera_id in range(2):
-            im_input_color = cv2.imread('/home/mcube/arcdata/tmpdata'+'passive-vision-input.{}.{}.color.png'.format(bin_id,camera_id))
-            im_back_color = cv2.imread('/home/mcube/arcdata/tmpdata'+'passive-vision-background.{}.{}.color.png'.format(bin_id,camera_id))
-            im_input_depth = cv2.imread('/home/mcube/arcdata/tmpdata'+'passive-vision-input.{}.{}.depth.png'.format(bin_id,camera_id))
-            im_back_depth = cv2.imread('/home/mcube/arcdata/tmpdata'+'passive-vision-background.{}.{}.depth.png'.format(bin_id,camera_id))
+            im_input_color = cv2.imread('/home/mcube/arcdata/tmpdata/'+'passive-vision-input.{}.{}.color.png'.format(bin_id,camera_id))
+            im_back_color = cv2.imread('/home/mcube/arcdata/tmpdata/'+'passive-vision-background.{}.{}.color.png'.format(bin_id,camera_id))
+            im_input_depth = cv2.imread('/home/mcube/arcdata/tmpdata/'+'passive-vision-input.{}.{}.depth.png'.format(bin_id,camera_id))
+            im_back_depth = cv2.imread('/home/mcube/arcdata/tmpdata/'+'passive-vision-background.{}.{}.depth.png'.format(bin_id,camera_id))
             print(im_back_depth.shape)
             im_passive_vision.append(np.concatenate((im_input_color,im_back_color,im_input_depth,im_back_depth)))
         return im_passive_vision
@@ -390,6 +390,7 @@ class TaskPlanner(object):
                 im_passive_vision.append(self.save_passive_vision_images(bin_id))
             im_passive_vision = np.array(im_passive_vision)
             print(im_passive_vision.shape)
+            raw_input()
             im_passive_vision_msgs = Float32MultiArray()
             im_passive_vision_msgs.data = im_passive_vision
             self.im_passive_vision_pub.publish(im_passive_vision_msgs)

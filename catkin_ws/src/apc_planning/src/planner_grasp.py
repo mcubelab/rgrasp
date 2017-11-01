@@ -381,7 +381,9 @@ class TaskPlanner(object):
         ##################
         ## stowing loop ##
         ##################
-        self.gdr = GraspDataRecorder(directory='/home/mcube/rgraspdata') #We instantiate the recorder
+        directory='/media/mcube/TOSHIBA EXT/rgraspdata'
+        assert(directory)
+        self.gdr = GraspDataRecorder(directory=directory) #We instantiate the recorder
         self.num_attempts = 0 
         self.num_attempts_failed = 0
         while True:

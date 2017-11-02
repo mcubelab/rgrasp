@@ -10,14 +10,15 @@ from multiprocessing import Process
 import numpy as np
 import pandas as pd
 import thread
+import datetime
 
-class GraspDataRecorder:#(threading.Thread):
-  ##This class creates a package with the information gathered through the sensors
+class GraspDataRecorder:
+  ##This class records the data gathered through the sensors
   def __init__(self, directory, exp_id=''):
     self.bridge = CvBridge()
 
     if exp_id == '':
-        exp_id = 'EXP_' + str(rospy.get_time())
+        exp_id = 'EXP_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     self.exp_id = exp_id
     self.directory = directory + '/' + str(exp_id)
 
@@ -26,6 +27,7 @@ class GraspDataRecorder:#(threading.Thread):
       os.makedirs(self.directory)
 
     self.experiment_info = []
+    self.data_recorded = None
     return
 
   def __reset_vars(self, action, action_id, tote_num, frame_rate_ratio, image_size):
@@ -35,6 +37,7 @@ class GraspDataRecorder:#(threading.Thread):
                     'ws_1': {'topic':'ws_stream{}'.format(1), 'msg_format':Float64},
                     'ws_2': {'topic':'ws_stream{}'.format(2), 'msg_format':Float64},
                     'gs_image': {'topic':'rpi/gelsight/raw_image', 'msg_format':Image},
+#                    'gs_image_compressed': {'topic':'rpi/gelsight/raw_image/compressed', 'msg_format':CompressedImage},
                     'gs_deflection': {'topic':'rpi/gelsight/deflection', 'msg_format':Int32},
                     'gs_contactarea': {'topic':'rpi/gelsight/contactarea', 'msg_format':gelsight_contactarea},
                     'hand_commands': {'topic':'/hand_commands', 'msg_format':JointState},
@@ -82,13 +85,16 @@ class GraspDataRecorder:#(threading.Thread):
         self.data_recorded[key] = []
 
   def __callback(self, data, key):
+    if key == 'grasp_status' or key =='objectType':
+        self.subscribers[key].unregister()
+        
     ##This function is called everytime a msg is published to one of our subscribed topics, it stores the data
     if self.topic_dict[key]['msg_format'] == Image:
         if key == 'rgb_bin0' or key=='rgb_bin1':
             self.data_recorded['rgb_count'] +=1
             if self.data_recorded['rgb_count']%self.data_recorded['frame_rate_ratio'] == 0:
                 try:
-                    cv2_img = self.bridge.imgmsg_to_cv2(data, 'bgr8') # Convert your ROS Image message to OpenCV2
+                    cv2_img = self.bridge.imgmsg_to_cv2(data, 'rgb8') # Convert your ROS Image message to OpenCV2
                     if self.data_recorded['image_size'] != -1:
                         cv2_img = cv2.resize(cv2_img, self.data_recorded['image_size'])
                 except CvBridgeError, e:
@@ -99,7 +105,7 @@ class GraspDataRecorder:#(threading.Thread):
             self.data_recorded['depth_count'] +=1
             if self.data_recorded['depth_count']%self.data_recorded['frame_rate_ratio'] == 0:
                 try:
-                    cv2_img = self.bridge.imgmsg_to_cv2(data, 'bgr16') # Convert your ROS Image message to OpenCV2
+                    cv2_img = self.bridge.imgmsg_to_cv2(data, 'mono16') # Convert your ROS Image message to OpenCV2
                     if self.data_recorded['image_size'] != -1:
                         cv2_img = cv2.resize(cv2_img, self.data_recorded['image_size'])
                 except CvBridgeError, e:
@@ -108,13 +114,23 @@ class GraspDataRecorder:#(threading.Thread):
                     self.data_recorded[key].append((cv2_img, rospy.get_time()))
         else:
             try:
-                cv2_img = self.bridge.imgmsg_to_cv2(data, 'bgr16') # Convert your ROS Image message to OpenCV2
+                cv2_img = self.bridge.imgmsg_to_cv2(data, 'rgb8') # Convert your ROS Image message to OpenCV2
                 if self.data_recorded['image_size'] != -1:
                     cv2_img = cv2.resize(cv2_img, self.data_recorded['image_size'])
             except CvBridgeError, e:
                 print(e)
             else:
                 self.data_recorded[key].append((cv2_img, rospy.get_time()))
+#    elif self.topic_dict[key]['msg_format'] == CompressedImage:
+#        try:
+#            cv2_img = self.bridge.compressed_imgmsg_to_cv2(data)
+##            cv2_img = self.bridge.imgmsg_to_cv2(data, 'bgr8') # Convert your ROS Image message to OpenCV2
+##            if self.data_recorded['image_size'] != -1:
+##                cv2_img = cv2.resize(cv2_img, self.data_recorded['image_size'])
+#        except CvBridgeError, e:
+#            print(e)
+#        else:
+#            self.data_recorded[key].append((cv2_img, rospy.get_time()))
     else:
       try:
         self.data_recorded[key].append((data.data, rospy.get_time()))
@@ -174,6 +190,8 @@ class GraspDataRecorder:#(threading.Thread):
 
 
   def __get_grasp_summary(self):
+      print '[RECORDER]: Building summary'
+      
       #General info
       info = {
         'exp_id': self.data_recorded['exp_id'],
@@ -192,28 +210,35 @@ class GraspDataRecorder:#(threading.Thread):
       #Number of readings by sensor
       for key in self.topic_dict:
           info[key + '_count'] = len(self.data_recorded[key])
-
+         
       #Grasp successfull?
+      if self.data_recorded['grasp_status'] == []:
+          return info
+
       try:
-          pass
           message = self.data_recorded['grasp_status'][0]
           message = message[0]
           msg_dict = convert_ros_message_to_dictionary(message)
-          #print '@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'
           success = msg_dict['position'][0]
-          #print success
           if success > 0:
-              print 'Grasp succesfull'
+              print '++++++++++++++++++++++++++++++++++++++++++++++++++GRASP SUCCESFULL'
           else:
-              print 'Grasp not succesfull'
+              print '++++++++++++++++++++++++++++++++++++++++++++++++++GRASP  NOT  SUCCESFULL'
           info['success'] = success
-      except ValueError:
-          print ValueError
+      except Exception as e:
+          print e
+
+      try:
+          val, timestamp = zip(*self.data_recorded['objectType'])
+          info['object_id'] = val[0]
+      except Exception as e:
+          print e
 
       return info
 
   def __update_experiment_info(self):
       info_dict = self.__get_grasp_summary()
+      self.check_sensors(info_dict)
       self.experiment_info.append(info_dict)
       #Save
       df = pd.DataFrame(self.experiment_info)
@@ -252,12 +277,77 @@ class GraspDataRecorder:#(threading.Thread):
 
     return
 
+
   def set_object_id(self, object_id):
       self.data_recorded['object_id'] = object_id
+
+  def update_topic(self, key):
+    #~ if key == 'grasp_status':
+        #~ print 'GRASP STATUS RECEIVED!!!!!!!!!!!!!!!!!!!!!!!!!!'
+    #This function changes the value of the given topic for the msg and saves it
+    #Replacing the .npz file
+    #msg = rospy.Subscriber(topic, msg_format, self.__callback, key)
+    if self.data_recorded == None:
+        return
+    
+    try:
+        self.data_recorded[key] = [] #We erase the data recorded from this topic
+        topic = self.topic_dict[key]['topic']
+        msg_format = self.topic_dict[key]['msg_format']
+        self.subscribers[key] = rospy.Subscriber(topic, msg_format, self.__callback, key) #We download it again
+        
+        time.sleep(1)
+    except Exception as e:
+        print 1
+        print e
+        
+    try:
+        path = self.data_recorded['directory'] + '/' + str(self.data_recorded['action_id'])
+        values_filename = str(key) + '_values'
+        timestamps_filename = str(key) + '_timestamps'
+        values, timestamps = zip(*self.data_recorded[key])
+        np.savez_compressed(path + '/' + values_filename, values)
+        np.savez_compressed(path + '/' + timestamps_filename, timestamps)
+        
+        #Updating the summary
+        #self.data_recorded[key] = msg_list
+        self.experiment_info = self.experiment_info[:-1] #We delete the last experiment info entry
+        self.__update_experiment_info() #We reenter the last experiment info with the updated data_recorded
+        self.kill_recorder() #We save this file
+    except Exception as e:
+        print 2
+        print e
+
 
   def kill_recorder(self):
       print '[RECORDER]: Saving recording session...'
       df = pd.DataFrame(self.experiment_info)
       df.to_csv(path_or_buf=self.directory+'/experiment_summary.csv')
       print '[RECORDER]: Saving session DONE'
+      
+  def check_sensors(self, info_dict):
+      pass
+#      for term in dict:
+#          if 'count' in term:
+#              if (dict[term] ==0) or (dict[term] ==None):
+#                  if (0 in dict[term] || 1 in dict[term]):
+#                      if (dict['tote_num'] in dict[term]):
+#                          print ('[Recorder] Sensor Issue: The sensor %s is empty. Abort', %dict[term])
+#                          gripper.open()
+#                          spatula.open()
+#                          sys.exit()
+#                      else:
+#                          return
+#                  else:
+#                      print ('[Recorder] Sensor Issue: The sensor %s is empty. Abort', %dict[term])
+#                      gripper.open()
+#                      spatula.open()
+#                      sys.exit()
+
+          
+
+      
+      
+
+
 

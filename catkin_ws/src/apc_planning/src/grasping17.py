@@ -243,7 +243,7 @@ def grasp(objInput,
 
             ###We start recording now
             lasers.start(binId)
-            recorder.start_recording(action='grasping', action_id=str(datetime.datetime.now()), tote_num=binId, frame_rate_ratio=5, image_size=-1)
+            recorder.start_recording(action='grasping', action_id=str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")), tote_num=binId, frame_rate_ratio=5, image_size=-1)
             
             #Execute guarded move
             rospy.set_param('is_record', True)
@@ -388,7 +388,7 @@ def grasp(objInput,
                 
                 #We start recording now
                 lasers.start(binId)
-                recorder.start_recording(action='placing', action_id=str(datetime.datetime.now()), tote_num=binId, frame_rate_ratio=5, image_size=-1)
+                recorder.start_recording(action='placing', action_id=str(datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")), tote_num=binId, frame_rate_ratio=5, image_size=-1)
                 
                 rospy.set_param('is_record', True)
                 executePlanForward(plans_placing, withPause)

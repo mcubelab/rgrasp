@@ -346,7 +346,7 @@ class GraspDataRecorder:
       #check if some sensors have count = 0
       for term in info_dict:
           if 'count' in term:
-              if ((info_dict[term] ==0) and (term not in ['grasp_status', 'objectType','im_back_depth_0_count','im_back_depth_1_count','im_input_color_0_count','im_input_color_1_count'])):
+              if ((info_dict[term] ==0) and (term not in ['grasp_status_count', 'objectType_count','im_depth_0_count','im_depth_1_count','im_back_depth_0_count','im_back_depth_1_count','im_input_color_0_count','im_input_color_1_count','im_back_input_color_0_count','im_back_input_color_1_count'])):
                   abort()
 
                       

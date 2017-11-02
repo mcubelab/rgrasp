@@ -10,6 +10,7 @@ from multiprocessing import Process
 import numpy as np
 import pandas as pd
 import thread
+import gripper, spatula
 import datetime
 
 class GraspDataRecorder:
@@ -37,7 +38,6 @@ class GraspDataRecorder:
                     'ws_1': {'topic':'ws_stream{}'.format(1), 'msg_format':Float64},
                     'ws_2': {'topic':'ws_stream{}'.format(2), 'msg_format':Float64},
                     'gs_image': {'topic':'rpi/gelsight/raw_image', 'msg_format':Image},
-#                    'gs_image_compressed': {'topic':'rpi/gelsight/raw_image/compressed', 'msg_format':CompressedImage},
                     'gs_deflection': {'topic':'rpi/gelsight/deflection', 'msg_format':Int32},
                     'gs_contactarea': {'topic':'rpi/gelsight/contactarea', 'msg_format':gelsight_contactarea},
                     'hand_commands': {'topic':'/hand_commands', 'msg_format':JointState},
@@ -45,6 +45,14 @@ class GraspDataRecorder:
                     'joint_states':{'topic':'/joint_states', 'msg_format':JointState},
                     'grasp_all_proposals': {'topic':'/grasp_all_proposals', 'msg_format':Float32MultiArray},
                     'grasp_proposal': {'topic':'/grasp_proposal', 'msg_format':Float32MultiArray},
+                    'im_input_color_0': {'topic':'/im_input_color_0', 'msg_format':Image},
+                    'im_back_color_0': {'topic':'/im_back_color_0', 'msg_format':Image},
+                    'im_input_depth_0': {'topic':'/im_input_depth_0', 'msg_format':Image},
+                    'im_back_depth_0': {'topic':'/im_back_depth_0', 'msg_format':Image},
+                    'im_input_color_1': {'topic':'/im_input_color_1', 'msg_format':Image},
+                    'im_back_color_1': {'topic':'/im_back_color_1', 'msg_format':Image},
+                    'im_input_depth_1': {'topic':'/im_input_depth_1', 'msg_format':Image},
+                    'im_back_depth_1': {'topic':'/im_back_depth_1', 'msg_format':Image},
                     'rgb_bin0': {'topic':'/arc_1/rgb_bin0', 'msg_format':Image},
                     'rgb_bin1': {'topic':'/arc_1/rgb_bin1', 'msg_format':Image},
                     'depth_bin0': {'topic':'/arc_1/depth_bin0', 'msg_format':Image},
@@ -326,28 +334,22 @@ class GraspDataRecorder:
       print '[RECORDER]: Saving session DONE'
       
   def check_sensors(self, info_dict):
-      pass
-#      for term in dict:
-#          if 'count' in term:
-#              if (dict[term] ==0) or (dict[term] ==None):
-#                  if (0 in dict[term] || 1 in dict[term]):
-#                      if (dict['tote_num'] in dict[term]):
-#                          print ('[Recorder] Sensor Issue: The sensor %s is empty. Abort', %dict[term])
-#                          gripper.open()
-#                          spatula.open()
-#                          sys.exit()
-#                      else:
-#                          return
-#                  else:
-#                      print ('[Recorder] Sensor Issue: The sensor %s is empty. Abort', %dict[term])
-#                      gripper.open()
-#                      spatula.open()
-#                      sys.exit()
+      #software stop robot function
+      def abort():
+          print ('[Recorder] ***************************************************')
+          print ('[Recorder] Sensor Issue: The sensor {} is empty. Abort!'.format(term))
+          print ('[Recorder] ***************************************************')
+          print ('info_dict', info_dict)
+          gripper.open()
+          spatula.open()
+          sys.exit()
+      #check if some sensors have count = 0
+      for term in info_dict:
+          if 'count' in term:
+              if ((info_dict[term] ==0) and (term not in ['grasp_status', 'objectType','im_back_depth_0_count','im_back_depth_1_count','im_input_color_0_count','im_input_color_1_count'])):
+                  abort()
 
-          
+                      
+                      
 
-      
-      
-
-
-
+        

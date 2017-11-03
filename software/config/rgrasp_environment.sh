@@ -186,6 +186,12 @@ alias cdp='cd $HOME/arc/catkin_ws/src/apc_planning/src/ '
 
 alias arcgui='rosrun apc_planning arcgui.py'
 
+alias sshserver='sshpass -p "thecube" ssh mcube@192.168.0.235 -X'
+alias sshmain='sshpass -p "thecube" ssh mcube@192.168.0.15 -X'
+alias sshfrank='sshpass -p "thecube" ssh mcube@192.168.0.11 -X'
+alias sshmaria='sshpass -p "thecube" ssh mcube@192.168.0.10 -X'
+
+
 ppms2mp4()
 {
   bot-ppmsgz $1 mpeg4 10M 30 $1.mp4

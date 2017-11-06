@@ -49,6 +49,7 @@ class GraspDataRecorder:#(threading.Thread):
                     'wsg_driver': {'topic':'/wsg_50_driver/status', 'msg_format':Status},
                     'exp_comments': {'topic':'/exp_comments', 'msg_format':String},
                     'impact_time': {'topic':'/impact_time', 'msg_format':Bool},
+                    'objectList': {'topic':'/objectList', 'msg_format':Float32MultiArray},
                     'objectType': {'topic':'/objectType', 'msg_format':String}
                     }
 

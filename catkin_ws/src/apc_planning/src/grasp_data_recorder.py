@@ -56,8 +56,10 @@ class GraspDataRecorder:
                     'im_back_depth_1': {'topic':'/im_back_depth_1', 'msg_format':Image},
                     'rgb_bin0': {'topic':'/arc_1/rgb_bin0', 'msg_format':Image},
                     'rgb_bin1': {'topic':'/arc_1/rgb_bin1', 'msg_format':Image},
+                    'rgb_bin2': {'topic':'/arc_1/rgb_bin2', 'msg_format':Image}, # TODO: FIX IT
                     'depth_bin0': {'topic':'/arc_1/depth_bin0', 'msg_format':Image},
                     'depth_bin1': {'topic':'/arc_1/depth_bin1', 'msg_format':Image},
+                    'depth_bin2': {'topic':'/arc_1/depth_bin2', 'msg_format':Image},
                     'wsg_driver': {'topic':'/wsg_50_driver/status', 'msg_format':Status},
                     'exp_comments': {'topic':'/exp_comments', 'msg_format':String},
                     'impact_time': {'topic':'/impact_time', 'msg_format':Bool},
@@ -70,10 +72,12 @@ class GraspDataRecorder:
         del self.topic_dict['ws_2']
         try:
             del self.topic_dict['rgb_bin1']
+            del self.topic_dict['rgb_bin2']
         except:
             pass
         try:
             del self.topic_dict['depth_bin1']
+            del self.topic_dict['depth_bin2']
         except:
             pass
     elif tote_num == 1:
@@ -81,10 +85,12 @@ class GraspDataRecorder:
         del self.topic_dict['ws_2']
         try:
             del self.topic_dict['rgb_bin0']
+            del self.topic_dict['rgb_bin2']
         except:
             pass
         try:
             del self.topic_dict['depth_bin0']
+            del self.topic_dict['depth_bin2']
         except:
             pass
 
@@ -130,16 +136,6 @@ class GraspDataRecorder:
                 print(e)
             else:
                 self.data_recorded[key].append((cv2_img, rospy.get_time()))
-#    elif self.topic_dict[key]['msg_format'] == CompressedImage:
-#        try:
-#            cv2_img = self.bridge.compressed_imgmsg_to_cv2(data)
-##            cv2_img = self.bridge.imgmsg_to_cv2(data, 'bgr8') # Convert your ROS Image message to OpenCV2
-##            if self.data_recorded['image_size'] != -1:
-##                cv2_img = cv2.resize(cv2_img, self.data_recorded['image_size'])
-#        except CvBridgeError, e:
-#            print(e)
-#        else:
-#            self.data_recorded[key].append((cv2_img, rospy.get_time()))
     else:
       try:
         self.data_recorded[key].append((data.data, rospy.get_time()))
@@ -213,7 +209,8 @@ class GraspDataRecorder:
         'path': self.data_recorded['directory'] + '/' + str(self.data_recorded['action_id']),
         'duration': self.stop_time - self.start_time,
         'start_time': self.start_time,
-        'end_time': self.stop_time
+        'end_time': self.stop_time,
+        'event_dict': self.__get_event_dict()
         }
 
       #Number of readings by sensor
@@ -247,7 +244,7 @@ class GraspDataRecorder:
 
   def __update_experiment_info(self):
       info_dict = self.__get_grasp_summary()
-      self.check_sensors(info_dict)
+      #~ self.check_sensors(info_dict)
       self.experiment_info.append(info_dict)
       #Save
       df = pd.DataFrame(self.experiment_info)
@@ -347,8 +344,18 @@ class GraspDataRecorder:
       #check if some sensors have count = 0
       for term in info_dict:
           if 'count' in term:
-              if ((info_dict[term] ==0) and (term not in ['grasp_status_count', 'objectType_count','im_depth_0_count','im_depth_1_count','im_back_depth_0_count','im_back_depth_1_count','im_input_color_0_count','im_input_color_1_count','im_back_input_color_0_count','im_back_input_color_1_count'])):
+              if ((info_dict[term]==0) and (term not in ['grasp_status_count', 'objectType_count','im_input_depth_0_count','im_input_depth_1_count','im_back_depth_0_count','im_back_depth_1_count','im_input_color_0_count','im_input_color_1_count','im_back_color_0_count','im_back_color_1_count'])):
                   abort()
 
-                      
-                      
+
+  def __get_event_dict(self):
+      event_dict = {}
+      # Impact time
+      for val, timestamp in self.data_recorded['impact_time']:
+        event_dict['impact_time'] = timestamp
+        
+      for val, timestamp in self.data_recorded['hand_commands']:
+        name = str(val).split("name: ['")[1].split("']")[0]
+        event_dict[name] = timestamp
+    
+      return event_dict

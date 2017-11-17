@@ -123,7 +123,7 @@ bool debug_mode;
 std::string data_directory = "/home/mcube/arcdata/";
 std::string rgraspdata_directory = "/home/mcube/rgraspdata/";
 std::string rgrasp_directory = "/home/mcube/rgrasp/";
-std::string camerainfo_directory = "/home/mcube/rgrasp/catkin_ws/src/passive_vision/camerainfo/";
+std::string camerainfo_directory = "/home/mcube/rgrasp/catkin_ws/src/passivepassive_vision/camerainfo/";
 
 
 std::vector<bool> save_debug_requested = {false,false,false,false};
@@ -653,7 +653,7 @@ void UpdateBinState(passive_vision::state::Request req) {
   // Request copy debug images
   std::string debug_data_path = data_directory + "loopdata/passive_vision/" + GetUnixTime() + "/";
   save_debug_paths[bin_id] = debug_data_path;
-  save_debug_requested[bin_id] = true;
+  save_debug_requested[bin_id] = false;
   //print_toc(tstart, "TIMING 14 Request copy debug images");
   print_toc(totaltstart, "TIMING Total");
 

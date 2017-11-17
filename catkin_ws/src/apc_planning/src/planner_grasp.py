@@ -416,7 +416,7 @@ class TaskPlanner(object):
         ##################
         ## stowing loop ##
         ##################
-        directory='/media/mcube/TOSHIBA EXT/rgraspdata'
+        directory='/media/mcube/data'
         assert(directory)
         self.gdr = GraspDataRecorder(directory=directory) #We instantiate the recorder
         self.num_attempts = 0 
@@ -444,9 +444,9 @@ class TaskPlanner(object):
                 
                 if self.execution_possible == None:
                     self.execution_possible = False
-            if self.visionType == 'real': # 7. Update vision state of the tote
-                self.getPassiveVisionEstimate('update hm sg', '', self.tote_ID)
-                self.save_passive_vision_images(self.tote_ID)
+#            if self.visionType == 'real': # 7. Update vision state of the tote
+#                self.getPassiveVisionEstimate('update hm sg', '', self.tote_ID)
+#                self.save_passive_vision_images(self.tote_ID)
             
             #Publish experiment outcome
             grasp_status_msgs = sensor_msgs.msg.JointState()
@@ -479,7 +479,10 @@ class TaskPlanner(object):
                     self.bad_grasping_times.append(time.time())
             
             print '***********************************************************'
-
+            if self.visionType == 'real': # 7. Update vision state of the tote
+                self.getPassiveVisionEstimate('update hm sg', '', self.tote_ID)
+                self.save_passive_vision_images(self.tote_ID)
+                
             if self.fails_in_row > 3: # 10. Failed too many times, take action
                 if self.infinite_looping:
                     self.switch_tote()

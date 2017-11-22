@@ -266,7 +266,7 @@ def grasp(objInput,
         low_threshold = 0.0035
         high_threshold = 0.015
         if isExecute and plan_possible:
-            rospy.sleep(1)
+            rospy.sleep(2)
             gripper_opening=gripper.getGripperopening()
             if gripper_opening > high_threshold:
                 rospy.loginfo('[Picking] ***************')

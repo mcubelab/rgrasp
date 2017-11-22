@@ -63,7 +63,8 @@ class GraspDataRecorder:
                     'wsg_driver': {'topic':'/wsg_50_driver/status', 'msg_format':Status},
                     'exp_comments': {'topic':'/exp_comments', 'msg_format':String},
                     'impact_time': {'topic':'/impact_time', 'msg_format':Bool},
-                    'objectType': {'topic':'/objectType', 'msg_format':String}
+                    'objectType': {'topic':'/objectType', 'msg_format':String},
+                    'liftoff_time': {'topic':'/liftoff_time', 'msg_format':String}
                     }
 
     #We delete the sensors we do not want to record
@@ -102,7 +103,7 @@ class GraspDataRecorder:
   def __callback(self, data, key):
     if key == 'grasp_status' or key =='objectType':
         self.subscribers[key].unregister()
-        
+
     ##This function is called everytime a msg is published to one of our subscribed topics, it stores the data
     if self.topic_dict[key]['msg_format'] == Image:
         if key == 'rgb_bin0' or key=='rgb_bin1':
@@ -196,7 +197,7 @@ class GraspDataRecorder:
 
   def __get_grasp_summary(self):
       print '[RECORDER]: Building summary'
-      
+
       #General info
       info = {
         'exp_id': self.data_recorded['exp_id'],
@@ -216,7 +217,7 @@ class GraspDataRecorder:
       #Number of readings by sensor
       for key in self.topic_dict:
           info[key + '_count'] = len(self.data_recorded[key])
-         
+
       #Grasp successfull?
       if self.data_recorded['grasp_status'] == []:
           return info
@@ -295,18 +296,18 @@ class GraspDataRecorder:
     #msg = rospy.Subscriber(topic, msg_format, self.__callback, key)
     if self.data_recorded == None:
         return
-    
+
     try:
         self.data_recorded[key] = [] #We erase the data recorded from this topic
         topic = self.topic_dict[key]['topic']
         msg_format = self.topic_dict[key]['msg_format']
         self.subscribers[key] = rospy.Subscriber(topic, msg_format, self.__callback, key) #We download it again
-        
+
         time.sleep(1)
     except Exception as e:
         print 1
         print e
-        
+
     try:
         path = self.data_recorded['directory'] + '/' + str(self.data_recorded['action_id'])
         values_filename = str(key) + '_values'
@@ -314,7 +315,7 @@ class GraspDataRecorder:
         values, timestamps = zip(*self.data_recorded[key])
         np.savez_compressed(path + '/' + values_filename, values)
         np.savez_compressed(path + '/' + timestamps_filename, timestamps)
-        
+
         #Updating the summary
         #self.data_recorded[key] = msg_list
         self.experiment_info = self.experiment_info[:-1] #We delete the last experiment info entry
@@ -330,7 +331,7 @@ class GraspDataRecorder:
       df = pd.DataFrame(self.experiment_info)
       df.to_csv(path_or_buf=self.directory+'/experiment_summary.csv')
       print '[RECORDER]: Saving session DONE'
-      
+
   def check_sensors(self, info_dict):
       #software stop robot function
       def abort():
@@ -353,9 +354,9 @@ class GraspDataRecorder:
       # Impact time
       for val, timestamp in self.data_recorded['impact_time']:
         event_dict['impact_time'] = timestamp
-        
+
       for val, timestamp in self.data_recorded['hand_commands']:
         name = str(val).split("name: ['")[1].split("']")[0]
         event_dict[name] = timestamp
-    
+
       return event_dict

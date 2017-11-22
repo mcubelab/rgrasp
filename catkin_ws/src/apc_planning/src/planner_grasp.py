@@ -416,7 +416,7 @@ class TaskPlanner(object):
         ##################
         ## stowing loop ##
         ##################
-        directory='/media/mcube/data'
+        directory='/media/mcube/data/Dropbox/rgrasp_dataset'
         assert(directory)
         self.gdr = GraspDataRecorder(directory=directory) #We instantiate the recorder
         self.num_attempts = 0 

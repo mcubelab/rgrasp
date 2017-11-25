@@ -17,7 +17,7 @@ import spatula, gripper
 try:
     import passive_vision.srv
 except:
-    print 'FAILED TO IMPORT VISION, WILL ONLY RUN IN VIRTUAL'
+    print('FAILED TO IMPORT VISION, WILL ONLY RUN IN VIRTUAL')
 
 import sys
 sys.path.append(os.environ['CODE_BASE']+'/catkin_ws/src/weight_sensor/src')
@@ -242,7 +242,7 @@ class TaskPlanner(object):
                 not_bad_grasp_points[i] = self.all_grasp_proposals[not_bad_grasp_points_indices[i], :]
             if len(not_bad_grasp_points) > 0:
                 self.all_grasp_proposals = not_bad_grasp_points
-            print 'bad_points_grasping: ', self.bad_grasping_points
+            print('bad_points_grasping: ', self.bad_grasping_points)
             num_points_grasp = min(num_points, len(self.all_grasp_proposals))
             self.all_pick_proposals = list(self.all_grasp_proposals[0:num_points_grasp, 0:self.param_grasping])
             self.all_pick_scores = list(self.all_grasp_proposals[0:num_points_grasp, self.param_grasping-1])
@@ -478,7 +478,7 @@ class TaskPlanner(object):
                     self.bad_grasping_points.append(self.grasp_point)
                     self.bad_grasping_times.append(time.time())
             
-            print '***********************************************************'
+            print('***********************************************************')
             if self.visionType == 'real': # 7. Update vision state of the tote
                 self.getPassiveVisionEstimate('update hm sg', '', self.tote_ID)
                 self.save_passive_vision_images(self.tote_ID)
@@ -497,7 +497,7 @@ class TaskPlanner(object):
     def stop_running(self, signum, frame):
         signal.signal(signal.SIGINT, self.original_sigint)
         
-        print 'Program manually stopped'
+        print('Program manually stopped')
         
         self.gdr.kill_recorder()
         

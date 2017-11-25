@@ -16,7 +16,7 @@ from ik.helper import Timer
 try:
     import passive_vision.srv
 except:
-    print 'FAILED TO IMPORT VISION, WILL ONLY RUN IN VIRTUAL'
+    print('FAILED TO IMPORT VISION, WILL ONLY RUN IN VIRTUAL')
 
 class PlacingPlanner(object):
     def __init__(self, e = None, visionType = 'virtual'):

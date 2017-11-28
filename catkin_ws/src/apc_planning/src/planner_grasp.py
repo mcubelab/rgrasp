@@ -52,6 +52,7 @@ class TaskPlanner(object):
         self.withPause = opt.withPause
         self.experiment = opt.experiment
         self.isExecute = opt.isExecute
+        self.add_noise = opt.add_noise
         # ROS setup
         self.listener = tf.TransformListener()
         self.br = tf.TransformBroadcaster()
@@ -216,6 +217,33 @@ class TaskPlanner(object):
         self.all_pick_proposals.sort(key=lambda x: x[-1], reverse=True)
         self.num_pick_proposals = len(self.all_pick_scores)
 
+    def perturb_grasp_point(self):
+        ### Add some random noise
+        #grasp properties: [surfaceCentroid,graspDirection,graspDepth,graspJawWidth,gripperAngleDirection,graspConf]];
+        #grasp properties: x,y,z,[0,0,-1],depth, width_gripper,[0,1,0], score
+        std_x = 0.02
+        std_y = 0.02
+        std_ori = (45/2)
+        std_width = 0.02
+        noise_x = np.random.normal(0,std_x, 1)
+        noise_y = np.random.normal(0,std_y, 1)
+        noise_ori = np.random.normal(0,std_ori, 1)
+        noise_width = np.random.normal(0,std_width, 1)
+        #x
+        self.grasp_point[0] = self.grasp_point[0]+noise_x
+        #y
+        self.grasp_point[1] = self.grasp_point[1]+noise_y
+        #width
+        self.grasp_point[7] = self.grasp_point[7]+noise_width
+        #ori
+        '''
+        gripperAngleAxis = [0,0,1];
+        gripperRotm = vrrotvec2mat([gripperAngleAxis,deg2rad(noise_ori)])
+        noise_ori = (gripperRotm*gripperAngleDirection)
+        self.grasp_point[8:11] = self.grasp_point[8:11]+noise_ori
+        '''
+        return
+
     def getBestGraspingPoint(self, container):
         self.GetGraspPoints(num_points=100,container = container)
         
@@ -241,6 +269,8 @@ class TaskPlanner(object):
             if checked_output['execution_possible']:
                 self.grasp_score = copy.deepcopy(self.all_pick_scores[num_it-1])
                 self.grasp_point = copy.deepcopy(grasp_point)
+                if self.add_noise:
+                    perturb_grasp_point()
                 print('Best grasp point:', grasp_point, ' with score: ', self.grasp_score, 'in bin: ', container)
                 return
             if grasp_point is not None:
@@ -475,6 +505,8 @@ if __name__ == '__main__':
         help='Whether to run passive vision experiments', default=False)
     parser.add_option('-i', '--item', action='store', dest='objectType',
         help='Name object considered', default='None')
+    parser.add_option('-r', '--random_noise', action='store', dest='add_noise',
+        help='Add random noise to grasp proposal?', default=False)
     (opt, args) = parser.parse_args()
 
     p = TaskPlanner(opt)

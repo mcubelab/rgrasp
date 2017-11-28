@@ -67,6 +67,7 @@ class TaskPlanner(object):
         self.FAKE_GRASPING_DIR = os.environ['CODE_BASE'] + '/input/fake_dirs/fake_grasping/'
         self.passive_vision_file_id = opt.passive_vision_file_id
         self.all_grasp_proposals = None
+        self.grasp_noise = [0,0,0,0]
         #Bad points
         self.bad_grasping_points = []
         self.bad_grasping_times = []
@@ -84,6 +85,7 @@ class TaskPlanner(object):
         self.grasp_status_pub = rospy.Publisher('/grasp_status', sensor_msgs.msg.JointState, queue_size=10, latch=True)
         self.grasp_all_proposals_pub=rospy.Publisher('/grasp_all_proposals',Float32MultiArray,queue_size = 10, latch=True)
         self.grasp_proposal_pub=rospy.Publisher('/grasp_proposal',Float32MultiArray,queue_size = 10, latch=True)
+        self.grasp_noise_pub=rospy.Publisher('/grasp_noise',Float32MultiArray,queue_size = 10, latch=True)
         self.experiment_comments_pub=rospy.Publisher('/exp_comments',String,queue_size = 10, latch=True)
         self.objectList_pub=rospy.Publisher('/objectList',Float32MultiArray,queue_size = 10, latch=True)
         self.objectType_pub=rospy.Publisher('/objectType',String,queue_size = 10, latch=True)
@@ -220,7 +222,7 @@ class TaskPlanner(object):
     def perturb_grasp_point(self):
         ### Add some random noise
         #grasp properties: [surfaceCentroid,graspDirection,graspDepth,graspJawWidth,gripperAngleDirection,graspConf]];
-        #grasp properties: x,y,z,[0,0,-1],depth, width_gripper,[0,1,0], score
+        #grasp properties: x,y,z,[0,0,-1],depth, width_gripper,angledirection, score
         std_x = 0.02
         std_y = 0.02
         std_ori = (45/2)
@@ -229,6 +231,8 @@ class TaskPlanner(object):
         noise_y = np.random.normal(-std_y,std_y, 1)
         noise_ori = np.random.normal(-std_ori,std_ori, 1)
         noise_width = np.random.normal(-std_width,std_width, 1)
+        self.grasp_noise = [noise_x,noise_y, noise_ori, noise_width]
+        ## Update
         #x
         self.grasp_point[0] = self.grasp_point[0]+noise_x
         #y
@@ -335,9 +339,11 @@ class TaskPlanner(object):
         self.getBestGraspingPoint(container)
         grasp_proposal_msgs = Float32MultiArray()
         grasp_proposal_msgs.data = self.grasp_point
+        grasp_noise_msgs = Float32MultiArray()
+        grasp_noise_msgs.data = self.grasp_noise
         if self.grasp_point is not None:
             self.grasp_proposal_pub.publish(grasp_proposal_msgs)
-        
+            self.grasp_noise_pub.publish(grasp_noise_msgs)
         comments_msgs = String()
         comments_msgs.data = self.experiment_description
         self.experiment_comments_pub.publish(comments_msgs)

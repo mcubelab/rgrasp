@@ -225,10 +225,10 @@ class TaskPlanner(object):
         std_y = 0.02
         std_ori = (45/2)
         std_width = 0.02
-        noise_x = np.random.normal(0,std_x, 1)
-        noise_y = np.random.normal(0,std_y, 1)
-        noise_ori = np.random.normal(0,std_ori, 1)
-        noise_width = np.random.normal(0,std_width, 1)
+        noise_x = np.random.uniform(-std_x,std_x, 1)
+        noise_y = np.random.normal(-std_y,std_y, 1)
+        noise_ori = np.random.normal(-std_ori,std_ori, 1)
+        noise_width = np.random.normal(-std_width,std_width, 1)
         #x
         self.grasp_point[0] = self.grasp_point[0]+noise_x
         #y
@@ -236,12 +236,11 @@ class TaskPlanner(object):
         #width
         self.grasp_point[7] = self.grasp_point[7]+noise_width
         #ori
-        '''
-        gripperAngleAxis = [0,0,1];
-        gripperRotm = vrrotvec2mat([gripperAngleAxis,deg2rad(noise_ori)])
-        noise_ori = (gripperRotm*gripperAngleDirection)
-        self.grasp_point[8:11] = self.grasp_point[8:11]+noise_ori
-        '''
+        initial_ori = math.acos(self.grasp_point[9])*180/math.pi
+        new_ori = inial_ori + noise_ori
+        rad_new_ori = new_ori*math.pi/180
+        self.grasp_point[8] = -math.sin(rad_new_ori)
+        self.grasp_point[9] = math.cos(rad_new_ori)
         return
 
     def getBestGraspingPoint(self, container):

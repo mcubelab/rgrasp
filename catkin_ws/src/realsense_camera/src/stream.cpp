@@ -562,18 +562,38 @@ int main(int argc, char **argv) {
       fclose(fp);
     }
   }
+  
+  std::string camera_bin0_serial = "612203002922";
+  std::string camera_bin1_serial = "616205001219";
+  std::string camera_bin2_serial = "612205002211";
+    
+  int camera_bin0_id =3;
+  int camera_bin1_id =5;
+  int camera_bin2_id =1;
+  
+  for (int i=0;i<device_count;i++){
+    if ((cam_serial_nums[i])==camera_bin0_serial){
+      camera_bin0_id = i;
+    }
+    if ((cam_serial_nums[i])==camera_bin1_serial){
+      camera_bin1_id = i;
+    }
+    if ((cam_serial_nums[i])==camera_bin2_serial){
+      camera_bin2_id = i;
+    }
+  }
+  
+  //~ std::cout<< "[ INFO] camera_bin0_id: "<<camera_bin0_id<<std::endl;
+  //~ std::cout<< "[ INFO] camera_bin1_id: "<<camera_bin1_id<<std::endl;
+  //~ std::cout<< "[ INFO] camera_bin2_id: "<<camera_bin2_id<<std::endl;
 
   int key_state = 0;
-  int camera_bin0_id = 1;
-  int camera_bin1_id = 3;
-  int camera_bin2_id = 0;
   int im_width = 640;
   int im_height = 480;
   int bin_id = 0;
   int machine_per_bin = 2;
   float * input0_depth_buffer = new float[im_height * im_width];
   float * input1_depth_buffer = new float[im_height * im_width];
-
 
   //deactive previous camera
 //  active_dev->set_option(rs::option::f200_laser_power, 0);

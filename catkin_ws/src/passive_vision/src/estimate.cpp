@@ -123,7 +123,7 @@ bool debug_mode;
 std::string data_directory = "/home/mcube/arcdata/";
 std::string rgraspdata_directory = "/home/mcube/rgraspdata/";
 std::string rgrasp_directory = "/home/mcube/rgrasp/";
-std::string camerainfo_directory = "/home/mcube/rgrasp/catkin_ws/src/passivepassive_vision/camerainfo/";
+std::string camerainfo_directory = "/home/mcube/rgrasp/catkin_ws/src/passive_vision/camerainfo/";
 
 
 std::vector<bool> save_debug_requested = {false,false,false,false};
@@ -1023,14 +1023,14 @@ int main(int argc, char **argv) {
   ros::param::get("/have_robot", have_robot);
   service_estimate = n.advertiseService("passive_vision/estimate", SrvEstimate);
   realsense_client["arc_1"] = n.serviceClient<realsense_camera::snapshot>("/arc_1/realsense_camera/capture");
-  // realsense_client["arc_1"] = n.serviceClient<realsense_camera::snapshot>("/arc_1/realsense_camera/capture");
+//  // realsense_client["arc_1"] = n.serviceClient<realsense_camera::snapshot>("/arc_1/realsense_camera/capture");
 
   // Setup ROS subscriber for robot link 6
   // ros::Subscriber robotCartesianSub = n.subscribe("robot1_CartesianLog", 1, DirtyBinCallback);
 
   // Get parameters from ROS call
   ros::NodeHandle priv_nh("~");
-  priv_nh.param("bin0_active", bin0_active, false); 
+  priv_nh.param("bin0_active", bin0_active, false);
   priv_nh.param("bin1_active", bin1_active, false);
   priv_nh.param("bin2_active", bin2_active, false);
   priv_nh.param("bin3_active", bin3_active, false);
@@ -1044,6 +1044,7 @@ int main(int argc, char **argv) {
   // Initialize 4 mutexes to handle service calls
   std::vector<std::mutex> service_mutex_list(4);
   service_mutex.swap(service_mutex_list);
+
 
   // Initialize 4 mutexes to handle image saving
   std::vector<std::mutex> save_mutex_list(4);
@@ -1119,7 +1120,7 @@ int main(int argc, char **argv) {
   // Start Torch and Matlab modules in parallel
   std::thread torchThread(SystemCallTorch);
   std::shared_ptr<std::thread> pmatlabThread;
-  
+
   if(run_matlab)
     pmatlabThread = std::make_shared<std::thread>(SystemCallMatlab);
   usleep(5000*1000);
@@ -1129,7 +1130,7 @@ int main(int argc, char **argv) {
   torch_tcp_server.sin_addr.s_addr = inet_addr(torch_tcp_server_address.c_str());
   torch_tcp_server.sin_family = AF_INET;
   torch_tcp_server.sin_port = htons(torch_tcp_server_port);
-  
+
   while(true){
     torch_tcp_status = connect(torch_sock,(struct sockaddr *)&torch_tcp_server ,sizeof(torch_tcp_server));
     if (torch_tcp_status < 0)
@@ -1146,7 +1147,7 @@ int main(int argc, char **argv) {
   matlab_tcp_server.sin_addr.s_addr = inet_addr(matlab_tcp_server_address.c_str());
   matlab_tcp_server.sin_family = AF_INET;
   matlab_tcp_server.sin_port = htons(matlab_tcp_server_port);
-  
+
   while(true){
     matlab_tcp_status = connect(matlab_sock,(struct sockaddr *)&matlab_tcp_server ,sizeof(matlab_tcp_server));
     if (matlab_tcp_status < 0)
@@ -1177,8 +1178,8 @@ int main(int argc, char **argv) {
     // Send TCP message to Matlab module
     std::string matlab_tcp_message = "- loadprev";
     std::string matlab_reply;
-    std::lock_guard<std::mutex> matlab_scoped_lock(matlab_mutex); 
-    std::lock_guard<std::mutex> save_scoped_lock(save_mutex[bin_id]); 
+    std::lock_guard<std::mutex> matlab_scoped_lock(matlab_mutex);
+    std::lock_guard<std::mutex> save_scoped_lock(save_mutex[bin_id]);
 
     matlab_tcp_status = send(matlab_sock, matlab_tcp_message.c_str(), strlen(matlab_tcp_message.c_str()), 0);
 
@@ -1199,7 +1200,7 @@ int main(int argc, char **argv) {
         // Read binary file containing state
         std::string state_output_txt_path = data_directory + "tmpdata/passive-vision-state." + std::to_string(bin_id) + ".output.txt";
         std::string state_output_bin_path = data_directory + "tmpdata/passive-vision-state." + std::to_string(bin_id) + ".output.bin";
-        
+
         state_object_list[bin_id].clear();
         state_object_list_ontop[bin_id].clear();
         state_object_pose[bin_id].clear();
@@ -1235,7 +1236,7 @@ int main(int argc, char **argv) {
           for (int i = 0; i < num_state_objects; ++i) {
             state_object_pose[bin_id].push_back(tmp_state_objects_info[9*i + 1]);
             state_object_pose[bin_id].push_back(tmp_state_objects_info[9*i + 2]);
-            state_object_pose[bin_id].push_back(tmp_state_objects_info[9*i + 3]); 
+            state_object_pose[bin_id].push_back(tmp_state_objects_info[9*i + 3]);
             state_object_pose[bin_id].push_back(tmp_state_objects_info[9*i + 0]); // qw should be last
             state_object_pose[bin_id].push_back(tmp_state_objects_info[9*i + 4]);
             state_object_pose[bin_id].push_back(tmp_state_objects_info[9*i + 5]);
@@ -1284,7 +1285,7 @@ int main(int argc, char **argv) {
   std::cout << "[MASTER]: Ready." << std::endl;
 
   // std::thread loopThread(LoopBinUpdates);
-  
+
   ros::spin();
   return 0;
 }

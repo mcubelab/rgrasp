@@ -308,6 +308,8 @@ class TaskPlanner(object):
             if checked_output['execution_possible']:
                 self.grasp_score = copy.deepcopy(self.all_pick_scores[num_it-1])
                 self.grasp_point = copy.deepcopy(grasp_point)
+                #Visualize before adding noise
+                ik.visualize_helper.visualize_grasping_proposals(self.proposal_viz_array_pub, np.asarray([self.grasp_point]),  self.listener, self.br, True)
                 if self.add_noise:
                     perturb_grasp_point()
                 print('Best grasp point:', grasp_point, ' with score: ', self.grasp_score, 'in bin: ', container)

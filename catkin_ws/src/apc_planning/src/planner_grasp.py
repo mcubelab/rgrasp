@@ -2,7 +2,7 @@
 
 
 from placing_grasp import PlacingPlanner
-import random, time, datetime, json, optparse, rospy, copy, yaml
+import random, time, datetime, json, optparse, rospy, copy, yaml, cv2
 import tf
 import ik.visualize_helper
 import numpy as np
@@ -13,10 +13,11 @@ import signal
 import sys
 import spatula, gripper
 
+
 try:
     import passive_vision.srv
 except:
-    print 'FAILED TO IMPORT VISION, WILL ONLY RUN IN VIRTUAL'
+    print('FAILED TO IMPORT VISION, WILL ONLY RUN IN VIRTUAL')
 
 import sys
 sys.path.append(os.environ['CODE_BASE']+'/catkin_ws/src/weight_sensor/src')
@@ -25,8 +26,10 @@ import goToHome
 from grasping17 import grasp
 from ik.helper import fake_bbox_info_1, Timer, vision_transform_precise_placing_with_visualization, get_params_yaml
 from visualization_msgs.msg import MarkerArray
+from cv_bridge import CvBridge, CvBridgeError
 
 import sensor_msgs.msg
+from sensor_msgs.msg import Image
 from std_msgs.msg import Float32MultiArray, String
 
 class TaskPlanner(object):
@@ -47,7 +50,7 @@ class TaskPlanner(object):
         self.switch_dict = {0:1,1:0}
         self.version = 1.0
         self.experiment_description = "Comments: Passive vision is recorded in passive_vision_data folder with time stamps."
-        self.objectType = opt.objectType
+        self.experiment_description = "Comments: Passive vision is recorded in passive_vision_data folder with time stamps."
         # Configuration
         self.withPause = opt.withPause
         self.experiment = opt.experiment
@@ -68,6 +71,7 @@ class TaskPlanner(object):
         self.passive_vision_file_id = opt.passive_vision_file_id
         self.all_grasp_proposals = None
         self.grasp_noise = [0,0,0,0]
+        self.grasp_point = None
         #Bad points
         self.bad_grasping_points = []
         self.bad_grasping_times = []
@@ -86,6 +90,15 @@ class TaskPlanner(object):
         self.grasp_all_proposals_pub=rospy.Publisher('/grasp_all_proposals',Float32MultiArray,queue_size = 10, latch=True)
         self.grasp_proposal_pub=rospy.Publisher('/grasp_proposal',Float32MultiArray,queue_size = 10, latch=True)
         self.grasp_noise_pub=rospy.Publisher('/grasp_noise',Float32MultiArray,queue_size = 10, latch=True)
+        self.grasp_proposal2_pub=rospy.Publisher('/grasp_proposal2',Float32MultiArray,queue_size = 10, latch=True)
+        self.im_input_color_0_pub=rospy.Publisher('/im_input_color_0',Image,queue_size = 10, latch=True)
+        self.im_back_color_0_pub=rospy.Publisher('/im_back_color_0',Image,queue_size = 10, latch=True)
+        self.im_input_depth_0_pub=rospy.Publisher('/im_input_depth_0',Image,queue_size = 10, latch=True)
+        self.im_back_depth_0_pub=rospy.Publisher('/im_back_depth_0',Image,queue_size = 10, latch=True)
+        self.im_input_color_1_pub=rospy.Publisher('/im_input_color_1',Image,queue_size = 10, latch=True)
+        self.im_back_color_1_pub=rospy.Publisher('/im_back_color_1',Image,queue_size = 10, latch=True)
+        self.im_input_depth_1_pub=rospy.Publisher('/im_input_depth_1',Image,queue_size = 10, latch=True)
+        self.im_back_depth_1_pub=rospy.Publisher('/im_back_depth_1',Image,queue_size = 10, latch=True)
         self.experiment_comments_pub=rospy.Publisher('/exp_comments',String,queue_size = 10, latch=True)
         self.objectList_pub=rospy.Publisher('/objectList',Float32MultiArray,queue_size = 10, latch=True)
         self.objectType_pub=rospy.Publisher('/objectType',String,queue_size = 10, latch=True)
@@ -101,7 +114,33 @@ class TaskPlanner(object):
                 return self.getPassiveVisionEstimate('request', '', bin_id)
             except:
                 print('Waiting Vision.')
-
+    
+    def save_passive_vision_images(self, bin_id):
+        im_passive_vision = []
+        camera_id = 0
+        try:
+            im_input_color_0_msgs = CvBridge().cv2_to_imgmsg(cv2.imread('/home/mcube/arcdata/tmpdata/'+'passive-vision-input.{}.{}.color.png'.format(bin_id,camera_id), cv2.IMREAD_COLOR), "rgb8")
+            im_back_color_0_msgs = CvBridge().cv2_to_imgmsg(cv2.imread('/home/mcube/arcdata/tmpdata/'+'passive-vision-background.{}.{}.color.png'.format(bin_id,camera_id), cv2.IMREAD_COLOR), "rgb8")
+            im_input_depth_0_msgs = CvBridge().cv2_to_imgmsg(cv2.imread('/home/mcube/arcdata/tmpdata/'+'passive-vision-input.{}.{}.depth.png'.format(bin_id,camera_id), cv2.IMREAD_GRAYSCALE), "mono8")
+            im_back_depth_0_msgs = CvBridge().cv2_to_imgmsg(cv2.imread('/home/mcube/arcdata/tmpdata/'+'passive-vision-background.{}.{}.depth.png'.format(bin_id,camera_id), cv2.IMREAD_GRAYSCALE), "mono8")
+            self.im_input_color_0_pub.publish(im_input_color_0_msgs)
+            self.im_back_color_0_pub.publish(im_back_color_0_msgs)
+            self.im_input_depth_0_pub.publish(im_input_depth_0_msgs)
+            self.im_back_depth_0_pub.publish(im_back_depth_0_msgs)
+        
+            camera_id = 1
+            im_input_color_1_msgs = CvBridge().cv2_to_imgmsg(cv2.imread('/home/mcube/arcdata/tmpdata/'+'passive-vision-input.{}.{}.color.png'.format(bin_id,camera_id), cv2.IMREAD_COLOR), "rgb8")
+            im_back_color_1_msgs = CvBridge().cv2_to_imgmsg(cv2.imread('/home/mcube/arcdata/tmpdata/'+'passive-vision-background.{}.{}.color.png'.format(bin_id,camera_id), cv2.IMREAD_COLOR), "rgb8")
+            im_input_depth_1_msgs = CvBridge().cv2_to_imgmsg(cv2.imread('/home/mcube/arcdata/tmpdata/'+'passive-vision-input.{}.{}.depth.png'.format(bin_id,camera_id), cv2.IMREAD_GRAYSCALE), "mono8")
+            im_back_depth_1_msgs = CvBridge().cv2_to_imgmsg(cv2.imread('/home/mcube/arcdata/tmpdata/'+'passive-vision-background.{}.{}.depth.png'.format(bin_id,camera_id), cv2.IMREAD_GRAYSCALE), "mono8")
+            self.im_input_color_1_pub.publish(im_input_color_1_msgs)
+            self.im_back_color_1_pub.publish(im_back_color_1_msgs)
+            self.im_input_depth_1_pub.publish(im_input_depth_1_msgs)
+            self.im_back_depth_1_pub.publish(im_back_depth_1_msgs)
+            time.sleep(0.1)
+        except:
+            print("[Planner] Warning: Your input type is not a numpy array")
+    
     def get_objects(self):
         yaml_content = yaml.load(open(os.environ['CODE_BASE']+"/catkin_ws/src/apc_config/object_properties.yaml"))
         obj_list = yaml_content['/obj'].keys()
@@ -207,7 +246,7 @@ class TaskPlanner(object):
                 not_bad_grasp_points[i] = self.all_grasp_proposals[not_bad_grasp_points_indices[i], :]
             if len(not_bad_grasp_points) > 0:
                 self.all_grasp_proposals = not_bad_grasp_points
-            print 'bad_points_grasping: ', self.bad_grasping_points
+            print('bad_points_grasping: ', self.bad_grasping_points)
             num_points_grasp = min(num_points, len(self.all_grasp_proposals))
             self.all_pick_proposals = list(self.all_grasp_proposals[0:num_points_grasp, 0:self.param_grasping])
             self.all_pick_scores = list(self.all_grasp_proposals[0:num_points_grasp, self.param_grasping-1])
@@ -348,10 +387,6 @@ class TaskPlanner(object):
         comments_msgs.data = self.experiment_description
         self.experiment_comments_pub.publish(comments_msgs)
         
-        objectType_msgs = String()
-        objectType_msgs.data = self.objectType
-        self.objectType_pub.publish(objectType_msgs)
-        
         if self.grasp_point is None:
             print('It was suppose to do grasping, but there is no grasp proposal')
             self.execution_possible = False
@@ -406,22 +441,23 @@ class TaskPlanner(object):
             obj_list = self.get_objects()
             print(obj_list)
             obj_ans = raw_input('Are these the objects?(y/n)')
-        
         objectList_msgs = Float32MultiArray()
         objectList_msgs.data = np.array(obj_list)
         self.objectList_pub.publish(objectList_msgs)
-        
         goToHome.goToARC(slowDown=self.goHomeSlow) # 1. Initialize robot state
         if self.visionType == 'real': # 2. Passive vision update bins
             number_bins = 2
+            im_passive_vision = []
             for bin_id in range(number_bins): 
                 print("getPassiveVisionEstimate 'update hm sg', '', ", bin_id)
                 self.getPassiveVisionEstimate('update hm sg', '', bin_id)
-
+            self.save_passive_vision_images(self.tote_ID)
         ##################
         ## stowing loop ##
         ##################
-        self.gdr = GraspDataRecorder(directory='/home/mcube/rgraspdata') #We instantiate the recorder
+        directory='/media/mcube/data/Dropbox (MIT)/rgrasp_dataset'
+        assert(directory)
+        self.gdr = GraspDataRecorder(directory=directory) #We instantiate the recorder
         self.num_attempts = 0 
         self.num_attempts_failed = 0
         while True:
@@ -432,13 +468,13 @@ class TaskPlanner(object):
             self.run_grasping(container = self.tote_ID) # 4. Run grasping
             
             self.obj_ID = 'no_item'
-            
+            self.obj_weight = 0
             if self.execution_possible != False: # 5. Check the weight
                 self.weight_info[self.tote_ID] = self.weightSensor.readWeightSensor(item_list = obj_list, withSensor=self.withSensorWeight, binNum=self.tote_ID, givenWeights=-11)
                 print('-----------------------------\n Execution_possible according to primitive = {} \n-----------------------------'.format(self.execution_possible) )
                 print('Detected weight:',  self.weight_info[self.tote_ID]['weights'])
-                
-                if self.weight_info[self.tote_ID]['weights'] > 10:
+                self.obj_weight = self.weight_info[self.tote_ID]['weights']
+                if self.obj_weight > 10:
                     self.execution_possible = True
                     
                 #Identify object
@@ -447,13 +483,24 @@ class TaskPlanner(object):
                 
                 if self.execution_possible == None:
                     self.execution_possible = False
-
-            if self.visionType == 'real': # 7. Update vision state of the tote
-                self.getPassiveVisionEstimate('update hm sg', '', self.tote_ID)
+#            if self.visionType == 'real': # 7. Update vision state of the tote
+#                self.getPassiveVisionEstimate('update hm sg', '', self.tote_ID)
+#                self.save_passive_vision_images(self.tote_ID)
+            
             #Publish experiment outcome
             grasp_status_msgs = sensor_msgs.msg.JointState()
-            grasp_status_msgs.name = ['grasp_success', 'code_version', 'tote_ID', 'obj_ID'] #grasp proposals, grasp_point, scores, score, 
-            grasp_status_msgs.position = [self.execution_possible, self.version, self.tote_ID, self.obj_ID]
+            grasp_status_msgs.name = ['grasp_success', 'code_version', 'tote_ID', 'detected_weight'] #grasp proposals, grasp_point, scores, score, 
+            grasp_status_msgs.position = [self.execution_possible, self.version, self.tote_ID, self.obj_weight]
+            
+            
+            object_ID_msgs = String()
+            object_ID_msgs.data = self.obj_ID #, self.obj_weight]
+            
+            if self.grasp_point is not None:
+                self.grasp_status_pub.publish(grasp_status_msgs)
+                self.objectType_pub.publish(object_ID_msgs)
+                self.gdr.update_topic(key='grasp_status')
+                self.gdr.update_topic(key='objectType')
             
             print('-----------------------------\n Execution_possible = {} \n-----------------------------'.format(self.execution_possible) )
             if self.execution_possible: # 8. Placing
@@ -464,16 +511,18 @@ class TaskPlanner(object):
             else: 
                 self.num_attempts_failed += 1                
                 self.fails_in_row += 1
+                gripper.open()
+                spatula.open()
                 if self.grasp_point is not None: # 9. Add to bad grasp points
-                    gripper.open()
-                    spatula.open()
                     self.bad_grasping_points.append(self.grasp_point)
                     self.bad_grasping_times.append(time.time())
-
             
-            print '***********************************************************'
-            self.grasp_status_pub.publish(grasp_status_msgs)
-            if self.fails_in_row > 4: # 10. Failed too many times, take action
+            print('***********************************************************')
+            if self.visionType == 'real': # 7. Update vision state of the tote
+                self.getPassiveVisionEstimate('update hm sg', '', self.tote_ID)
+                self.save_passive_vision_images(self.tote_ID)
+                
+            if self.fails_in_row > 3: # 10. Failed too many times, take action
                 if self.infinite_looping:
                     self.switch_tote()
                     print('The pick failed 4 times in a row, switching totes, the tote id is {}'.format(self.tote_ID))
@@ -487,7 +536,7 @@ class TaskPlanner(object):
     def stop_running(self, signum, frame):
         signal.signal(signal.SIGINT, self.original_sigint)
         
-        print 'Program manually stopped'
+        print('Program manually stopped')
         
         self.gdr.kill_recorder()
         
@@ -515,5 +564,5 @@ if __name__ == '__main__':
     (opt, args) = parser.parse_args()
 
     p = TaskPlanner(opt)
-    
+
     p.run_data_collection()

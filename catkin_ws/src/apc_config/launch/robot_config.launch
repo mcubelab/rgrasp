@@ -40,13 +40,17 @@
   
   
   <include if="$(arg use_raspberry)" file="$(find apc_config)/launch/raspberry.launch" />
+<!--
   <include if="$(arg use_labjack)" file="$(find apc_config)/launch/labjack.launch" />
+-->
         
   <rosparam if="$(arg use_raspberry)" param="use_raspberry">true</rosparam>
   <rosparam unless="$(arg use_raspberry)" param="use_raspberry">false</rosparam>
   <rosparam if="$(arg fast_virtual)" param="fast_virtual">true</rosparam>
   <rosparam unless="$(arg fast_virtual)" param="fast_virtual">false</rosparam>
+<!--
   <node name="suction_publisher" pkg="apc_planning" type="suction_publisher_flow.py" respawn="true" />
+-->
   <rosparam if="$(arg have_robot)" param="have_robot">true</rosparam>
   <rosparam unless="$(arg have_robot)" param="have_robot">false</rosparam>
   <rosparam if="$(arg have_gripper)" param="have_gripper">true</rosparam>

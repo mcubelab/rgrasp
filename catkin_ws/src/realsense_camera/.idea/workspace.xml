@@ -61,21 +61,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="estimate.cpp" pinned="false" current-in-tab="false">
+      <file leaf-file-name="estimate.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/../passive_vision/src/estimate.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="5740">
-              <caret line="287" column="149" lean-forward="false" selection-start-line="287" selection-start-column="149" selection-end-line="287" selection-end-column="149" />
+            <state relative-caret-position="660">
+              <caret line="1280" column="33" lean-forward="false" selection-start-line="1280" selection-start-column="33" selection-end-line="1280" selection-end-column="33" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="stream.cpp" pinned="false" current-in-tab="true">
+      <file leaf-file-name="stream.cpp" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/stream.cpp">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="620">
-              <caret line="568" column="25" lean-forward="true" selection-start-line="568" selection-start-column="25" selection-end-line="568" selection-end-column="25" />
+              <caret line="590" column="21" lean-forward="false" selection-start-line="590" selection-start-column="21" selection-end-line="590" selection-end-column="21" />
               <folding />
             </state>
           </provider>
@@ -95,8 +95,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>active_dev</find>
-      <find>srv</find>
       <find>add_service_files</find>
       <find>start_las</find>
       <find>vision</find>
@@ -125,6 +123,8 @@
       <find>node</find>
       <find>string</find>
       <find>SrvEstimate</find>
+      <find>main</find>
+      <find>camerainfo_directory</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -136,8 +136,8 @@
         <option value="$PROJECT_DIR$/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/srv/start_lasers.srv" />
         <option value="$PROJECT_DIR$/src/stream.h" />
-        <option value="$PROJECT_DIR$/../passive_vision/src/estimate.cpp" />
         <option value="$PROJECT_DIR$/src/stream.cpp" />
+        <option value="$PROJECT_DIR$/../passive_vision/src/estimate.cpp" />
       </list>
     </option>
   </component>
@@ -148,8 +148,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="366" />
-    <option name="y" value="138" />
+    <option name="x" value="972" />
+    <option name="y" value="247" />
     <option name="width" value="928" />
     <option name="height" value="1176" />
   </component>
@@ -419,14 +419,15 @@
       <workItem from="1508360927678" duration="4088000" />
       <workItem from="1510258323120" duration="1387000" />
       <workItem from="1510692512903" duration="1233000" />
+      <workItem from="1511798275175" duration="541000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="61645000" />
+    <option name="totallyTimeSpent" value="62186000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="366" y="138" width="928" height="1176" extended-state="1" />
+    <frame x="972" y="247" width="928" height="1176" extended-state="1" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18426724" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -484,6 +485,62 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/stream.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="620">
+          <caret line="31" column="14" lean-forward="false" selection-start-line="31" selection-start-column="14" selection-end-line="31" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="440">
+          <caret line="22" column="27" lean-forward="false" selection-start-line="22" selection-start-column="27" selection-end-line="22" selection-end-column="27" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/srv/start_lasers.srv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="100">
+          <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../pr_msgs/srv/Enable.srv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../passive_vision/src/estimate.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="5740">
+          <caret line="287" column="149" lean-forward="false" selection-start-line="287" selection-start-column="149" selection-end-line="287" selection-end-column="149" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/srv/snapshot.srv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="220">
+          <caret line="11" column="142" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="11" selection-end-column="142" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/stream.cpp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="11360">
+          <caret line="568" column="25" lean-forward="true" selection-start-line="568" selection-start-column="25" selection-end-line="568" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/stream.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="620">
@@ -818,18 +875,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../passive_vision/src/estimate.cpp">
+    <entry file="file://$PROJECT_DIR$/src/stream.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5740">
-          <caret line="287" column="149" lean-forward="false" selection-start-line="287" selection-start-column="149" selection-end-line="287" selection-end-column="149" />
+        <state relative-caret-position="620">
+          <caret line="590" column="21" lean-forward="false" selection-start-line="590" selection-start-column="21" selection-end-line="590" selection-end-column="21" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/stream.cpp">
+    <entry file="file://$PROJECT_DIR$/../passive_vision/src/estimate.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="620">
-          <caret line="568" column="25" lean-forward="true" selection-start-line="568" selection-start-column="25" selection-end-line="568" selection-end-column="25" />
+        <state relative-caret-position="660">
+          <caret line="1280" column="33" lean-forward="false" selection-start-line="1280" selection-start-column="33" selection-end-line="1280" selection-end-column="33" />
           <folding />
         </state>
       </provider>

@@ -2,7 +2,7 @@
 
 
 from placing_grasp import PlacingPlanner
-import random, time, datetime, json, optparse, rospy, copy, yaml, cv2
+import random, time, datetime, json, optparse, rospy, copy, yaml, cv2, math
 import tf
 import ik.visualize_helper
 import numpy as np
@@ -266,10 +266,10 @@ class TaskPlanner(object):
         std_y = 0.02
         std_ori = (45/2)
         std_width = 0.02
-        noise_x = np.random.uniform(-std_x,std_x, 1)
-        noise_y = np.random.normal(-std_y,std_y, 1)
-        noise_ori = np.random.normal(-std_ori,std_ori, 1)
-        noise_width = np.random.normal(-std_width,std_width, 1)
+        noise_x = np.random.uniform(-std_x,std_x)
+        noise_y = np.random.normal(-std_y,std_y)
+        noise_ori = np.random.normal(-std_ori,std_ori)
+        noise_width = np.random.normal(-std_width,std_width)
         self.grasp_noise = [noise_x,noise_y, noise_ori, noise_width]
         ## Update
         #x
@@ -280,10 +280,11 @@ class TaskPlanner(object):
         self.grasp_point[7] = self.grasp_point[7]+noise_width
         #ori
         initial_ori = math.acos(self.grasp_point[9])*180/math.pi
-        new_ori = inial_ori + noise_ori
+        new_ori = initial_ori + noise_ori
         rad_new_ori = new_ori*math.pi/180
         self.grasp_point[8] = -math.sin(rad_new_ori)
         self.grasp_point[9] = math.cos(rad_new_ori)
+        ## if needed, we could compute the new score of the proposal...
         return
 
     def getBestGraspingPoint(self, container):
@@ -312,9 +313,14 @@ class TaskPlanner(object):
                 self.grasp_score = copy.deepcopy(self.all_pick_scores[num_it-1])
                 self.grasp_point = copy.deepcopy(grasp_point)
                 #Visualize before adding noise
+                markers_msg = MarkerArray()
+                m0 = createDeleteAllMarker('pick_proposals')
+                markers_msg.markers.append(m0)
+                for i in range(10):
+                    self.proposal_viz_array_pub.publish(markers_msg)
                 ik.visualize_helper.visualize_grasping_proposals(self.proposal_viz_array_pub, np.asarray([self.grasp_point]),  self.listener, self.br, True)
                 if self.add_noise:
-                    perturb_grasp_point()
+                    self.perturb_grasp_point()
                 print('Best grasp point:', grasp_point, ' with score: ', self.grasp_score, 'in bin: ', container)
                 return
             if grasp_point is not None:
@@ -402,7 +408,7 @@ class TaskPlanner(object):
         m0 = createDeleteAllMarker('pick_proposals')
         markers_msg.markers.append(m0)
         for i in range(10):
-            p.proposal_viz_array_pub.publish(markers_msg)
+            self.proposal_viz_array_pub.publish(markers_msg)
         ik.visualize_helper.visualize_grasping_proposals(self.proposal_viz_array_pub, self.all_grasp_proposals,  self.listener, self.br)
         ik.visualize_helper.visualize_grasping_proposals(self.proposal_viz_array_pub, np.asarray([self.grasp_point]),  self.listener, self.br, True)
 
@@ -561,7 +567,7 @@ if __name__ == '__main__':
         help='Whether to run passive vision experiments', default=False)
     parser.add_option('-i', '--item', action='store', dest='objectType',
         help='Name object considered', default='None')
-    parser.add_option('-r', '--random_noise', action='store', dest='add_noise',
+    parser.add_option('-r', '--random_noise', action='store_true', dest='add_noise',
         help='Add random noise to grasp proposal?', default=False)
     (opt, args) = parser.parse_args()
 

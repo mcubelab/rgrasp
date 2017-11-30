@@ -31,6 +31,8 @@ def visualize_passive():
         help='Whether to run passive vision experiments', default=False)
     parser.add_option('-i', '--item', action='store', dest='objectType',
         help='Name object considered', default='None')
+    parser.add_option('-r', '--random_noise', action='store_true', dest='add_noise',
+        help='Add random noise to grasp proposal?', default=False)
     (opt, args) = parser.parse_args()
 
     p = TaskPlanner(opt)

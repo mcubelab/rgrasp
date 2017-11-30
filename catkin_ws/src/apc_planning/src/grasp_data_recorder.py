@@ -247,7 +247,7 @@ class GraspDataRecorder:
 
   def __update_experiment_info(self):
       info_dict = self.__get_grasp_summary()
-      #~ self.check_sensors(info_dict)
+      self.check_sensors(info_dict)
       self.experiment_info.append(info_dict)
       #Save
       df = pd.DataFrame(self.experiment_info)
@@ -356,6 +356,9 @@ class GraspDataRecorder:
       # Impact time
       for val, timestamp in self.data_recorded['impact_time']:
         event_dict['impact_time'] = timestamp
+
+      for val, timestamp in self.data_recorded['liftoff_time']:
+        event_dict['liftoff_time'] = timestamp
 
       for val, timestamp in self.data_recorded['hand_commands']:
         name = str(val).split("name: ['")[1].split("']")[0]

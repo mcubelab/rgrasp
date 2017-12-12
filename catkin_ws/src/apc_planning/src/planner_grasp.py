@@ -267,9 +267,9 @@ class TaskPlanner(object):
         std_ori = (45/2)
         std_width = 0.02
         noise_x = np.random.uniform(-std_x,std_x)
-        noise_y = np.random.normal(-std_y,std_y)
-        noise_ori = np.random.normal(-std_ori,std_ori)
-        noise_width = np.random.normal(-std_width,std_width)
+        noise_y = np.random.uniform(-std_y,std_y)
+        noise_ori = np.random.uniform(-std_ori,std_ori)
+        noise_width = np.random.uniform(-std_width,std_width)
         self.grasp_noise = [noise_x,noise_y, noise_ori, noise_width]
         ## Update
         #x

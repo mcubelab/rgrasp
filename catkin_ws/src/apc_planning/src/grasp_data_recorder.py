@@ -5,8 +5,9 @@ from sensor_msgs.msg import JointState, Image, CompressedImage
 from wsg_50_common.msg import Status
 from cv_bridge import CvBridge, CvBridgeError
 from msg_to_dict import convert_ros_message_to_dictionary
-import matplotlib.pyplot as plt
+from ssh_helper import ssh
 from multiprocessing import Process
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import thread
@@ -139,6 +140,17 @@ class GraspDataRecorder:
                 print(e)
             else:
                 self.data_recorded[key].append((cv2_img, rospy.get_time()))
+    elif key == 'wsg_driver': # We process the ws_50 msg so that we dont have to import it in mcube learning
+        ws50message = data.data
+        data_dict = {}
+        data_dict['status'] = ws50message.status
+        data_dict['width'] = ws50message.width
+        data_dict['speed'] = ws50message.speed
+        data_dict['acc'] = ws50message.acc
+        data_dict['force'] = ws50message.force
+        data_dict['force_finger0'] = ws50message.force_finger0
+        data_dict['force_finger1'] = ws50message.force_finger1
+        self.data_recorded[key].append((data_dict, rospy.get_time()))
     else:
       try:
         self.data_recorded[key].append((data.data, rospy.get_time()))
@@ -196,6 +208,18 @@ class GraspDataRecorder:
       #pickle.dump(self.data_recorded, open(path, "wb"))
       print '[RECORDER]: Saving DONE'
 
+  def __send_to_server(self):
+      local_path = self.data_recorded['directory'] + '/' + str(self.data_recorded['action_id'])
+      remote_path = 'media/mcube/SERVER_HD/Dropbox (MIT)/rgrasp_dataset/'
+
+      s = ssh(computer_id='server')
+
+      # If the Experiment directory doesn't exist on the server we create it (for first time saving)
+      dir_list = s.get_dir_list(remotepath=remote_path)
+      if str(self.data_recorded['exp_id']) not in dir_list:
+          s.mkdir(remote_path + str(self.data_recorded['exp_id']))
+
+      s.put_dir(localpath=local_path, remotepath=remote_path+str(self.data_recorded['exp_id']))
 
   def __get_grasp_summary(self):
       print '[RECORDER]: Building summary'
@@ -283,6 +307,7 @@ class GraspDataRecorder:
     if save_action:
         thread.start_new_thread(self.__save_action, ())
         thread.start_new_thread(self.__update_experiment_info, ())
+        # thread.start_new_thread(self.__send_to_server, ()) #TO SAVE THE FOLDER AT THE SERVER TOO
 
     return
 
@@ -347,7 +372,7 @@ class GraspDataRecorder:
       #check if some sensors have count = 0
       for term in info_dict:
           if 'count' in term:
-              if ((info_dict[term]==0) and (term not in ['grasp_status_count', 'objectType_count','im_input_depth_0_count','im_input_depth_1_count','im_back_depth_0_count','im_back_depth_1_count','im_input_color_0_count','im_input_color_1_count','im_back_color_0_count','im_back_color_1_count'])):
+              if ((info_dict[term]==0) and (term not in ['objectList_count', 'wsg_driver_count', 'grasp_status_count', 'objectType_count','im_input_depth_0_count','im_input_depth_1_count','im_back_depth_0_count','im_back_depth_1_count','im_input_color_0_count','im_input_color_1_count','im_back_color_0_count','im_back_color_1_count'])):
                   abort()
 
 

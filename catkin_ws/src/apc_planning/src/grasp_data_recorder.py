@@ -41,10 +41,10 @@ class GraspDataRecorder:
                     'gs_image': {'topic':'rpi/gelsight/raw_image', 'msg_format':Image},
 #                    'gs_image_compressed': {'topic':'rpi/gelsight/raw_image/compressed', 'msg_format':CompressedImage},
                     'gs_deflection': {'topic':'rpi/gelsight/deflection', 'msg_format':Int32},
-                    'gs_contactarea': {'topic':'rpi/gelsight/contactarea', 'msg_format':gelsight_contactarea},
-                    'hand_commands': {'topic':'/hand_commands', 'msg_format':JointState},
-                    'grasp_status': {'topic':'/grasp_status', 'msg_format':JointState},
-                    'joint_states':{'topic':'/joint_states', 'msg_format':JointState},
+                    'gs_contactarea': {'topic':'rpi/gelsight/contactarea', 'msg_format':gelsight_contactarea}, # Reformat DONE
+                    'hand_commands': {'topic':'/hand_commands', 'msg_format':JointState}, # Reformat
+                    'grasp_status': {'topic':'/grasp_status', 'msg_format':JointState}, # Reformat
+                    'joint_states':{'topic':'/joint_states', 'msg_format':JointState}, # Reformat
                     'grasp_all_proposals': {'topic':'/grasp_all_proposals', 'msg_format':Float32MultiArray},
                     'grasp_proposal': {'topic':'/grasp_proposal', 'msg_format':Float32MultiArray},
                     'grasp_noise': {'topic':'/grasp_noise', 'msg_format':Float32MultiArray},
@@ -58,11 +58,11 @@ class GraspDataRecorder:
                     'im_back_depth_1': {'topic':'/im_back_depth_1', 'msg_format':Image},
                     'rgb_bin0': {'topic':'/arc_1/rgb_bin0', 'msg_format':Image},
                     'rgb_bin1': {'topic':'/arc_1/rgb_bin1', 'msg_format':Image},
-                    'rgb_bin2': {'topic':'/arc_1/rgb_bin2', 'msg_format':Image}, # TODO: FIX IT
+                    'rgb_bin2': {'topic':'/arc_1/rgb_bin2', 'msg_format':Image},
                     'depth_bin0': {'topic':'/arc_1/depth_bin0', 'msg_format':Image},
                     'depth_bin1': {'topic':'/arc_1/depth_bin1', 'msg_format':Image},
                     'depth_bin2': {'topic':'/arc_1/depth_bin2', 'msg_format':Image},
-                    'wsg_driver': {'topic':'/wsg_50_driver/status', 'msg_format':Status},
+                    'wsg_driver': {'topic':'/wsg_50_driver/status', 'msg_format':Status}, # Reformat DONE
                     'exp_comments': {'topic':'/exp_comments', 'msg_format':String},
                     'impact_time': {'topic':'/impact_time', 'msg_format':Bool},
                     'objectList': {'topic':'/objectList', 'msg_format':Float32MultiArray},
@@ -140,8 +140,17 @@ class GraspDataRecorder:
                 print(e)
             else:
                 self.data_recorded[key].append((cv2_img, rospy.get_time()))
+    elif self.topic_dict[key]['msg_format'] == JointState:
+        message = data #Maybe data.data
+        data_dict = {}
+        data_dict['header'] = str(message.header)
+        data_dict['name'] = message.name
+        data_dict['position'] = message.position
+        data_dict['velocity'] = message.velocity
+        data_dict['effort'] = message.effort
+        self.data_recorded[key].append((data_dict, rospy.get_time()))
     elif key == 'wsg_driver': # We process the ws_50 msg so that we dont have to import it in mcube learning
-        ws50message = data.data
+        ws50message = data
         data_dict = {}
         data_dict['status'] = ws50message.status
         data_dict['width'] = ws50message.width
@@ -151,6 +160,8 @@ class GraspDataRecorder:
         data_dict['force_finger0'] = ws50message.force_finger0
         data_dict['force_finger1'] = ws50message.force_finger1
         self.data_recorded[key].append((data_dict, rospy.get_time()))
+    elif key == 'gs_contactarea':
+        self.data_recorded[key].append((data.contact_map, rospy.get_time()))
     else:
       try:
         self.data_recorded[key].append((data.data, rospy.get_time()))

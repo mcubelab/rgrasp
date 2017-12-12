@@ -100,7 +100,9 @@ def grasp(objInput,
     plans_grasping = []
     plans_grasping2 = []
     plans_guarded = []
+    plans_guarded2 = []
     plans_placing = []
+    plans_placing2 = []
     graspPose=[]
     plan_possible = False
     execution_possible = False
@@ -209,15 +211,15 @@ def grasp(objInput,
 
         #~7. Close spatula
         grasp_plan = EvalPlan('spatula.close()')
-        plans_guarded.append(grasp_plan)
+        plans_guarded2.append(grasp_plan)
 
         #~8. Close gripper
         grasp_plan = EvalPlan('helper.graspinGripper(%f,%f)'%(800,30))
-        plans_guarded.append(grasp_plan)
+        plans_guarded2.append(grasp_plan)
 
         #~9. sleep
         sleep_plan = EvalPlan('rospy.sleep(0.2)')
-        plans_guarded.append(sleep_plan)
+        plans_guarded2.append(sleep_plan)
 
         #~10. Move to a location above the bin
         plan, qf, plan_possible = generatePlan(q_initial, vision_pos, delta_vision_pose[3:7], tip_hand_transform, 'fastest', plan_name = 'retrieve_object')
@@ -231,8 +233,6 @@ def grasp(objInput,
         ## EXECUTION ###
         ################
 
-
-
         if isExecute and plan_possible:
 
             executePlanForward(plans, withPause)
@@ -245,6 +245,9 @@ def grasp(objInput,
             #Execute guarded move
             rospy.set_param('is_record', True)
             executePlanForward(plans_guarded, withPause)
+            if rospy.get_param('is_contact'):
+                ik.helper.move_cart(dz=0.015)
+            executePlanForward(plans_guarded2, withPause)
             rospy.set_param('is_record', False)
 
             #Publish liftoff time
@@ -355,16 +358,16 @@ def grasp(objInput,
 
         #~3. open gripper
         grasp_plan = EvalPlan('helper.moveGripper(0.110, 200)')
-        plans_placing.append(grasp_plan)
+        plans_placing2.append(grasp_plan)
 
         #~4. open spatula
         grasp_plan = EvalPlan('spatula.open()')
-        plans_placing.append(grasp_plan)
+        plans_placing2.append(grasp_plan)
 
         #~5. go to predrop_pos
         plan, qf, plan_possible = generatePlan(q_initial, predrop_pos[0:3], drop_pose[3:7], tip_hand_transform, 'superSaiyan', plan_name = 'predrop_pos')
         if plan_possible:
-            plans_placing.append(plan)
+            plans_placing2.append(plan)
             q_initial = qf
         else:
             return compose_output()
@@ -374,7 +377,7 @@ def grasp(objInput,
         final_pos[2] = bin_pose[2] + 0.3
         plan, qf, plan_possible = generatePlan(q_initial, final_pos, drop_pose[3:7], tip_hand_transform, 'superSaiyan', plan_name = 'final_pose')
         if plan_possible:
-            plans_placing.append(plan)
+            plans_placing2.append(plan)
             q_initial = qf
         else:
             return compose_output()
@@ -391,6 +394,9 @@ def grasp(objInput,
 
                 rospy.set_param('is_record', True)
                 executePlanForward(plans_placing, withPause)
+                if rospy.get_param('is_contact'):
+                    ik.helper.move_cart(dz=0.015)
+                executePlanForward(plans_placing2, withPause)
                 rospy.set_param('is_record', False)
                 if recorder is not None:
                     recorder.stop_recording(save_action=True)

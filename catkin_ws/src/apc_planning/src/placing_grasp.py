@@ -21,25 +21,17 @@ except:
 class PlacingPlanner(object):
     def __init__(self, e = None, visionType = 'virtual'):
         self.visionType = visionType #virtual or real
-        self.task = 'stowing'
-        self.combined_task = True
-        self.time_since_clean = [floor(time.time())]*4
-        self.num_bins = 3+5 #number of bins and boxes
-        self.available = [True, True, True, True, True, True,True, True]
+        self.num_bins = 3
+        self.available = [True, True, True]
         self.box_placing = False
         self.disc = 0.01
         self.vis_disc = 0.002
         self.tote_length = rospy.get_param("/tote/length")
         self.tote_width = rospy.get_param("/tote/width")
         self.tote_height = rospy.get_param("/tote/height")
-        self.limit_x = 8
+        self.limit_x = 8 #Manually adjusted
         self.limit_y = 4 #Manually adjusted
         self.h = [self.tote_height for _ in range(self.num_bins)]
-        # Two of the bins have half the heigh
-        self.h[1]/=2
-        self.h[2]/=2
-        self.h[3] = rospy.get_param("/tote/height"); self.h[4] = rospy.get_param("/tote/height"); self.h[5] = rospy.get_param("/tote/height")
-        self.h[6] = rospy.get_param("/tote/height"); self.h[7] = rospy.get_param("/tote/height")
         self.h_max = 0
         self.d = [[self.tote_length, self.tote_width] for _ in range(self.num_bins)]
         self.discDim = [[int(math.floor(x[0]/self.disc)), int(math.floor(x[1]/self.disc))] for x in self.d] #discretized dimensions of the HeightMap
@@ -50,59 +42,15 @@ class PlacingPlanner(object):
                 range(self.num_bins)] #Var Height Maps
         self.ExpHeightMap = [np.zeros([self.discDim[i][0], self.discDim[i][1]]) for i in
                 range(self.num_bins)] #Exp Height Maps
-        self.Scores = [np.zeros([self.discDim[i][0], self.discDim[i][1]]) for i in
-                range(self.num_bins)] #Scores Maps
-        self.Scores_rotated = [np.zeros([self.discDim[i][0], self.discDim[i][1]]) for i in
-                range(self.num_bins)] #Scores Maps
         self.OldHeightMap = [np.zeros([self.discDim[i][0], self.discDim[i][1]]) for i in
                 range(self.num_bins)] #Scores Map
-                                
-        self.objects = []
-        self.n = 10 #number of objects
-        self.toteObj = [] #List of indices of objects left
-        self.binObj = [[] for _ in range(self.num_bins)] #TODO: uses num_bins but does not seem to be used
-
-        self.last_x_taken = 0
-        self.last_y_taken = 0
 
         if self.visionType == 'real':
             self.getPassiveVisionEstimate = rospy.ServiceProxy('/passive_vision/estimate', passive_vision.srv.state)
 
-        #Cost function
-        self.coef_similarity = 1.
-        self.coef_obj_on_top_others = 1.
-
         #Parameters
         self.pow_variance = 4.
         self.INF = 100000.
-        
-        #High_surface_objects
-        self.list_high_surface = ['avery_binder','composition_book', 'table_cloth',
-            'hanes_socks','ice_cube_tray','pie_plates'] 
-            #burts_bees_baby_wipes, epsom_salts,robots_everywhere, windex
-
-    #####################
-    ### Visualization ###
-    #####################
-    def ros_sensor_image_from_matrix(self, mat, normalize = False):
-        image_message = RosImage()
-        image_message.header.stamp = rospy.Time.now()
-        height = mat.ravel().astype(np.uint8).tolist()
-        image_message.data = []
-        if normalize:
-            normalizer = matplotlib.colors.Normalize()
-            normalizer.autoscale(height)
-        for el in height:
-            if normalize:
-                image_message.data += np.array([(255 * (1 - normalizer(el))), 0, (255 * normalizer(el))]).astype(np.uint8).tolist()
-            else:
-                image_message.data += [255 - el, 0, el]
-
-        image_message.height = len(mat)
-        image_message.width = len(mat[0])
-        image_message.is_bigendian = 0
-        image_message.encoding = 'bgr8'
-        return image_message
 
 
     #############################
@@ -144,50 +92,16 @@ class PlacingPlanner(object):
         assert res > -10 and res < 1000, 'WTF: get_minmax_HM is wrong'
         return res
 
-    def compute_variance_height_maps(self, HeightMap=0):
-        if type(HeightMap) == int:
-            in_self = True
-            b = HeightMap
-            HeightMap = self.HeightMap[b] #Remember this is a POINTER copy
-            VarHeightMap = self.VarHeightMap[b]
-            ExpHeightMap = self.ExpHeightMap[b]
-        else:
-            in_self = False
-            VarHeightMap = copy.copy(HeightMap)
-            ExpHeightMap = copy.copy(HeightMap)
-        for x in range(len(HeightMap)):
-            for y in range(len(HeightMap[x])):
-                ExpHeightMap[x][y] = HeightMap[x][y]
-                VarHeightMap[x][y] = pow(HeightMap[x][y], self.pow_variance)
-                if x > 0:
-                    VarHeightMap[x][y] += VarHeightMap[x-1][y]
-                    ExpHeightMap[x][y] += ExpHeightMap[x-1][y]
-                if y > 0:
-                    VarHeightMap[x][y] += VarHeightMap[x][y-1]
-                    ExpHeightMap[x][y] += ExpHeightMap[x][y-1]
-                if x > 0 and y > 0:
-                    VarHeightMap[x][y] -= VarHeightMap[x-1][y-1]
-                    ExpHeightMap[x][y] -= ExpHeightMap[x-1][y-1]
-        if not in_self:
-            return VarHeightMap
-
-    def get_local_scores(self, obj_dim, HeightMap=0, b=0):
+    def get_local_scores(self, obj_dim=[0.12,0.12,0.12], b=0):
         
-        #Try to make it fast
         self.best_local_score = self.INF*10
         best_x = -1
-        best_y = -1
-        if type(HeightMap) == int:
-            in_self = True
-            b = HeightMap
-            HeightMap = self.HeightMap[b]
-            VarHeightMap = self.VarHeightMap[b]
-            ExpHeightMap = self.ExpHeightMap[b]
-        else:
-            in_self = False
-        #TODO: stability is % of points close to max height
-        if in_self and not self.available[b]:  #If bin is not available, assign high scores
-            #print('Bin ',b+1,' not available')
+        best_y = -1    
+        HeightMap = self.HeightMap[b]
+        VarHeightMap = self.VarHeightMap[b]
+        ExpHeightMap = self.ExpHeightMap[b]
+
+        if not self.available[b]:  #If bin is not available, assign high scores
             Scores = 5.*self.INF*np.ones([len(HeightMap), len(HeightMap[0])])
             return Scores, [self.best_local_score, b, best_x, best_y, 1000]
         Scores = np.zeros([len(HeightMap), len(HeightMap[0])])
@@ -213,15 +127,6 @@ class PlacingPlanner(object):
                 Scores[x][y] += 0.01*y
                 if Scores[x][y] > self.best_local_score:
                     continue
-                #Check what type of object are we considering during the combined task and in the bin 1(0)
-                if b == 0 and self.combined_task:
-                    bin_separation = len(HeightMap)/2
-                    if Mx > bin_separation:
-                        Scores[x][y]  += self.INF/10. #self.INF = 100000.
-                        #print 'deciding_side_small_x'
-                    if mx <= bin_separation:
-                        Scores[x][y]  += self.INF/10.
-                        #print 'deciding_side_big_x'
                 # Get maximum and minum height in the place where the object will be placed
                 max_h = self.get_minmax_HM(False, [mx, my], [Mx, My], HeightMap)
                 min_h = self.get_minmax_HM(True, [mx, my], [Mx, My], HeightMap)
@@ -251,7 +156,6 @@ class PlacingPlanner(object):
                     expvar += ExpHeightMap[mx-1][my-1]
                 N = float((Mx-mx+1)*(My-my+1))
                 var = max(0, variance/N-pow(expvar/N, self.pow_variance)) + pow(0.0001, self.pow_variance)
-                #print(var=var)
                 var = pow(var, 1./self.pow_variance)
                 Scores[x][y] += var/self.disc
                 Scores[x][y] += (max_h-min_h)/self.disc
@@ -262,52 +166,53 @@ class PlacingPlanner(object):
                     best_y = copy.deepcopy(y)
         
         print('object dims', obj_dim)
-        print(T=type(Scores))
-        
+
         if best_x == -1:
             print('The object dimensions: ', obj_dim, ' are probably very large Placing in the center of bin:', b+1)
             best_x = copy.deepcopy(floor(len(HeightMap)/2))
             best_y = copy.deepcopy(floor(len(HeightMap[0])/2))
             self.best_local_score = copy.deepcopy(self.INF*10)
-        objprint = 0 #TODO_M
-        if objprint == 0:
-            self.Scores[b] = Scores #Keep it
-        else:
-            self.Scores_rotated[b] = Scores #Keep it
+
         print('best score: ',self.best_local_score, ' in bin: ', b+1, ' is at (x,y): ', best_x, best_y)
         return Scores, [self.best_local_score, b, best_x, best_y, max_h]
 
-    def get_best_local_positions(self, obj_dim, HeightMap=0, b=0, k=5):
-        if type(HeightMap) == int:
-            b = HeightMap
-        Scores, candidate = self.get_local_scores(obj_dimj, HeightMap, b)
+    def get_best_local_positions(self, obj_dim=[0.12,0.12,0.12], b=0):
+        Scores, candidate = self.get_local_scores(obj_dim=obj_dim, b = b)
         return [candidate]
 
     def place_object_local_best(self, obj_dim=[0.12,0.12,0.12], containers = None):
         if containers is None:
             containers = range(3)
         #Candidates given inital orientation
-        C = [self.get_best_local_positions(obj_dim = [0.12,0.12,0.12], HeightMap = int(i)) for i in containers]
+        C = [self.get_best_local_positions(obj_dim = obj_dim, b = b) for b in containers]
         C.sort()
-        #Get best bin, position and orientation
-        b = C[0][1]
-        [x, y] = C[0][2:4]
-
-        self.last_x_taken = x
-        self.last_y_taken = y
+        #Return best position
         return C[0][0]
+
    
-   
-    def update_real_height_map(self, b = None, img_path = None):
-        if b == None:
-            for i in range(3):  #There are only 3 bins and 3 boxes
-                self.update_real_height_map(i)
-            return
-        else:
-            assert type(b) == int, 'Can only update HM if b=None or an integer'
-            HM = self.HeightMap[b]  #this is pointer cop so self.HeightMap[b] will be updated when modifying HM
+    def compute_variance_height_maps(self, HeightMap=0):
+        HeightMap = self.HeightMap[b] #Remember this is a POINTER copy
+        VarHeightMap = self.VarHeightMap[b]
+        ExpHeightMap = self.ExpHeightMap[b]
+        for x in range(len(HeightMap)):
+            for y in range(len(HeightMap[x])):
+                ExpHeightMap[x][y] = HeightMap[x][y]
+                VarHeightMap[x][y] = pow(HeightMap[x][y], self.pow_variance)
+                if x > 0:
+                    VarHeightMap[x][y] += VarHeightMap[x-1][y]
+                    ExpHeightMap[x][y] += ExpHeightMap[x-1][y]
+                if y > 0:
+                    VarHeightMap[x][y] += VarHeightMap[x][y-1]
+                    ExpHeightMap[x][y] += ExpHeightMap[x][y-1]
+                if x > 0 and y > 0:
+                    VarHeightMap[x][y] -= VarHeightMap[x-1][y-1]
+                    ExpHeightMap[x][y] -= ExpHeightMap[x-1][y-1]
+
+    
+    def update_real_height_map(self, b):
+        
+        HM = self.HeightMap[b]  #this is pointer cop so self.HeightMap[b] will be updated when modifying HM
         # Get height map from vision
-        #update foreground-top-view
         if self.available[b]:
             with Timer('Call passive vision to request new height map for %d' % (b+1)):
                 print('getPassiveVisionEstimate ', 'request', '',  b+1)
@@ -329,14 +234,12 @@ class PlacingPlanner(object):
             file_name =os.environ['ARCDATA_BASE']+'/graspdata/debug/foreground-top-view.depth.png'
             M = img.imread(file_name)
             M = np.transpose(M)
-        #import ipdb; ipdb.set_trace()
 
         for i in range(len(HM)-2):
             for j in range(len(HM[i])-2):
                 [x_ini, x_fin, y_ini, y_fin] = [int(floor(i*self.disc/self.vis_disc)), int(ceil((i+1)*self.disc/self.vis_disc)), int(floor(j*self.disc/self.vis_disc)), int(ceil((j+1)*self.disc/self.vis_disc))]
                 x_fin = max(x_ini+1, x_fin)
                 y_fin = max(y_ini+1, y_fin)
-                #print i,',',j,': ',len(HM),',',len(HM[0]),':',x_ini, x_fin, y_ini, y_fin, len(M), len(M[0])
                 HM[i][j] = np.max(M[[x_ini,x_fin],:][:,[y_ini,y_fin]])
         
         #Now that you have the right HM, update other maps. 

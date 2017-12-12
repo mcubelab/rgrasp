@@ -135,7 +135,7 @@ class PlacingPlanner(object):
                     Scores[x][y] = self.INF + max_h*self.INF/10.
                 else:
                     if max_h < 0.02:  #TODO: this seems pretty wrong
-                        Scores[x][y] += (self.h[b]-obj_dim)/self.disc #small in small big in big
+                        Scores[x][y] += (self.h[b]-obj_dim[2])/self.disc #small in small big in big
                     else:
                         Scores[x][y] += self.h[b]/self.disc  #Always prefer low options
                 if Scores[x][y] > self.best_local_score:
@@ -168,13 +168,24 @@ class PlacingPlanner(object):
         print('object dims', obj_dim)
 
         if best_x == -1:
-            print('The object dimensions: ', obj_dim, ' are probably very large Placing in the center of bin:', b+1)
+            print('The object dimensions: ', obj_dim, ' are probably very large Placing in the center of bin:', b)
             best_x = copy.deepcopy(floor(len(HeightMap)/2))
             best_y = copy.deepcopy(floor(len(HeightMap[0])/2))
             self.best_local_score = copy.deepcopy(self.INF*10)
 
-        print('best score: ',self.best_local_score, ' in bin: ', b+1, ' is at (x,y): ', best_x, best_y)
-        return Scores, [self.best_local_score, b, best_x, best_y, max_h]
+
+
+        print('best score: ',self.best_local_score, ' in bin: ', b, ' is at (x,y): ', best_x, best_y)
+
+        ''' Compute true position'''
+        obj_pos = [best_x*self.disc, best_y*self.disc]
+        obj_pose = [obj_pos[0]-self.tote_length/2., obj_pos[1]-self.tote_width/2.,obj_dim[2]/2+self.h_max] #Put pos with respect to the center of the tote
+        center_bin = get_params_yaml('bin'+str(b)+'_pose')[0:3] 
+        obj_pose[0:3] = [obj_pose[_] + center_bin[_] for _ in range(3)]
+        #convert obj.theta = 0 into quaternion:
+        orient_mat_3x3 = rotmatZ(0) 
+        obj_pose[3:7] = mat2quat(orient_mat_3x3)
+        return Scores, [obj_pose, self.best_local_score, b, best_x, best_y, max_h]
 
     def get_best_local_positions(self, obj_dim=[0.12,0.12,0.12], b=0):
         Scores, candidate = self.get_local_scores(obj_dim=obj_dim, b = b)
@@ -187,10 +198,10 @@ class PlacingPlanner(object):
         C = [self.get_best_local_positions(obj_dim = obj_dim, b = b) for b in containers]
         C.sort()
         #Return best position
-        return C[0][0]
+        return C[0][0][0]
 
    
-    def compute_variance_height_maps(self, HeightMap=0):
+    def compute_variance_height_maps(self, b=0):
         HeightMap = self.HeightMap[b] #Remember this is a POINTER copy
         VarHeightMap = self.VarHeightMap[b]
         ExpHeightMap = self.ExpHeightMap[b]
@@ -214,21 +225,21 @@ class PlacingPlanner(object):
         HM = self.HeightMap[b]  #this is pointer cop so self.HeightMap[b] will be updated when modifying HM
         # Get height map from vision
         if self.available[b]:
-            with Timer('Call passive vision to request new height map for %d' % (b+1)):
-                print('getPassiveVisionEstimate ', 'request', '',  b+1)
+            with Timer('Call passive vision to request new height map for %d' % (b)):
+                print('getPassiveVisionEstimate ', 'request', '',  b)
                 while True:
                     try:
-                        self.passive_vision_state = self.getPassiveVisionEstimate('request', '',  b+1)
+                        self.passive_vision_state = self.getPassiveVisionEstimate('request', '',  b)
                         break
                     except:
-                        e.db('Keep waiting.')
+                        print('Keep waiting.')
             M = np.asarray(self.passive_vision_state.height_map)
             if len(M) > 0:
                 M = M.reshape((200,300))
                 M = M.transpose()
             else:  
                 print('There is no HM, we will be using the old one....')
-                assert(False)
+                import pdb; pdb.set_trace()
                 return
         else:
             file_name =os.environ['ARCDATA_BASE']+'/graspdata/debug/foreground-top-view.depth.png'

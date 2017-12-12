@@ -388,13 +388,13 @@ class TaskPlanner(object):
         grasp_proposal_msgs.data = self.grasp_point
         grasp_noise_msgs = Float32MultiArray()
         grasp_noise_msgs.data = self.grasp_noise
+        
         if self.grasp_point is not None:
             self.grasp_proposal_pub.publish(grasp_proposal_msgs)
             self.grasp_noise_pub.publish(grasp_noise_msgs)
         comments_msgs = String()
         comments_msgs.data = self.experiment_description
         self.experiment_comments_pub.publish(comments_msgs)
-        
         if self.grasp_point is None:
             print('It was suppose to do grasping, but there is no grasp proposal')
             self.execution_possible = False
@@ -417,16 +417,16 @@ class TaskPlanner(object):
                                  withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
         self.execution_possible = self.grasping_output['execution_possible']
 
-    def planned_place(self, fixed_container = None):
+    def planned_place(self):
         fixed_container = [1-self.tote_ID] #TODO_M: planner only accepts bins 1,2,3 and names them as 0,1,2
         
         if self.PlacingPlanner.visionType == 'real': #Update HM
             self.PlacingPlanner.update_real_height_map(fixed_container[0])
-        drop_pose = self.PlacingPlanner.place_object_local_best(None, containers = fixed_container) #TODO_M : change placing to return drop_pose
+        drop_pose = self.PlacingPlanner.place_object_local_best(obj_dim=[0.12,0.12,0.12], containers = fixed_container) #TODO_M : change placing to return drop_pose
         print('drop_pose', drop_pose)
         
         #~frank hack: drop pose
-        drop_pose = get_params_yaml('bin'+str(fixed_container[0])+'_pose')
+        #drop_pose = get_params_yaml('bin'+str(fixed_container[0])+'_pose')
         
         # Place object using grasping
         self.rel_pose, self.BoxBody=vision_transform_precise_placing_with_visualization(self.bbox_info,viz_pub=self.viz_array_pub,listener=self.listener)
@@ -449,9 +449,12 @@ class TaskPlanner(object):
             obj_list = self.get_objects()
             print(obj_list)
             obj_ans = raw_input('Are these the objects?(y/n)')
+        
         objectList_msgs = Float32MultiArray()
-        objectList_msgs.data = np.array(obj_list)
+        objectList_msgs.data = np.array([0,1]) #obj_list)
+        #HACK
         self.objectList_pub.publish(objectList_msgs)
+        
         goToHome.goToARC(slowDown=self.goHomeSlow) # 1. Initialize robot state
         if self.visionType == 'real': # 2. Passive vision update bins
             number_bins = 2

@@ -397,7 +397,7 @@ class GraspDataRecorder:
         event_dict['liftoff_time'] = timestamp
 
       for val, timestamp in self.data_recorded['hand_commands']:
-        name = str(val).split("name: ['")[1].split("']")[0]
+        name = val['name'][0]
         event_dict[name] = timestamp
 
       return event_dict

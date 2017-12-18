@@ -262,9 +262,9 @@ class TaskPlanner(object):
         ### Add some random noise
         #grasp properties: [surfaceCentroid,graspDirection,graspDepth,graspJawWidth,gripperAngleDirection,graspConf]];
         #grasp properties: x,y,z,[0,0,-1],depth, width_gripper,angledirection, score
-        std_x = 0.02
-        std_y = 0.02
-        std_ori = (45/2)
+        std_x = 0.03
+        std_y = 0.03
+        std_ori = 45
         std_width = 0.02
         noise_x = np.random.uniform(-std_x,std_x)
         noise_y = np.random.uniform(-std_y,std_y)
@@ -319,8 +319,10 @@ class TaskPlanner(object):
                 for i in range(10):
                     self.proposal_viz_array_pub.publish(markers_msg)
                 ik.visualize_helper.visualize_grasping_proposals(self.proposal_viz_array_pub, np.asarray([self.grasp_point]),  self.listener, self.br, True)
-                # if self.add_noise:
-                #     self.perturb_grasp_point()
+                print ('[Planner]*************************************** Add noise*****************')
+                print ('[Planner]', self.add_noise)
+                if self.add_noise:
+                    self.perturb_grasp_point()
                 print('Best grasp point:', grasp_point, ' with score: ', self.grasp_score, 'in bin: ', container)
                 return
             if grasp_point is not None:

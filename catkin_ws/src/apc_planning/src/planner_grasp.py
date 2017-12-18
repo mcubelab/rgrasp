@@ -390,6 +390,7 @@ class TaskPlanner(object):
         grasp_proposal_msgs.data = self.grasp_point
         grasp_noise_msgs = Float32MultiArray()
         grasp_noise_msgs.data = self.grasp_noise
+        
         if self.grasp_point is not None:
             self.grasp_proposal_pub.publish(grasp_proposal_msgs)
             self.grasp_noise_pub.publish(grasp_noise_msgs)
@@ -419,12 +420,21 @@ class TaskPlanner(object):
                                  withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
         self.execution_possible = self.grasping_output['execution_possible']
 
-    def planned_place(self, fixed_container = None):
+    def planned_place(self):
         fixed_container = [1-self.tote_ID] #TODO_M: planner only accepts bins 1,2,3 and names them as 0,1,2
 
         if self.PlacingPlanner.visionType == 'real': #Update HM
             self.PlacingPlanner.update_real_height_map(fixed_container[0])
-        drop_pose = self.PlacingPlanner.place_object_local_best(None, containers = fixed_container) #TODO_M : change placing to return drop_pose
+            
+        #Get obj dimensions:
+        try:
+            asking_for = '/obj/'+self.obj_ID
+            aux_obj = rospy.get_param(asking_for)
+            obj_dim = aux_obj['dimensions']
+        except:
+            print('Could not get the object dimensions')
+            obj_dim=[0.12,0.12,0.12]
+        drop_pose = self.PlacingPlanner.place_object_local_best(obj_dim=obj_dim, containers = fixed_container) #TODO_M : change placing to return drop_pose
         print('drop_pose', drop_pose)
 
         #~frank hack: drop pose
@@ -451,9 +461,12 @@ class TaskPlanner(object):
             obj_list = self.get_objects()
             print(obj_list)
             obj_ans = raw_input('Are these the objects?(y/n)')
+        
         objectList_msgs = Float32MultiArray()
-        objectList_msgs.data = np.array(obj_list)
+        objectList_msgs.data = np.array([0,1]) #obj_list)
+        #HACK
         self.objectList_pub.publish(objectList_msgs)
+        
         goToHome.goToARC(slowDown=self.goHomeSlow) # 1. Initialize robot state
         if self.visionType == 'real': # 2. Passive vision update bins
             number_bins = 2

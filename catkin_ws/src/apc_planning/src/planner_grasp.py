@@ -422,7 +422,16 @@ class TaskPlanner(object):
         
         if self.PlacingPlanner.visionType == 'real': #Update HM
             self.PlacingPlanner.update_real_height_map(fixed_container[0])
-        drop_pose = self.PlacingPlanner.place_object_local_best(obj_dim=[0.12,0.12,0.12], containers = fixed_container) #TODO_M : change placing to return drop_pose
+            
+        #Get obj dimensions:
+        try:
+            asking_for = '/obj/'+self.obj_ID
+            aux_obj = rospy.get_param(asking_for)
+            obj_dim = aux_obj['dimensions']
+        except:
+            print('Could not get the object dimensions')
+            obj_dim=[0.12,0.12,0.12]
+        drop_pose = self.PlacingPlanner.place_object_local_best(obj_dim=obj_dim, containers = fixed_container) #TODO_M : change placing to return drop_pose
         print('drop_pose', drop_pose)
         
         #~frank hack: drop pose

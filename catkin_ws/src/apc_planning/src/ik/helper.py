@@ -1,7 +1,7 @@
 import os, errno, sys
 rgrasp_path = os.environ['CODE_BASE'] + '/catkin_ws/src/apc_planning/src'
 sys.path.append(rgrasp_path)
-import collision_detection.collisionHelper 
+import collision_detection.collisionHelper
 import json
 import numpy as np
 import rospy
@@ -17,7 +17,8 @@ import gripper
 import std_msgs.msg
 import collision_detection.collision_projection
 #from suction_projection import suction_projection_func
-import sensor_msgs.msg 
+import sensor_msgs.msg
+from robot_comm.srv import robot_GetCartesian, robot_SetCartesian
 
 obj_dim_data = []
 gripper_command_pub = rospy.Publisher('/hand_commands', sensor_msgs.msg.JointState, queue_size=10)
@@ -73,7 +74,7 @@ def posTransformTo(tf_xyzquat, pos):
     pose_mat = tfm.translation_matrix(pos)
     new_pose_mat = np.dot(T_mat, pose_mat)
     return tfm.translation_from_matrix(new_pose_mat).tolist()
-    
+
 def get_params_yaml(pose_name):
     params_list=['x','y','z','qx','qy','qz','qw']
     pose_list = [rospy.get_param(pose_name+'/'+p) for p in params_list]
@@ -124,8 +125,8 @@ def graspGripper(grasp_pos, grasp_speed=50):
     gripper_msgs.position = [grasp_pos]
     gripper_msgs.velocity = [grasp_speed/1000]
     gripper_msgs.effort = [np.inf]
-    gripper_command_pub.publish(gripper_msgs) 
-    
+    gripper_command_pub.publish(gripper_msgs)
+
     grasp_pos=1000*grasp_pos
 
     gripper.grasp(grasp_pos, grasp_speed)
@@ -176,8 +177,8 @@ def graspoutGripper(grasp_speed=50,grasp_force=40):
     gripper_msgs.effort = [grasp_force]
     gripper_command_pub.publish(gripper_msgs)
     gripper.grasp_in(grasp_speed,grasp_force)
-    
-    
+
+
     gripper.grasp_out(grasp_speed,grasp_force)
     return 1
 
@@ -197,7 +198,7 @@ def xyzquat_from_matrix(matrix):
 
 def quat_from_matrix(rot_matrix):
     return (tfm.quaternion_from_matrix(rot_matrix))
-    
+
 def mat2quat(orient_mat_3x3):
     orient_mat_4x4 = [[orient_mat_3x3[0][0],orient_mat_3x3[0][1],orient_mat_3x3[0][2],0],
                        [orient_mat_3x3[1][0],orient_mat_3x3[1][1],orient_mat_3x3[1][2],0],
@@ -207,7 +208,7 @@ def mat2quat(orient_mat_3x3):
     orient_mat_4x4 = np.array(orient_mat_4x4)
     quat=quat_from_matrix(orient_mat_4x4)
     return quat
-    
+
 def rotmatY(theta):
     theta_rad=(theta*np.pi)/180
     return(np.array([[np.cos(theta_rad), 0, np.sin(theta_rad)],
@@ -222,7 +223,7 @@ def rotmatX(theta):
 def rotmatZ(theta):
     theta_rad=(theta*np.pi)/180
     return(np.array([[np.cos(theta_rad), -np.sin(theta_rad), 0],[np.sin(theta_rad), np.cos(theta_rad), 0], [0,0,1]]))
-    
+
 def plotPickPoints(pick_points,viz_pub=None,special_index=None):
     if viz_pub!=None:
         markers_msg = MarkerArray()
@@ -239,7 +240,7 @@ def plotPickPoints(pick_points,viz_pub=None,special_index=None):
 	viz_pub.publish(markers_msg)
 	viz_pub.publish(markers_msg)
 	rospy.sleep(.1)
-    
+
 def plotBoxCorners(corner_points, viz_pub=None, color_rgb = None, namespace = 'corner_points',isFeasible = None):
     if viz_pub!=None:
         markers_msg = MarkerArray()
@@ -252,7 +253,7 @@ def plotBoxCorners(corner_points, viz_pub=None, color_rgb = None, namespace = 'c
                 my_rgb=color_rgb
             m=createSphereMarker(offset=tuple(corner_points[i]), marker_id = (i+1), rgba=my_rgb, orientation=(0.0,0.0,0.0,1.0), scale=(.015,.015,.015), frame_id="/map", ns = namespace)
             markers_msg.markers.append(m)
-        
+
         viz_pub.publish(markers_msg)
         viz_pub.publish(markers_msg)
         viz_pub.publish(markers_msg)
@@ -281,7 +282,7 @@ def deleteMarkers(viz_pub=None,ns=''):
 def vision_transform_precise_placing_with_visualization(bbox_info,viz_pub,listener):
     box_dim=bbox_info[7:10]
     (rel_pose,BoxBody)=vision_transform_precise_placing(bbox_info,listener=listener)
-    
+
 #    markers_msg = MarkerArray()
 #    markers_msg.markers.append(createDeleteAllMarker('object_bounding_box_for_collision'))
 #    m=createCubeMarker2(offset=tuple(rel_pose[0:3]), marker_id = 5, rgba=(1,0,1,1), orientation=tuple(rel_pose[3:7]), scale=tuple(box_dim[0:3]), frame_id="/link_6", ns = 'object_bounding_box_for_collision')
@@ -292,7 +293,7 @@ def vision_transform_precise_placing_with_visualization(bbox_info,viz_pub,listen
 #    #viz_pub.publish(markers_msg)
 #    #viz_pub.publish(markers_msg)
 #    #rospy.sleep(0.1)
-#    
+#
 #    m=createCubeMarker2(offset=tuple(bbox_info[4:7]), marker_id = 6, rgba=(0,0,1,1), orientation=tuple(bbox_info[0:4]), scale=tuple(box_dim[0:3]), frame_id="/map", ns = 'object_bounding_box_for_collision')
 #    m.frame_locked = True
 #    markers_msg.markers.append(m)
@@ -301,10 +302,10 @@ def vision_transform_precise_placing_with_visualization(bbox_info,viz_pub,listen
 #    viz_pub.publish(markers_msg)
 #    viz_pub.publish(markers_msg)
 #    rospy.sleep(0.1)
-    
-    
+
+
     return (rel_pose, BoxBody)
-    
+
 def visualize_placing_box(bbox_info,place_pose,viz_pub):
     if viz_pub!=None:
         markers_msg = MarkerArray()
@@ -319,7 +320,7 @@ def visualize_placing_box(bbox_info,place_pose,viz_pub):
 
 def fake_bbox_info(listener=None):
     theta=np.random.rand()*2.0*np.pi
-    
+
     orient_mat_4x4 =[[np.cos(theta),-np.sin(theta),0,0],[np.sin(theta),np.cos(theta),0,0],[0,0,1,0],[0,0,0,1]]
     orient_quat=quat_from_matrix(orient_mat_4x4)
     if listener==None:
@@ -330,11 +331,11 @@ def fake_bbox_info(listener=None):
 
     bbox_info=orient_quat.tolist()+box_pos+[0.0,0.0,0.0]
     return bbox_info
-    
+
 
 def fake_bbox_info_1(listener=None):
     theta=0
-    
+
     orient_mat_4x4 =[[np.cos(theta),-np.sin(theta),0,0],[np.sin(theta),np.cos(theta),0,0],[0,0,1,0],[0,0,0,1]]
     orient_quat=quat_from_matrix(orient_mat_4x4)
     if listener==None:
@@ -361,7 +362,7 @@ def vision_transform_precise_placing(bbox_info,listener):
     box_z=box_rot[0:3,2]
     b = [[1.0,1.0,1.0],[1.0,1.0,-1.0],[1.0,-1.0,1.0],[1.0,-1.0,-1.0],[-1.0,1.0,1.0],[-1.0,1.0,-1.0],[-1.0,-1.0,1.0],[-1.0,-1.0,-1.0]]
     BoxBody=[]
-    for i in range(0, 8):   
+    for i in range(0, 8):
         BoxBody.append(box_pos+box_dim[0]*box_x*b[i][0]/2.0+box_dim[1]*box_y*b[i][1]/2.0+box_dim[2]*box_z*b[i][2]/2.0)
     return (rel_pose,BoxBody)
 
@@ -376,14 +377,14 @@ def pose_transform_precise_placing(rel_pose,BoxBody,place_pose,base_pose,bin_pts
     BoxBody_base_pose=[]
     for i in range(0, 8):
         BoxBody_base_pose.append(np.dot(base_rot[0:3,0:3],BoxBody[i]))
-    
+
     BoxOrigin_base_pose=np.dot(base_rot[0:3,0:3],rel_pose[0:3])
 
     BoxBody_base_pose=np.vstack(BoxBody_base_pose)
     drop_rot=tfm.quaternion_matrix(drop_pose[3:7])
 
     box_pose_at_base=transformTo(base_pose,rel_pose)
-    
+
 
     theta_mat=np.dot(tfm.quaternion_matrix(place_pose[3:7]),tfm.inverse_matrix(tfm.quaternion_matrix(box_pose_at_base[3:7])))
     theta=np.imag(np.log(theta_mat[0,0]+theta_mat[1,0]*1j))
@@ -397,19 +398,19 @@ def pose_transform_precise_placing(rel_pose,BoxBody,place_pose,base_pose,bin_pts
 
     bin_ptsXY=bin_pts[:,0:2]
     finger_ptsXY= np.concatenate((finger_pts[:,0:2],BoxBody_base_pose[:,0:2]),axis=0)
-    
+
     (shape_translation,dist_val_min,feasible_solution,nearest_point)=collision_detection.collision_projection.projection_func(bin_ptsXY,finger_ptsXY,np.array(place_pose[0:2],ndmin=2),np.array(BoxOrigin_base_pose[0:2],ndmin=2),theta,show_plot,margin)
 
     p0=BoxBody[0]
     px=BoxBody[4]
     py=BoxBody[2]
     pz=BoxBody[1]
-    
+
     box_dim=[np.linalg.norm(p0-px),np.linalg.norm(p0-py),np.linalg.norm(p0-pz)]
-    
-    
-    
-    
+
+
+
+
 
     #feasible_solution=False
     if feasible_solution:
@@ -541,7 +542,7 @@ def in_or_out(grid_x = 0,
                     #print 'Sometimes its a no'
     #print 'The function is going to return NO'
     return result
-    
+
 #~Setup reference frames (All outputs are 3x1 vectors resolved in world reference frame)
 def reference_frames(listener,br):
     #global listener
@@ -550,7 +551,7 @@ def reference_frames(listener,br):
     #~ ****************** Define reference frames***********************
     (world_position, world_quaternion) = lookupTransform(homeFrame="map", targetFrame="map", listener=listener)
     (tote_position, tote_quaternion) = lookupTransform(homeFrame="map", targetFrame="tote", listener=listener)
-    
+
     #~ ******************* World Frame   *******************************
     world_pose_tfm_list=matrix_from_xyzquat(world_position,world_quaternion)
     world_pose_tfm=np.array(world_pose_tfm_list)
@@ -573,25 +574,25 @@ def reference_frames(listener,br):
     tote_X=tote_pose_orient[:,0]/la.norm(tote_pose_orient[:,0])
     tote_Y=tote_pose_orient[:,1]/la.norm(tote_pose_orient[:,1])
     tote_Z=tote_pose_orient[:,2]/la.norm(tote_pose_orient[:,2])
-    
+
     return (world_X, world_Y, world_Z, tote_X, tote_Y, tote_Z, tote_pose_pos)
-    
+
 def clamp(my_value, min_value, max_value):
     campled_value = max(min(my_value, max_value), min_value)
     return (campled_value)
-    
+
 #~Check if Body1 (list of points) has a union with Body 2
 def check_collision(Body1, Body2):
-    #~ print ToteBody 
+    #~ print ToteBody
     collision=False
-    for i in range(0, len(Body1)):  
+    for i in range(0, len(Body1)):
         if in_hull(Body1[i], Body2):
             collision = True
             print '*******  TRUE ******'
         #~ else:
             #~ collision = False
     return (collision)
-            
+
 def plot_body(Body, ax, color):
     for j in range(0,len(Body)):
         fx = Body[j][0]#randrange(n, 23, 32)
@@ -605,24 +606,24 @@ def collision_detect_fn(finger_opening, tcp_pos, hand_orient_norm, listener, br)
     #~Inputs:
     # 1) finger_opening (Gripper opening (m))
     # 2) tcp_pos (position of tcp in cartesian coordinates(m))
-    # 3) hand_orient_norm (3x3 orientation matrix for hand frame (hand_X, hand_Y, hand_Z), 
-    #       where Z is in line with link 6 axis and X is the axis joining both spatulas) 
+    # 3) hand_orient_norm (3x3 orientation matrix for hand frame (hand_X, hand_Y, hand_Z),
+    #       where Z is in line with link 6 axis and X is the axis joining both spatulas)
     #~Outputs:
     # 1) collision (True/False)
     # 2) tcp_pos (new proposed collision free position of tcp (only the x and y positions)
-    # 3) hand_orient_norm (new proposed  3x3 orientation matrix for hand frame (hand_X, hand_Y, hand_Z), 
-    #       where Z is in line with link 6 axis and X is the axis joining both spatulas) 
-    
+    # 3) hand_orient_norm (new proposed  3x3 orientation matrix for hand frame (hand_X, hand_Y, hand_Z),
+    #       where Z is in line with link 6 axis and X is the axis joining both spatulas)
+
     #~Initialize reference frames axes
     world_X, world_Y, world_Z, tote_X,tote_Y,tote_Z, tote_pose_pos = reference_frames(listener=listener, br=br)
     hand_X=hand_orient_norm[0:3,0]
     hand_Y=hand_orient_norm[0:3,1]
     hand_Z=hand_orient_norm[0:3,2]
-    
+
     #~Initialize parameters
     collision = False
     collision_section = [False]*8
-    
+
     #Get constants from yaml
     tote_height=rospy.get_param("/tote/height")
     tote_width=rospy.get_param("/tote/width")
@@ -636,7 +637,7 @@ def collision_detect_fn(finger_opening, tcp_pos, hand_orient_norm, listener, br)
     dist_tcp_to_intersection = rospy.get_param("/wrist/length")
     dist_tcp_to_spatula = rospy.get_param("/gripper/spatula_tip_to_tcp_dist")
 
-    #Build points of tote 
+    #Build points of tote
     TotePoints = []
     TotePointsExtended = []
     ToteBody = []
@@ -657,8 +658,8 @@ def collision_detect_fn(finger_opening, tcp_pos, hand_orient_norm, listener, br)
     #Build gripper sections (as a collection of pointsbounding box)
     FingerBody=[]
     WristBody=[]
-    
-    for i in range(0, 4):   
+
+    for i in range(0, 4):
         b = [[1,1],[1,-1],[-1,1],[-1,-1]]
         #~Finger Body (changes with opening)
         FingerBody.append(tcp_pos+dist_tcp_to_intersection*hand_Z+b[i][0]*(finger_opening/2.0+finger_thickness)*hand_X+b[i][1]*(finger_width/2.0)*hand_Y)
@@ -673,16 +674,16 @@ def collision_detect_fn(finger_opening, tcp_pos, hand_orient_norm, listener, br)
         collision_wrist = check_collision(WristBody, ToteBody[i])
         if collision_finger or collision_wrist:
             collision_section[i] = True
-        
+
     #~Collision dectection (general) Are there any sections in collisions with tote?
     collision = any(collision_section==True for collision_section in collision_section)
-    
+
     #~If multiple sections in collision, select the most important section for gripper relocation purposes
     sections_collision_sum = 0
     for i in range(0,4):
         if collision_section[i]:
             sections_collision_sum+=1
-            
+
     mid_tcp_pos_list = []
     mid_tcp_pos = tcp_pos+dist_tcp_to_spatula*hand_Z
     if sections_collision_sum==1:#~ if only 1 section in collision, select that index for section collision
@@ -702,7 +703,7 @@ def collision_detect_fn(finger_opening, tcp_pos, hand_orient_norm, listener, br)
         print '[collision detection] section:', section_index
     else:
         print '[collision detection]', collision
-    
+
     #~Propose new location for gripper
     if collision:
         hand_Z = np.array([0,0,-1])
@@ -712,7 +713,7 @@ def collision_detect_fn(finger_opening, tcp_pos, hand_orient_norm, listener, br)
         for i in range(0,2):
             edgeX.append(bin_mid_pos[0]+d[i]*(tote_width/2.0)*tote_X[0])
             edgeY.append(bin_mid_pos[1]+d[i]*(tote_length/2.0)*tote_Y[1])
-        
+
         f_finger=[-1,1,1,-1]
         f_edge = [1,0,0,1]
         if section_index==0 or section_index==2:
@@ -736,9 +737,9 @@ def collision_detect_fn(finger_opening, tcp_pos, hand_orient_norm, listener, br)
 
     #~ plt.show()
     #~ plt.close()
-    
+
     hand_orient_norm_collision_free = np.vstack([hand_X,hand_Y,hand_Z])
-    
+
     return (collision, tcp_pos[0:2], hand_orient_norm_collision_free)
 
 def get_object_properties(objId,objPose):
@@ -756,28 +757,28 @@ def get_object_properties(objId,objPose):
     obj_X=obj_pose_orient[:,0]/la.norm(obj_pose_orient[:,0])
     obj_Y=obj_pose_orient[:,1]/la.norm(obj_pose_orient[:,1])
     obj_Z=obj_pose_orient[:,2]/la.norm(obj_pose_orient[:,2])
-    
+
     #Normalized object frame
     obj_pose_orient_norm=np.vstack((obj_X,obj_Y,obj_Z))
     obj_pose_orient_norm=obj_pose_orient_norm.transpose()
-    
+
     obj_dim=rospy.get_param('obj')[str(objId)]
     obj_dim=obj_dim['dimensions']
     obj_dim=np.array(obj_dim)
-    
-    
+
+
     return (obj_dim, obj_X, obj_Y, obj_Z, obj_pose_orient_norm)
-    
-    
+
+
 def get_tcp_pose(listener, tcp_offset = 0.0):
     #~get robot tcp pose (both virtual and real)
     if tcp_offset is None:
         pre_basepose = poseTransform([0.0,0.0,0.0,0.0,0.0,0.0,1.0], "link_6","map", listener)
     else:
         pre_basepose = poseTransform([0.0,0.0,tcp_offset,0.0,0.0,0.0,1.0], "link_6","map", listener)
-    
+
     return pre_basepose
-    
+
 def get_joints():
     #~get robot joints (both virtual and real)
     for i in range(10):
@@ -788,7 +789,20 @@ def get_joints():
         else: #~frank hack: if robot is real but no connection, initialize robot pose to be goARC
             q0 = [-0.0014,    0.2129,    0.3204,    0,    1.0374,   -0.0014]
     return q0
-    
+
+def move_cart(dx=0, dy=0, dz=0):
+    #convert to mm
+    dx=1000.*dx
+    dy=1000.*dy
+    dz=1000.*dz
+    #Define ros services
+    getCartRos = rospy.ServiceProxy('/robot1_GetCartesian', robot_GetCartesian)
+    setCartRos = rospy.ServiceProxy('/robot1_SetCartesian', robot_SetCartesian)
+    #read current robot pose
+    c = getCartRos()
+    #move robot to new pose
+    setCartRos(c.x+dx, c.y+dy, c.z+dz, c.q0, c.qx, c.qy, c.qz)
+
 def unwrap(angle):
     #~unwrap an angle to the range [-pi,pi]
     if angle>np.pi:
@@ -800,24 +814,24 @@ def unwrap(angle):
         if angle<-np.pi:
             angle = angle + 2*np.pi
     return angle
-    
+
 def joint6_angle_list(angle):
 	angle_half_range=2.0*np.pi
 	angle_list = []
 	index_list = [-2,-1,0,1,2]
 	for term in index_list:
 		angle_tmp = angle+term*2*np.pi
-		
+
 		if angle_tmp<=angle_half_range and angle_tmp>=-angle_half_range:
 			angle_list.append(angle_tmp)
 	return angle_list
-	
+
 def angle_shortest_dist(angle_current, angle_target_list):
     angle_target_array = np.asarray(angle_target_list)
     dist_array = abs(angle_target_array-angle_current)
     index_min = np.argmin(dist_array)
     return angle_target_array[index_min]
-    
+
 def record_rosbag(topics):
     #~ dir_save_bagfile = '/media/' + os.environ['HOME']+'/gelsight_grasping_data'
     dir_save_bagfile = os.environ['ARCDATA_BASE']+'/gelsight_grasping_data'
@@ -846,7 +860,7 @@ def get_hand_frame(obj_pose_orient_norm, obj_dim, listener, br):
     #~ Project all axes of object about Z-world axis
     proj_vecZ = np.abs(np.dot(world_Z,obj_pose_orient_norm))
     temp = proj_vecZ.argsort()
-    
+
     #~sort all dimensions
     max_index=temp[2]
     secondmax_index=temp[1]
@@ -856,11 +870,11 @@ def get_hand_frame(obj_pose_orient_norm, obj_dim, listener, br):
         hand_Z=obj_pose_orient_norm[:,max_index]
     else:
         hand_Z=-obj_pose_orient_norm[:,max_index]
-        
+
     # find smaller of the other two object dimensions
     obj_xyplane_dim_array = np.array([obj_dim[secondmax_index],obj_dim[min_index]])
     obj_smaller_xydim_index = np.argmin(np.fabs(obj_xyplane_dim_array))
-    
+
     # Set hand X (finger vec) along smaller dimension vector
     if obj_smaller_xydim_index==0:
         hand_X=obj_pose_orient_norm[:,secondmax_index]
@@ -868,7 +882,7 @@ def get_hand_frame(obj_pose_orient_norm, obj_dim, listener, br):
     else:
         hand_X=obj_pose_orient_norm[:,min_index]
         grasp_width=obj_dim[min_index]
-        
+
     #~define coordinate frame vectors
     hand_Y=np.cross(hand_Z, hand_X)
 
@@ -886,24 +900,24 @@ def get_picking_params_from_7(objInput, objId, listener, br):
     hand_X, hand_Y, hand_Z, grasp_width = get_hand_frame(obj_pose_orient_norm=obj_pose_orient_norm, obj_dim=obj_dim, listener=listener, br=br)
 
     return graspPos, hand_X, hand_Y, hand_Z, grasp_width
-    
+
 def get_picking_params_from_12(objInput):
-    
+
     #~define variables
     grasp_begin_pt=np.array(objInput[0:3])
     hand_Z=np.array(objInput[3:6])
-    
+
     #~define grasp pos
     grasp_depth=np.array(objInput[6])
     graspPos=grasp_begin_pt + hand_Z*grasp_depth
     grasp_width=np.array(objInput[7])
-    
+
     #~define hand frame
     hand_X=np.array(objInput[8:11])
     hand_Y=np.cross(hand_Z, hand_X)
 
     return graspPos, hand_X, hand_Y, hand_Z, grasp_width
-    
+
 def drop_pose_transform(binId,rel_pose, BoxBody, place_pose, viz_pub, listener, br):
      #~define gripper home orientation
     base_pose = [0.,0.,0.,0.,1.,0.,0.] #~goarc hand pose
@@ -918,10 +932,6 @@ def drop_pose_transform(binId,rel_pose, BoxBody, place_pose, viz_pub, listener, 
     #~convert to 2d
     bin_pts = bin_pts_3d[:,0:2]
     finger_pts = finger_pts_3d[:,0:2]
-    #~ ~perform coordinate transformation from object to gripper 
+    #~ ~perform coordinate transformation from object to gripper
     (drop_pose,final_object_pose) = pose_transform_precise_placing(rel_pose, BoxBody, place_pose, base_pose, bin_pts_3d, finger_pts, safety_margin, False, viz_pub)
     return drop_pose
-    
-
-    
-    

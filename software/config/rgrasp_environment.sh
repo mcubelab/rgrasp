@@ -249,3 +249,53 @@ setup_clion
 #edg  # use geany to edit
 
 exec "$@" # very important for roslaunch remotely
+
+
+
+
+#################################################
+########                             ############
+########      Maria's aliases        ############
+########                             ############
+#################################################
+
+alias sshlab='ssh -X mcube@18.80.1.44 -p 2215'
+alias ..='cd ..'
+alias c='clear'
+alias lg='ls | grep'
+alias lpy='ls | grep .py'
+# some more ls aliases
+alias lla='ls -alF'
+alias ll='ls -ltrF'
+alias llpy='ls -ltrF | grep .py'
+alias llg='ls -ltrF | grep'
+alias l.='ls -d .* --color=auto'
+alias listalias="alias -p | cut -d= -f1 | cut -d' ' -f2"
+alias calculator='bc -l'
+alias date='date'
+alias meminfo='free -m -l -t'
+alias gpull='git pull'
+alias gpush='git push'
+alias gstatus='git status'
+alias h='hisotry'
+alias hg='history | grep'
+alias restartwifi='sudo service network-manager restart'
+alias pyfast='python -m pdb' # from Karpathy's twitter
+alias volume='pactl -- set-sink-volume 0 '
+# ~/.bashrc
+if [[ $- == *i* ]]
+then
+    bind '"\e[A": history-search-backward'
+    bind '"\e[B": history-search-forward'
+fi
+alias google='firefox google.com'
+alias man='manual'
+alias findfile='locate'
+#alias mostusedcommands='history | awk '{CMD[$4]++;count++;}END { for (a in CMD)print CMD[a] " " CMD[a]/count*100 "% " a;}' | grep -v "./" | column -c3 -s " " -t | sort -nr | nl |  head -n20'
+alias github_learning='firefox https://github.com/mcubelab/mcube_learning'
+alias github_rgrasp='firefox https://github.com/mcubelab/rgrasp'
+alias openfile='xdg-open'
+alias gmail='firefox https://mail.google.com/mail/u/0/#inbox'
+
+. /usr/share/autojump/autojump.bash
+

@@ -65,7 +65,7 @@ class GraspDataRecorder:
                     'wsg_driver': {'topic':'/wsg_50_driver/status', 'msg_format':Status}, # Reformat DONE
                     'exp_comments': {'topic':'/exp_comments', 'msg_format':String},
                     'impact_time': {'topic':'/impact_time', 'msg_format':Bool},
-                    'objectList': {'topic':'/objectList', 'msg_format':Float32MultiArray},
+                    'objectList': {'topic':'/objectList', 'msg_format':String},
                     'objectType': {'topic':'/objectType', 'msg_format':String},
                     'liftoff_time': {'topic':'/liftoff_time', 'msg_format':String}
                     }

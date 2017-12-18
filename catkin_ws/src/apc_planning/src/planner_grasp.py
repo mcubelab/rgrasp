@@ -422,7 +422,7 @@ class TaskPlanner(object):
 
     def planned_place(self):
         if len(self.get_objects()) == 1:
-            fixed_container = self.tote_ID
+            fixed_container = [self.tote_ID]
         else:
             fixed_container = [1-self.tote_ID] #TODO_M: planner only accepts bins 1,2,3 and names them as 0,1,2
         

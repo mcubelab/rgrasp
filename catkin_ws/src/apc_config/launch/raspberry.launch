@@ -2,6 +2,7 @@
 <launch>
     <arg name="raspberry_machine" default="raspi-desktop" />
     <machine name="raspberry_machine" address="$(arg raspberry_machine)" user="raspi" timeout="5.0" env-loader="/home/raspi/suction_env.sh" />
+    <!-- <node name="spatula" pkg="suction" type="spatula_publisher.py" machine="raspberry_machine" respawn="true" respawn_delay="0.1"/> -->
     <node name="suction_server" pkg="suction" type="suction_server.py" machine="raspberry_machine" respawn="true" respawn_delay="0.1"/>
   <arg name="image_set_width" default="640"/>
   <arg name="image_set_height" default="480"/>

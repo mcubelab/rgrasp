@@ -53,7 +53,6 @@ class IK:
     # target_joint_bb = [[joint_ind, lb, ub], [joint_ind, lb, ub], ...]  joint_ind: 1-6, don't use inf, use a big number instead.
     # from what time should it follow the orientation constraint of target
 
-
     # q0 = 6 joint angles in rad
     # qnom = nominal joint angles in rad  (will solve ik to find joint closest to qnom, if not specified q0 = qnom)
     def __init__(self, joint_topic = '/joint_states', target_tip_pos = None, target_tip_ori = None, q0 = None, qnom = None,
@@ -149,7 +148,7 @@ class IK:
 
         if self.useFastIK:
             js = fastik(argin['target_hand_pos']+argin['target_hand_ori'], list(argin['qnom'][0:6]), self.weight)
-                
+
             if js is None:  # nosolution
                 ret = {}
                 ret['q_traj'] = []
@@ -886,7 +885,7 @@ def generatePlan(q0, target_tip_pos, target_tip_ori, tip_hand_transform, speed, 
         planner = IK(q0 = q0, target_tip_pos = target_tip_pos, target_tip_ori = target_tip_ori, tip_hand_transform=tip_hand_transform, joint_topic=joint_topic, useFastIK=True)
         plan = planner.plan()
         plan.setSpeedByName(speed)
-        
+
     if backwards_speed is not None:
         plan.setSpeedByNameBackwards(backwards_speed)
 
@@ -901,15 +900,15 @@ def generatePlan(q0, target_tip_pos, target_tip_ori, tip_hand_transform, speed, 
 		#~ best_angle = helper.angle_shortest_dist(q0[5], angle_list)
 		#~ plan.q_traj[-1][5] = best_angle
 		qf = plan.q_traj[-1]
-        
+
     if plan_name is not None:
         rospy.logdebug('[Generate Plan] Build plan %s',plan_name)
         rospy.logdebug('[Generate Plan] Target position %s',target_tip_pos)
         rospy.logdebug('[Generate Plan] Target orientation %s',target_tip_ori)
-        rospy.logdebug('[Generate Plan] Tip hand transform %s',tip_hand_transform) 
-        rospy.logdebug('[Generate Plan] Initial joint state %s',q0) 
-        rospy.logdebug('[Generate Plan] Computed joint state %s',qf) 
-        rospy.logdebug('[Generate Plan] Execution possible %s', execution_possible) 
+        rospy.logdebug('[Generate Plan] Tip hand transform %s',tip_hand_transform)
+        rospy.logdebug('[Generate Plan] Initial joint state %s',q0)
+        rospy.logdebug('[Generate Plan] Computed joint state %s',qf)
+        rospy.logdebug('[Generate Plan] Execution possible %s', execution_possible)
 
     return plan, qf, execution_possible
 
@@ -1100,5 +1099,3 @@ def deactivateCSS(pose = None):
     except:
         print '[Robot] Robot seeems not connected, skipping deactivateCSS()'
         return False
-
-

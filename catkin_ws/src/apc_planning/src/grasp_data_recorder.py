@@ -5,8 +5,9 @@ from sensor_msgs.msg import JointState, Image, CompressedImage
 from wsg_50_common.msg import Status
 from cv_bridge import CvBridge, CvBridgeError
 from msg_to_dict import convert_ros_message_to_dictionary
-import matplotlib.pyplot as plt
+from ssh_helper import ssh
 from multiprocessing import Process
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import thread
@@ -40,10 +41,10 @@ class GraspDataRecorder:
                     'gs_image': {'topic':'rpi/gelsight/raw_image', 'msg_format':Image},
 #                    'gs_image_compressed': {'topic':'rpi/gelsight/raw_image/compressed', 'msg_format':CompressedImage},
                     'gs_deflection': {'topic':'rpi/gelsight/deflection', 'msg_format':Int32},
-                    'gs_contactarea': {'topic':'rpi/gelsight/contactarea', 'msg_format':gelsight_contactarea},
-                    'hand_commands': {'topic':'/hand_commands', 'msg_format':JointState},
-                    'grasp_status': {'topic':'/grasp_status', 'msg_format':JointState},
-                    'joint_states':{'topic':'/joint_states', 'msg_format':JointState},
+                    'gs_contactarea': {'topic':'rpi/gelsight/contactarea', 'msg_format':gelsight_contactarea}, # Reformat DONE
+                    'hand_commands': {'topic':'/hand_commands', 'msg_format':JointState}, # Reformat
+                    'grasp_status': {'topic':'/grasp_status', 'msg_format':JointState}, # Reformat
+                    'joint_states':{'topic':'/joint_states', 'msg_format':JointState}, # Reformat
                     'grasp_all_proposals': {'topic':'/grasp_all_proposals', 'msg_format':Float32MultiArray},
                     'grasp_proposal': {'topic':'/grasp_proposal', 'msg_format':Float32MultiArray},
                     'grasp_noise': {'topic':'/grasp_noise', 'msg_format':Float32MultiArray},
@@ -57,11 +58,11 @@ class GraspDataRecorder:
                     'im_back_depth_1': {'topic':'/im_back_depth_1', 'msg_format':Image},
                     'rgb_bin0': {'topic':'/arc_1/rgb_bin0', 'msg_format':Image},
                     'rgb_bin1': {'topic':'/arc_1/rgb_bin1', 'msg_format':Image},
-                    'rgb_bin2': {'topic':'/arc_1/rgb_bin2', 'msg_format':Image}, # TODO: FIX IT
+                    'rgb_bin2': {'topic':'/arc_1/rgb_bin2', 'msg_format':Image},
                     'depth_bin0': {'topic':'/arc_1/depth_bin0', 'msg_format':Image},
                     'depth_bin1': {'topic':'/arc_1/depth_bin1', 'msg_format':Image},
                     'depth_bin2': {'topic':'/arc_1/depth_bin2', 'msg_format':Image},
-                    'wsg_driver': {'topic':'/wsg_50_driver/status', 'msg_format':Status},
+                    'wsg_driver': {'topic':'/wsg_50_driver/status', 'msg_format':Status}, # Reformat DONE
                     'exp_comments': {'topic':'/exp_comments', 'msg_format':String},
                     'impact_time': {'topic':'/impact_time', 'msg_format':Bool},
                     'objectList': {'topic':'/objectList', 'msg_format':Float32MultiArray},
@@ -139,6 +140,28 @@ class GraspDataRecorder:
                 print(e)
             else:
                 self.data_recorded[key].append((cv2_img, rospy.get_time()))
+    elif self.topic_dict[key]['msg_format'] == JointState:
+        message = data #Maybe data.data
+        data_dict = {}
+        data_dict['header'] = str(message.header)
+        data_dict['name'] = message.name
+        data_dict['position'] = message.position
+        data_dict['velocity'] = message.velocity
+        data_dict['effort'] = message.effort
+        self.data_recorded[key].append((data_dict, rospy.get_time()))
+    elif key == 'wsg_driver': # We process the ws_50 msg so that we dont have to import it in mcube learning
+        ws50message = data
+        data_dict = {}
+        data_dict['status'] = ws50message.status
+        data_dict['width'] = ws50message.width
+        data_dict['speed'] = ws50message.speed
+        data_dict['acc'] = ws50message.acc
+        data_dict['force'] = ws50message.force
+        data_dict['force_finger0'] = ws50message.force_finger0
+        data_dict['force_finger1'] = ws50message.force_finger1
+        self.data_recorded[key].append((data_dict, rospy.get_time()))
+    elif key == 'gs_contactarea':
+        self.data_recorded[key].append((data.contact_map, rospy.get_time()))
     else:
       try:
         self.data_recorded[key].append((data.data, rospy.get_time()))
@@ -196,6 +219,18 @@ class GraspDataRecorder:
       #pickle.dump(self.data_recorded, open(path, "wb"))
       print '[RECORDER]: Saving DONE'
 
+  def __send_to_server(self):
+      local_path = self.data_recorded['directory'] + '/' + str(self.data_recorded['action_id'])
+      remote_path = 'media/mcube/SERVER_HD/Dropbox (MIT)/rgrasp_dataset/'
+
+      s = ssh(computer_id='server')
+
+      # If the Experiment directory doesn't exist on the server we create it (for first time saving)
+      dir_list = s.get_dir_list(remotepath=remote_path)
+      if str(self.data_recorded['exp_id']) not in dir_list:
+          s.mkdir(remote_path + str(self.data_recorded['exp_id']))
+
+      s.put_dir(localpath=local_path, remotepath=remote_path+str(self.data_recorded['exp_id']))
 
   def __get_grasp_summary(self):
       print '[RECORDER]: Building summary'
@@ -283,6 +318,7 @@ class GraspDataRecorder:
     if save_action:
         thread.start_new_thread(self.__save_action, ())
         thread.start_new_thread(self.__update_experiment_info, ())
+        # thread.start_new_thread(self.__send_to_server, ()) #TO SAVE THE FOLDER AT THE SERVER TOO
 
     return
 
@@ -347,7 +383,7 @@ class GraspDataRecorder:
       #check if some sensors have count = 0
       for term in info_dict:
           if 'count' in term:
-              if ((info_dict[term]==0) and (term not in ['grasp_status_count', 'objectType_count','im_input_depth_0_count','im_input_depth_1_count','im_back_depth_0_count','im_back_depth_1_count','im_input_color_0_count','im_input_color_1_count','im_back_color_0_count','im_back_color_1_count'])):
+              if ((info_dict[term]==0) and (term not in ['objectList_count', 'wsg_driver_count', 'grasp_status_count', 'objectType_count','im_input_depth_0_count','im_input_depth_1_count','im_back_depth_0_count','im_back_depth_1_count','im_input_color_0_count','im_input_color_1_count','im_back_color_0_count','im_back_color_1_count'])):
                   abort()
 
 
@@ -361,7 +397,7 @@ class GraspDataRecorder:
         event_dict['liftoff_time'] = timestamp
 
       for val, timestamp in self.data_recorded['hand_commands']:
-        name = str(val).split("name: ['")[1].split("']")[0]
+        name = val['name'][0]
         event_dict[name] = timestamp
 
       return event_dict

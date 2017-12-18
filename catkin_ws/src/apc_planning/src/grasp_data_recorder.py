@@ -204,20 +204,24 @@ class GraspDataRecorder:
       if not os.path.exists(path):
         os.makedirs(path)
 
+      print self.data_recorded['grasp_status']
       #We save all the readings from the sensors
       for key in self.topic_dict:
+          #print key
           values_filename = str(key) + '_values'
           timestamps_filename = str(key) + '_timestamps'
           try:
             values, timestamps = zip(*self.data_recorded[key])
             np.savez_compressed(path + '/' + values_filename, values)
             np.savez_compressed(path + '/' + timestamps_filename, timestamps)
-          except ValueError:
-            pass
+          except Exception as e:
+            print e
 
 
       #pickle.dump(self.data_recorded, open(path, "wb"))
       print '[RECORDER]: Saving DONE'
+
+      # thread.start_new_thread(self.__send_to_server, ()) #TO SAVE THE FOLDER AT THE SERVER TOO
 
   def __send_to_server(self):
       local_path = self.data_recorded['directory'] + '/' + str(self.data_recorded['action_id'])
@@ -260,22 +264,22 @@ class GraspDataRecorder:
           return info
 
       try:
-          message = self.data_recorded['grasp_status'][0]
-          message = message[0]
-          msg_dict = convert_ros_message_to_dictionary(message)
-          success = msg_dict['position'][0]
+          message = self.data_recorded['grasp_status'][0][0]
+          success = message['position'][0]
           if success > 0:
               print '++++++++++++++++++++++++++++++++++++++++++++++++++GRASP SUCCESFULL'
           else:
               print '++++++++++++++++++++++++++++++++++++++++++++++++++GRASP  NOT  SUCCESFULL'
           info['success'] = success
       except Exception as e:
+          print '[RECORDER]: ERROR FINDING SUCCESS:'
           print e
 
       try:
           val, timestamp = zip(*self.data_recorded['objectType'])
           info['object_id'] = val[0]
       except Exception as e:
+          print '[RECORDER]: ERROR WITH OBJECT IDS:'
           print e
 
       return info
@@ -318,7 +322,6 @@ class GraspDataRecorder:
     if save_action:
         thread.start_new_thread(self.__save_action, ())
         thread.start_new_thread(self.__update_experiment_info, ())
-        # thread.start_new_thread(self.__send_to_server, ()) #TO SAVE THE FOLDER AT THE SERVER TOO
 
     return
 
@@ -327,8 +330,8 @@ class GraspDataRecorder:
       self.data_recorded['object_id'] = object_id
 
   def update_topic(self, key):
-    #~ if key == 'grasp_status':
-        #~ print 'GRASP STATUS RECEIVED!!!!!!!!!!!!!!!!!!!!!!!!!!'
+    #if key == 'grasp_status':
+        #print 'GRASP STATUS RECEIVED!!!!!!!!!!!!!!!!!!!!!!!!!!'
     #This function changes the value of the given topic for the msg and saves it
     #Replacing the .npz file
     #msg = rospy.Subscriber(topic, msg_format, self.__callback, key)

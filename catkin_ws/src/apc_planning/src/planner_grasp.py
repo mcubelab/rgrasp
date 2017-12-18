@@ -418,7 +418,10 @@ class TaskPlanner(object):
         self.execution_possible = self.grasping_output['execution_possible']
 
     def planned_place(self):
-        fixed_container = [1-self.tote_ID] #TODO_M: planner only accepts bins 1,2,3 and names them as 0,1,2
+        if len(self.get_objects()) == 1:
+            fixed_container = self.tote_ID
+        else:
+            fixed_container = [1-self.tote_ID] #TODO_M: planner only accepts bins 1,2,3 and names them as 0,1,2
         
         if self.PlacingPlanner.visionType == 'real': #Update HM
             self.PlacingPlanner.update_real_height_map(fixed_container[0])

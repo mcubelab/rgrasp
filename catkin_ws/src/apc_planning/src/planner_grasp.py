@@ -100,7 +100,7 @@ class TaskPlanner(object):
         self.im_input_depth_1_pub=rospy.Publisher('/im_input_depth_1',Image,queue_size = 10, latch=True)
         self.im_back_depth_1_pub=rospy.Publisher('/im_back_depth_1',Image,queue_size = 10, latch=True)
         self.experiment_comments_pub=rospy.Publisher('/exp_comments',String,queue_size = 10, latch=True)
-        self.objectList_pub=rospy.Publisher('/objectList',Float32MultiArray,queue_size = 10, latch=True)
+        self.objectList_pub=rospy.Publisher('/objectList',String,queue_size = 10, latch=True)
         self.objectType_pub=rospy.Publisher('/objectType',String,queue_size = 10, latch=True)
         rospy.sleep(0.5)
 
@@ -462,8 +462,8 @@ class TaskPlanner(object):
             print(obj_list)
             obj_ans = raw_input('Are these the objects?(y/n)')
         
-        objectList_msgs = Float32MultiArray()
-        objectList_msgs.data = np.array([0,1]) #obj_list)
+        objectList_msgs = String()
+        objectList_msgs.data = '\n'.join(obj_list)
         #HACK
         self.objectList_pub.publish(objectList_msgs)
         

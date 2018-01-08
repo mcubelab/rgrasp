@@ -38,7 +38,7 @@ class GraspDataRecorder:
                     'ws_0': {'topic':'ws_stream{}'.format(0), 'msg_format':Float64},
                     'ws_1': {'topic':'ws_stream{}'.format(1), 'msg_format':Float64},
                     'ws_2': {'topic':'ws_stream{}'.format(2), 'msg_format':Float64},
-                    'gs_image': {'topic':'rpi/gelsight/raw_image', 'msg_format':Image},
+                    'gs_image': {'topic':'rpi/gelsight/flip_raw_image', 'msg_format':Image},
 #                    'gs_image_compressed': {'topic':'rpi/gelsight/raw_image/compressed', 'msg_format':CompressedImage},
                     'gs_deflection': {'topic':'rpi/gelsight/deflection', 'msg_format':Int32},
                     'gs_contactarea': {'topic':'rpi/gelsight/contactarea', 'msg_format':gelsight_contactarea}, # Reformat DONE

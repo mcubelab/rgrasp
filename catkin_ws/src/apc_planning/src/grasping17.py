@@ -218,7 +218,7 @@ def grasp(objInput,
         plans_guarded2.append(grasp_plan)
 
         #~9. sleep
-        sleep_plan = EvalPlan('rospy.sleep(0.2)')
+        sleep_plan = EvalPlan('rospy.sleep(0.6)')
         plans_guarded2.append(sleep_plan)
 
         #~10. Move to a location above the bin

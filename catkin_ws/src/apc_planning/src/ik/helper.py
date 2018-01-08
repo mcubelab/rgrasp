@@ -789,7 +789,7 @@ def get_joints():
         else: #~frank hack: if robot is real but no connection, initialize robot pose to be goARC
             q0 = [-0.0014,    0.2129,    0.3204,    0,    1.0374,   -0.0014]
     return q0
-
+    
 def move_cart(dx=0, dy=0, dz=0):
     #convert to mm
     dx=1000.*dx

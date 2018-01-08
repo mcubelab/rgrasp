@@ -390,7 +390,7 @@ class TaskPlanner(object):
         grasp_proposal_msgs.data = self.grasp_point
         grasp_noise_msgs = Float32MultiArray()
         grasp_noise_msgs.data = self.grasp_noise
-        
+
         if self.grasp_point is not None:
             self.grasp_proposal_pub.publish(grasp_proposal_msgs)
             self.grasp_noise_pub.publish(grasp_noise_msgs)
@@ -425,10 +425,10 @@ class TaskPlanner(object):
             fixed_container = [self.tote_ID]
         else:
             fixed_container = [1-self.tote_ID] #TODO_M: planner only accepts bins 1,2,3 and names them as 0,1,2
-        
+
         if self.PlacingPlanner.visionType == 'real': #Update HM
             self.PlacingPlanner.update_real_height_map(fixed_container[0])
-            
+
         #Get obj dimensions:
         try:
             asking_for = '/obj/'+self.obj_ID
@@ -464,12 +464,12 @@ class TaskPlanner(object):
             obj_list = self.get_objects()
             print(obj_list)
             obj_ans = raw_input('Are these the objects?(y/n)')
-        
+
         objectList_msgs = String()
         objectList_msgs.data = '\n'.join(obj_list)
         #HACK
         self.objectList_pub.publish(objectList_msgs)
-        
+
         goToHome.goToARC(slowDown=self.goHomeSlow) # 1. Initialize robot state
         if self.visionType == 'real': # 2. Passive vision update bins
             number_bins = 2

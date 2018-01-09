@@ -23,7 +23,7 @@ import sys
 sys.path.append(os.environ['CODE_BASE']+'/catkin_ws/src/weight_sensor/src')
 import ws_prob
 import goToHome
-from grasping17 import grasp
+from grasping17 import place, grasp
 from ik.helper import fake_bbox_info_1, Timer, vision_transform_precise_placing_with_visualization, get_params_yaml
 from visualization_msgs.msg import MarkerArray
 from cv_bridge import CvBridge, CvBridgeError
@@ -190,7 +190,7 @@ class TaskPlanner(object):
         print('------- DOING GRASPING ------- ')
         print(' grasp_point = ', self.grasp_point)
         grasp(objInput=self.grasp_point, listener=self.listener, br=self.br, isExecute=self.isExecute,
-              binId=container, flag=0, withPause=False, viz_pub=self.viz_array_pub)
+              binId=container,  withPause=False, viz_pub=self.viz_array_pub)
 
         f = random.choice(os.listdir(self.FAKE_GRASPING_DIR)) #Get fake output for the primitive
         with open(os.path.join(self.FAKE_GRASPING_DIR, f), 'r') as infile:
@@ -308,7 +308,7 @@ class TaskPlanner(object):
             #Check if in collision
             num_attempts += 1
             checked_output = grasp(objInput=grasp_point, listener=self.listener, br=self.br, isExecute=False,
-                                   binId=container, flag=0, withPause=False, viz_pub=self.viz_array_pub)
+                                   binId=container,  withPause=False, viz_pub=self.viz_array_pub)
             if checked_output['execution_possible']:
                 self.grasp_score = copy.deepcopy(self.all_pick_scores[num_it-1])
                 self.grasp_point = copy.deepcopy(grasp_point)
@@ -416,7 +416,7 @@ class TaskPlanner(object):
         ik.visualize_helper.visualize_grasping_proposals(self.proposal_viz_array_pub, np.asarray([self.grasp_point]),  self.listener, self.br, True)
 
         self.grasping_output = grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
-                                 isExecute=self.isExecute, binId=container, flag=0,
+                                 isExecute=self.isExecute, binId=container,
                                  withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
         self.execution_possible = self.grasping_output['execution_possible']
 
@@ -445,8 +445,8 @@ class TaskPlanner(object):
 
         # Place object using grasping
         self.rel_pose, self.BoxBody=vision_transform_precise_placing_with_visualization(self.bbox_info,viz_pub=self.viz_array_pub,listener=self.listener)
-        grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
-                         isExecute=self.isExecute, binId=fixed_container[0], flag=2, withPause=self.withPause,
+        place(objInput=self.grasp_point, listener=self.listener, br=self.br,
+                         isExecute=self.isExecute, binId=fixed_container[0],  withPause=self.withPause,
                          rel_pose=self.rel_pose, BoxBody=self.BoxBody, place_pose=drop_pose,
                          viz_pub=self.viz_array_pub, is_drop = False, recorder=self.gdr)
 

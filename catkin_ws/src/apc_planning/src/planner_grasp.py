@@ -445,7 +445,7 @@ class TaskPlanner(object):
 
         # Place object using grasping
         self.rel_pose, self.BoxBody=vision_transform_precise_placing_with_visualization(self.bbox_info,viz_pub=self.viz_array_pub,listener=self.listener)
-        place(objInput=self.grasp_point, listener=self.listener, br=self.br,
+        place(listener=self.listener, br=self.br,
                          isExecute=self.isExecute, binId=fixed_container[0],  withPause=self.withPause,
                          rel_pose=self.rel_pose, BoxBody=self.BoxBody, place_pose=drop_pose,
                          viz_pub=self.viz_array_pub, is_drop = False, recorder=self.gdr)

@@ -20,20 +20,42 @@ from visualization_msgs.msg import MarkerArray
 #from grasp_data_recorder import GraspDataRecorder
 import datetime
 
+def release_safe(listener):
+
+    #Initialize parameters
+    spatula_tip_to_tcp_dist = rospy.get_param("/gripper/spatula_tip_to_tcp_dist")
+    bin_pose = ik.helper.get_params_yaml('bin'+str(0)+'_pose')
+    UpdistFromBinFast = 0.15
+    #Initial configuration of robot
+    q_initial = ik.helper.get_joints()
+    targetPose = get_tcp_pose(listener, tcp_offset = spatula_tip_to_tcp_dist)
+    #Desired new safe position above binNum
+    targetPose[2] = bin_pose[2] + UpdistFromBinFast
+    #################
+    ## Build plans ##
+    #################
+   #~1. Open gripper
+    grasp_plan = EvalPlan('helper.moveGripper(%f, 200)' % grasp_width)
+    plans.append(grasp_plan)
+    #~2. Open spatula
+    grasp_plan = EvalPlan('spatula.open()')
+    plans.append(grasp_plan)
+    #~3. Move up
+    plan, qf, plan_possible = generatePlan(q_initial, pregrasp_targetPosition, hand_orient_quat, tip_hand_transform, 'superSaiyan', plan_name = 'go_safe_bin')
+    if plan_possible:
+        plans.append(plan)
+        q_initial = qf
+    else:
+        print ('[Release Safe] Plans failed:')
+
 def grasp(objInput,
           listener,
           br,
           isExecute = True,
           objId = 'expo_eraser',
           binId=0,
-          flag = 0,
           withPause = False,
-          rel_pose = None,
-          BoxBody = None,
-          place_pose = None,
           viz_pub = None,
-          is_drop = True,
-          update_command = None,
           recorder = None):
 
     #########################################################
@@ -79,14 +101,9 @@ def grasp(objInput,
     ###############################
     ## Pring input variables for ##
     ###############################
-    rospy.logdebug('[Picking] Starting primitive with flag: %d' % flag)
     rospy.logdebug('[Picking] objInput %s', objInput)
     rospy.logdebug('[Picking] objId %s', objId)
-    rospy.logdebug('[Picking] flag %s', flag)
     rospy.logdebug('[Picking] withPause %s', withPause)
-    rospy.logdebug('[Picking] rel_pose %s', rel_pose)
-    rospy.logdebug('[Picking] BoxBody %s', BoxBody)
-    rospy.logdebug('[Picking] place_pose %s', place_pose)
 
     ########################
     ## Initialize values ##
@@ -133,7 +150,7 @@ def grasp(objInput,
     vision_pos[2] = 0.17786528
 
     ###############################
-    ## Picking primitive flag: 0 ##
+    ## Picking primitive  ##
     ###############################
 #        ik.visualize_helper.visualize_grasping_proposals(viz_pub, np.asarray([objInput]),  listener, br, False)
     #~Define reference frames
@@ -145,6 +162,7 @@ def grasp(objInput,
     elif len(objInput)==7:
         graspPos, hand_X, hand_Y, hand_Z, grasp_width = ik.helper.get_picking_params_from_7(objInput, objId, listener, br)
 
+    print len(objInput)
     #~build gripper orientation matrix 3x3
     hand_orient_norm = np.vstack([hand_X,hand_Y,hand_Z])
     hand_orient_norm=hand_orient_norm.transpose()
@@ -284,20 +302,16 @@ def grasp(objInput,
 
     return compose_output()
 
-def place(objInput,
-          listener,
+def place(listener,
           br,
           isExecute = True,
-          objId = 'expo_eraser',
           binId=0,
-          flag = 2,
           withPause = False,
           rel_pose = None,
           BoxBody = None,
           place_pose = None,
           viz_pub = None,
           is_drop = True,
-          update_command = None,
           recorder = None):
 
     #########################################################
@@ -343,10 +357,6 @@ def place(objInput,
     ###############################
     ## Pring input variables for ##
     ###############################
-    rospy.logdebug('[Picking] Starting primitive with flag: %d' % flag)
-    rospy.logdebug('[Picking] objInput %s', objInput)
-    rospy.logdebug('[Picking] objId %s', objId)
-    rospy.logdebug('[Picking] flag %s', flag)
     rospy.logdebug('[Picking] withPause %s', withPause)
     rospy.logdebug('[Picking] rel_pose %s', rel_pose)
     rospy.logdebug('[Picking] BoxBody %s', BoxBody)
@@ -521,7 +531,6 @@ def unit_test(listener, br):
     rospy.sleep(0.5)
     viz_pub = rospy.Publisher('/proposal_visualization_marker_array', MarkerArray, queue_size=10)
 #    data = posesrv('','')
-    #~ goToHome.prepGripperPicking()
 
     #~define objId
     TARGET = 'expo_eraser'
@@ -531,37 +540,31 @@ def unit_test(listener, br):
     objInput.append(ik.helper.get_params_yaml('bin0_pose'))
     objInput.append(ik.helper.get_params_yaml('bin1_pose'))
     objInput.append(ik.helper.get_params_yaml('bin2_pose'))
-#
-    #~unit test for flags 1 and 2 in bins 0 and 1 (with weight guard)
-    flag_list = [0,2]
-    bin_list = [0,1,2]
-#    objInput = [[1.0550236701965332, -0.40252241492271423, -0.018005974590778351, 0.0, 0.0, -1.0, 0.15000000596046448, 0.10999999940395355, -0.38268342614173889, -0.92387950420379639, 0.0, 0.22444444894790649]]
-#    binId = 0
-#    flag = 0
-#    bin_drop_id = binId
-#    (output_dict)=grasp(objInput=objInput[binId],
-#                                        listener=listener,
-#                                        br=br,
-#                                        isExecute=isExecute,
-#                                        objId=TARGET,
-#                                        binId=bin_drop_id,
-#                                        flag=flag,
-#                                        withPause = False)
-#    ~ bin_list = [0]
-    for binId in bin_list:
-        for flag in flag_list:
-            bin_list_drop = [binId]
-            (output_dict)=grasp(objInput=objInput[binId],
-                                listener=listener,
-                                br=br,
-                                isExecute=isExecute,
-                                objId=TARGET,
-                                binId=binId,
-                                flag=flag,
-                                withPause = False,
-                                viz_pub = viz_pub,
-                                is_drop = False)
-            gripper.close()
+
+    #~1. grasp object
+    output_dict = grasp(objInput[0],
+                  listener,
+                  br,
+                  isExecute = True,
+                  objId = 'expo_eraser',
+                  binId=0,
+                  withPause = False,
+                  viz_pub = None,
+                  recorder = None)
+
+    #~1. grasp object
+    # output_dict = grasp(objInput,
+    #               listener,
+    #               br,
+    #               isExecute = True,
+    #               objId = 'expo_eraser',
+    #               binId=0,
+    #               withPause = False,
+    #               viz_pub = None,
+    #               recorder = None)
+
+
+
 
 # To test the function
 if __name__=='__main__':

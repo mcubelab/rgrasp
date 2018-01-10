@@ -2,8 +2,7 @@
 
 import rospy
 import geometry_msgs.msg, std_msgs.msg, sensor_msgs.msg
-import visualization_msgs.msg, trajectory_msgs.msg, moveit_msgs.msg
-# from moveit_msgs.msg import RobotState
+import visualization_msgs.msg, trajectory_msgs.msg,  moveit_msgs.msg
 import json
 from roshelper import ROS_Wait_For_Msg
 import roshelper
@@ -19,11 +18,10 @@ import copy
 from std_msgs.msg import Int32, String,Bool, Float64
 from pr_msgs.msg import gelsightresult
 import datetime
-
 import helper
-
-#import moveit_commander
 import spatula
+
+
 
 impact_pub=rospy.Publisher('/impact_time', Bool, queue_size = 10, latch = False)
 

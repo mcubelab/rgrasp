@@ -11,7 +11,7 @@ import tf
 from ik.ik import generatePlan, EvalPlan, WeightGuard, executePlanForward
 #from ik.helper import get_joints, mat2quat, get_params_yaml, reference_frames, drop_pose_transform
 from collision_detection.collisionHelper import collisionFree
-import gripper, lasers
+import gripper
 import ik.helper
 import ik.visualize_helper
 import sensor_msgs.msg
@@ -19,23 +19,28 @@ import std_msgs.msg
 from visualization_msgs.msg import MarkerArray
 #from grasp_data_recorder import GraspDataRecorder
 import datetime
+try:
+    import lasers
+except:
+    pass
+
 
 def release_safe(listener):
-
+    plans = []
     #Initialize parameters
     spatula_tip_to_tcp_dist = rospy.get_param("/gripper/spatula_tip_to_tcp_dist")
     bin_pose = ik.helper.get_params_yaml('bin'+str(0)+'_pose')
     UpdistFromBinFast = 0.15
     #Initial configuration of robot
     q_initial = ik.helper.get_joints()
-    targetPose = get_tcp_pose(listener, tcp_offset = spatula_tip_to_tcp_dist)
+    targetPose = ik.helper.get_tcp_pose(listener, tcp_offset = spatula_tip_to_tcp_dist)
     #Desired new safe position above binNum
     targetPose[2] = bin_pose[2] + UpdistFromBinFast
     #################
     ## Build plans ##
     #################
    #~1. Open gripper
-    grasp_plan = EvalPlan('helper.moveGripper(%f, 200)' % grasp_width)
+    grasp_plan = EvalPlan('helper.moveGripper(%f, 200)' % 0.11)
     plans.append(grasp_plan)
     #~2. Open spatula
     grasp_plan = EvalPlan('spatula.open()')
@@ -130,9 +135,6 @@ def grasp(objInput,
     final_object_pose=None
     rospy.set_param('is_record', False)
     rospy.set_param('is_contact', False)
-
-
-    liftoff_pub = rospy.Publisher('/liftoff_time', std_msgs.msg.String, queue_size = 10, latch=False)
 
     def compose_output():
         return {'collision':collision,'grasp_possible':grasp_possible,'plan_possible':plan_possible,'execution_possible':execution_possible,'gripper_opening':gripper_opening,'graspPose':graspPose,'gelsight_data':gelsight_data,'final_object_pose':final_object_pose}
@@ -239,12 +241,12 @@ def grasp(objInput,
     plans_guarded2.append(sleep_plan)
 
     #~10. Move to a location above the bin
-    plan, qf, plan_possible = generatePlan(q_initial, vision_pos, delta_vision_pose[3:7], tip_hand_transform, 'fastest', plan_name = 'retrieve_object')
-    if plan_possible:
-        plans_grasping.append(plan)
-        q_initial = qf
-    else:
-        return compose_output()
+    # plan, qf, plan_possible = generatePlan(q_initial, vision_pos, delta_vision_pose[3:7], tip_hand_transform, 'fastest', plan_name = 'retrieve_object')
+    # if plan_possible:
+    #     plans_grasping.append(plan)
+    #     q_initial = qf
+    # else:
+    #     return compose_output()
 
     ################
     ## EXECUTION ###
@@ -267,40 +269,90 @@ def grasp(objInput,
         executePlanForward(plans_guarded2, withPause)
         rospy.set_param('is_record', False)
 
-        #Publish liftoff time
-        liftoff_msgs = std_msgs.msg.String()
-        liftoff_msgs.data = 'Liftoff (Robot command)'
-        liftoff_pub.publish(liftoff_msgs)
+def retrieve(objInput,
+              listener,
+              br,
+              isExecute = True,
+              objId = 'expo_eraser',
+              binId=0,
+              withPause = False,
+              viz_pub = None,
+              recorder = None):
 
-        #Execute non-guarded grasp plan move
-        executePlanForward(plans_grasping, withPause)
+    liftoff_pub = rospy.Publisher('/liftoff_time', std_msgs.msg.String, queue_size = 10, latch=False)
 
-        ###We stop recording
-        if recorder is not None:
-            recorder.stop_recording(save_action=True)
-            lasers.stop(binId)
+    def compose_output():
+        return {'collision':collision,'grasp_possible':grasp_possible,'plan_possible':plan_possible,'execution_possible':execution_possible,'gripper_opening':gripper_opening,'graspPose':graspPose,'gelsight_data':gelsight_data,'final_object_pose':final_object_pose}
+
+
+    q_initial = ik.helper.get_joints()
+    bin_pose = ik.helper.get_params_yaml('bin'+str(binId)+'_pose')
+    spatula_tip_to_tcp_dist=rospy.get_param("/gripper/spatula_tip_to_tcp_dist")
+    l1 = 0.0
+    l2 = 0.0
+    l3 = spatula_tip_to_tcp_dist
+    tip_hand_transform = [l1, l2, l3, 0,0,0]
+    delta_vision_pose = ik.helper.get_params_yaml('vision_pose_picking')
+    vision_pos=np.array(bin_pose[0:3])+np.array(delta_vision_pose[0:3])
+    vision_pos[2] = 0.17786528
+    plans = []
+    plans_grasping = []
+    graspPose=[]
+    plan_possible = False
+    execution_possible = False
+    gripper_opening = 0.0
+    grasp_possible = True
+    gelsight_data=[]
+    collision = False
+    final_object_pose=None
+    rospy.set_param('is_record', False)
+    rospy.set_param('is_contact', False)
+
+    # ~10. Move to a location above the bin
+    plan, qf, plan_possible = generatePlan(q_initial, vision_pos, delta_vision_pose[3:7], tip_hand_transform, 'fastest', plan_name = 'retrieve_object')
+    if plan_possible:
+        plans_grasping.append(plan)
+        q_initial = qf
+    else:
+        return compose_output()
+
+    if isExecute and plan_possible:
+      #Publish liftoff time
+      liftoff_msgs = std_msgs.msg.String()
+      liftoff_msgs.data = 'Liftoff (Robot command)'
+      liftoff_pub.publish(liftoff_msgs)
+
+      #Execute non-guarded grasp plan move
+      executePlanForward(plans_grasping, withPause)
+
+      ###We stop recording
+      if recorder is not None:
+          recorder.stop_recording(save_action=True)
+          lasers.stop(binId)
 
     #~Check if picking success
     low_threshold = 0.0035
     high_threshold = 0.015
+
     if isExecute and plan_possible:
-        rospy.sleep(2)
-        gripper_opening=gripper.getGripperopening()
-        if gripper_opening > high_threshold:
-            rospy.loginfo('[Picking] ***************')
-            rospy.loginfo('[Picking] Pick Successful (Gripper Opening Test)')
-            rospy.loginfo('[Picking] ***************')
-            execution_possible = None #temporary hack
-        else:
-            rospy.loginfo('[Picking] ***************')
-            rospy.loginfo( '[Picking] Pick Inconclusive (Gripper Opening Test)')
-            rospy.loginfo( '[Picking] ***************')
-            execution_possible = None
+      rospy.sleep(2)
+      gripper_opening=gripper.getGripperopening()
+      if gripper_opening > high_threshold:
+          rospy.loginfo('[Picking] ***************')
+          rospy.loginfo('[Picking] Pick Successful (Gripper Opening Test)')
+          rospy.loginfo('[Picking] ***************')
+          execution_possible = None #temporary hack
+      else:
+          rospy.loginfo('[Picking] ***************')
+          rospy.loginfo( '[Picking] Pick Inconclusive (Gripper Opening Test)')
+          rospy.loginfo( '[Picking] ***************')
+          execution_possible = None
 
     elif not isExecute:
-        execution_possible=plan_possible
+      execution_possible=plan_possible
 
     return compose_output()
+
 
 def place(listener,
           br,
@@ -542,7 +594,7 @@ def unit_test(listener, br):
     objInput.append(ik.helper.get_params_yaml('bin2_pose'))
 
     #~1. grasp object
-    output_dict = grasp(objInput[0],
+    grasp_dict = grasp(objInput[0],
                   listener,
                   br,
                   isExecute = True,
@@ -550,6 +602,40 @@ def unit_test(listener, br):
                   binId=0,
                   withPause = False,
                   viz_pub = None,
+                  recorder = None)
+    #~2. retrieve object
+    # retrieve_dict = retrieve(objInput[0],
+    #               listener,
+    #               br,
+    #               isExecute = True,
+    #               objId = 'expo_eraser',
+    #               binId=0,
+    #               withPause = False,
+    #               viz_pub = None,
+    #               recorder = None)
+    #~3. release_object
+    regrasp_dict = release_safe(listener)
+    #~4. regrasp object
+    regrasp_dict = grasp(objInput[0],
+                  listener,
+                  br,
+                  isExecute = True,
+                  objId = 'expo_eraser',
+                  binId=0,
+                  withPause = False,
+                  viz_pub = None,
+                  recorder = None)
+    #~5. place object
+    place_dict = place(listener,
+                  br,
+                  isExecute = True,
+                  binId=0,
+                  withPause = False,
+                  rel_pose = None,
+                  BoxBody = None,
+                  place_pose = None,
+                  viz_pub = None,
+                  is_drop = True,
                   recorder = None)
 
     #~1. grasp object

@@ -10,7 +10,7 @@ import tf
 #from collision_free_placing import  collision_free_placing
 from ik.ik import generatePlan, EvalPlan, WeightGuard, executePlanForward
 #from ik.helper import get_joints, mat2quat, get_params_yaml, reference_frames, drop_pose_transform
-from collision_detection.collisionHelper import collisionFree
+from collision_detection.collisionHelper import collisionFree, isCollision
 import gripper
 import ik.helper
 import ik.visualize_helper
@@ -24,6 +24,59 @@ try:
 except:
     pass
 
+def check_collision(tcp_pose, delta_pos, listener=None, br=None, binId=0):
+
+    #~Define reference frames
+    world_X, world_Y, world_Z, tote_X, tote_Y, tote_Z, tote_pose_pos = ik.helper.reference_frames(listener= listener, br=br)
+    #~get grasp pose and gripper opening from vision
+    graspPos, hand_X, hand_Y, hand_Z, grasp_width = ik.helper.get_picking_params_from_7(tcp_pose, None, listener, br)
+    #~build gripper orientation matrix 3x3
+    hand_orient_norm = np.vstack([hand_X,hand_Y,hand_Z])
+    hand_orient_norm=hand_orient_norm.transpose()
+    #~Grasp relocation script
+    hand_orient_quat=ik.helper.mat2quat(hand_orient_norm)
+    euler = tf.transformations.euler_from_quaternion(hand_orient_quat)
+    theta = euler[2] - np.pi
+    is_collision = isCollision(graspPos, binId=binId, listener=listener, br=br, finger_opening = grasp_width, safety_margin = 0.00, theta = theta)
+    return is_collision
+
+def grasp_correction(delta_pos,
+                        listener,
+                        br,
+                        isExecute = True,
+                        objId = 'expo_eraser',
+                        binId=0,
+                        withPause = False,
+                        viz_pub = None,
+                        recorder = None):
+
+    #define constants
+    spatula_tip_to_tcp_dist = rospy.get_param("/gripper/spatula_tip_to_tcp_dist")
+    l1 = 0.0
+    l2 = 0.0
+    l3 = spatula_tip_to_tcp_dist
+    tip_hand_transform = [l1, l2, l3, 0,0,0]
+    #get current robot configuration
+    targetPose = ik.helper.get_tcp_pose(listener, tcp_offset = spatula_tip_to_tcp_dist)
+    #make sure poses are array types
+    targetPose = np.array(targetPose)
+    delta_pos = np.array(delta_pos)
+    #compute new grasp location
+    objInput = np.zeros((7))
+    objInput[0:3] = targetPose[0:3] + delta_pos
+    objInput[3:7] = targetPose[3:7]
+    #release grasp safely
+    release_safe(listener)
+    #go for new position
+    return grasp(objInput,
+              listener,
+              br,
+              isExecute = True,
+              objId = 'expo_eraser',
+              binId=0,
+              withPause = False,
+              viz_pub = None,
+              recorder = None)
 
 def release_safe(listener, isExecute=True, withPause=False):
     plans = []
@@ -278,11 +331,10 @@ def grasp(objInput,
 
     elif not isExecute:
       execution_possible=plan_possible
-      
+
     return compose_output()
 
-def retrieve(objInput,
-              listener,
+def retrieve(listener,
               br,
               isExecute = True,
               objId = 'expo_eraser',
@@ -295,7 +347,6 @@ def retrieve(objInput,
 
     def compose_output():
         return {'collision':collision,'grasp_possible':grasp_possible,'plan_possible':plan_possible,'execution_possible':execution_possible,'gripper_opening':gripper_opening,'graspPose':graspPose,'gelsight_data':gelsight_data,'final_object_pose':final_object_pose}
-
 
     q_initial = ik.helper.get_joints()
     bin_pose = ik.helper.get_params_yaml('bin'+str(binId)+'_pose')
@@ -615,28 +666,19 @@ def unit_test(listener, br):
                   withPause = False,
                   viz_pub = None,
                   recorder = None)
-    #~2. retrieve object
-    # retrieve_dict = retrieve(objInput[0],
-    #               listener,
-    #               br,
-    #               isExecute = True,
-    #               objId = 'expo_eraser',
-    #               binId=0,
-    #               withPause = False,
-    #               viz_pub = None,
-    #               recorder = None)
-    #~3. release_object
-    regrasp_dict = release_safe(listener)
-    #~4. regrasp object
-    regrasp_dict = grasp(objInput[0],
-                  listener,
-                  br,
-                  isExecute = True,
-                  objId = 'expo_eraser',
-                  binId=0,
-                  withPause = False,
-                  viz_pub = None,
-                  recorder = None)
+    #~2. regrasp object
+    regrasp_dict = grasp_correction(np.array([0.02, 0.01, 0.]),
+                            listener,
+                            br)
+    #~3. retrieve object
+    regrasp_dict =  retrieve(listener,
+                      br,
+                      isExecute = True,
+                      objId = 'expo_eraser',
+                      binId=0,
+                      withPause = False,
+                      viz_pub = None,
+                      recorder = None)
     # #~5. place object
     place_dict = place(listener,
                   br,
@@ -661,8 +703,10 @@ def unit_test(listener, br):
     #               viz_pub = None,
     #               recorder = None)
 
-
-
+def unit_test_collision(listener, br):
+    tcp_pose = np.array([1.0,-.4,0,1,0,0,0])
+    delta_pos = np.array([0,0,0])
+    check_collision(tcp_pose, delta_pos, listener, br)
 
 # To test the function
 if __name__=='__main__':
@@ -671,4 +715,5 @@ if __name__=='__main__':
     br = tf.TransformBroadcaster()
     rospy.sleep(0.1)
 
-    unit_test(listener=listener, br=br)
+    # unit_test(listener=listener, br=br)
+    unit_test_collision(listener=listener, br=br)

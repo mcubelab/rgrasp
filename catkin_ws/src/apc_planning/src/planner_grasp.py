@@ -192,7 +192,7 @@ class TaskPlanner(object):
         grasp(objInput=self.grasp_point, listener=self.listener, br=self.br, isExecute=self.isExecute,
               binId=container,  withPause=False, viz_pub=self.viz_array_pub)
 
-        retrieve(objInput=self.grasp_point, listener=self.listener, br=self.br, isExecute=self.isExecute,
+        retrieve(listener=self.listener, br=self.br, isExecute=self.isExecute,
               binId=container,  withPause=False, viz_pub=self.viz_array_pub)
 
         f = random.choice(os.listdir(self.FAKE_GRASPING_DIR)) #Get fake output for the primitive
@@ -312,7 +312,7 @@ class TaskPlanner(object):
             num_attempts += 1
             grasp_output = grasp(objInput=grasp_point, listener=self.listener, br=self.br, isExecute=False,
                                    binId=container,  withPause=False, viz_pub=self.viz_array_pub)
-            retrieve_output = retrieve(objInput=grasp_point, listener=self.listener, br=self.br, isExecute=False,
+            retrieve_output = retrieve(listener=self.listener, br=self.br, isExecute=False,
                                    binId=container,  withPause=False, viz_pub=self.viz_array_pub)
 
             if grasp_output['execution_possible'] and retrieve_output['execution_possible']:
@@ -425,7 +425,7 @@ class TaskPlanner(object):
                                  isExecute=self.isExecute, binId=container,
                                  withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
 
-        self.retrieve_output = retrieve(objInput=self.grasp_point, listener=self.listener, br=self.br,
+        self.retrieve_output = retrieve(listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container,
                                  withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
         self.execution_possible = self.retrieve_output['execution_possible']

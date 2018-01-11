@@ -21,9 +21,10 @@ import datetime
 import helper
 import spatula
 
-
-
 impact_pub=rospy.Publisher('/impact_time', Bool, queue_size = 10, latch = False)
+toviz = rospy.get_param('/toviz', True)
+haverobot = rospy.get_param('/have_robot', True)
+fastvirtual = rospy.get_param('/fast_virtual', False)
 
 from ctypes import cdll, c_void_p, c_int
 _dll = cdll.LoadLibrary(os.environ['CODE_BASE'] + '/catkin_ws/devel/lib/libikfast_python.so')
@@ -32,9 +33,6 @@ _ikfastAndFindBest.argtypes = [c_void_p, c_void_p, c_void_p, c_void_p, c_void_p]
 _fkfast = _dll['fkfastPython']
 _fkfast.argtypes = [c_void_p, c_void_p]
 
-toviz = rospy.get_param('/toviz', True)
-haverobot = rospy.get_param('/have_robot', True)
-fastvirtual = rospy.get_param('/fast_virtual', False)
 
 enforceSlow = False
 

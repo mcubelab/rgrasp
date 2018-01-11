@@ -8,7 +8,7 @@ import numpy as np
 from scipy.spatial import ConvexHull
 import matplotlib.pylab as plt
 #from suction_projection import suction_projection_func
-import goToHome 
+import goToHome
 import collision_projection
 import ik.helper
 #from ik.helper import matrix_from_xyzquat, reference_frames, get_params_yaml
@@ -45,7 +45,7 @@ def getToteSections(listener, br, flag = True):
         #~build sections
         section_tmp = []
         sectionList = []
-    
+
         body_counter = 0
         section_list_tmp = [1]
         for section in range(0,len(section_body_list)):
@@ -57,7 +57,7 @@ def getToteSections(listener, br, flag = True):
             section_tmp = []
 
         return sectionList
-        
+
 def getBinPoints(binId, listener, br, isSuction=False):
     #~build box collision geometries
     bodies = []
@@ -70,7 +70,7 @@ def getBinPoints(binId, listener, br, isSuction=False):
     bodies.append(buildCenteredBox(length=xlength-tol*2, width=ywidth-tol*2, heigth=zheight, midPos=bin_center_pose[0:3], listener=listener, br=br))
 
     return np.asarray(bodies[0])
-    
+
 
 def buildCenteredBox(length, width, heigth, midPos, listener, br):
     world_X, world_Y, world_Z, tote_X,tote_Y,tote_Z, tote_pose_pos = ik.helper.reference_frames(listener=listener, br=br)
@@ -100,7 +100,7 @@ def getFingerPoints(finger_opening, tcp_pos, hand_orient_norm, isSuction):
         #~build finger body
         FingerBody = []
         b = [(1,1),(1,-1),(-1,1),(-1,-1)]
-        for i in range(0, 4):   
+        for i in range(0, 4):
             #~Finger Body (changes with opening)
             if b[i][0]==1:
                 finger_thickness = finger_thickness_top
@@ -125,7 +125,7 @@ def getWristPoints(tcp_pos, hand_orient_norm, isSuction):
         fing_offset = (5.0/1000.0)*1
         #
         WristBody = []
-        for i in range(0, 4):   
+        for i in range(0, 4):
             b = [[1,1],[1,-1],[-1,1],[-1,-1]]
             if b[i][0]==1:
                 gripper_width = gripper_width_top
@@ -135,7 +135,7 @@ def getWristPoints(tcp_pos, hand_orient_norm, isSuction):
             WristBody.append(tcp_pos+0*hand_Z +b[i][0]*(gripper_width)*hand_X+(b[i][1]*(gripper_length/2.0)+fing_offset)*hand_Y)
             WristBody.append(tcp_pos+dist_tcp_to_intersection*hand_Z+b[i][0]*(gripper_width)*hand_X+(b[i][1]*(gripper_length/2.0)+fing_offset)*hand_Y)
         return np.asarray(WristBody)
-        
+
 def plotBoundBoxes(fingerPoints, wristPoints, tubePoints, listener, br):
         Tote = getToteSections(listener=listener, br=br);
 #        storage_points = getStoragePoints()
@@ -152,9 +152,9 @@ def plotBoundBoxes(fingerPoints, wristPoints, tubePoints, listener, br):
         for lv1 in range(0,7):
             updatePlt(Tote[lv1], ax, edgeCol = 'r', lineColor = 'b')
     #~ destroyPlt()
-    
+
         destroyPlt()
-        
+
 def axisEqual3D(ax):
     extents = np.array([getattr(ax, 'get_{}lim'.format(dim))() for dim in 'xyz'])
     sz = extents[:,1] - extents[:,0]
@@ -163,7 +163,7 @@ def axisEqual3D(ax):
     r = maxsize/2
     for ctr, dim in zip(centers, 'xyz'):
         getattr(ax, 'set_{}lim'.format(dim))(ctr - r, ctr + r)
-        
+
 def buildPlt():
     fig = plt.figure()
     ax = fig.gca(projection = '3d')
@@ -172,7 +172,7 @@ def buildPlt():
     ax.set_zlabel('z')
 
     return ax
-        
+
 def destroyPlt():
     plt.show()
     plt.close()
@@ -209,13 +209,20 @@ def collisionFree(objInput, binId, listener, br, finger_opening=0, safety_margin
     show_plot = False
     margin=0
     (shape_translation,dist_val_min,feasible_solution,nearest_point) = collision_projection.projection_func(bin_pts,finger_pts,target_wf,target_hf,theta,show_plot,margin)
-    return shape_translation
-        
+    return dist_val_min
+
+def isCollision(objInput, binId, listener, br, finger_opening=0, safety_margin= 0., theta = 0.):
+    dist = collisionFree(objInput, binId, listener, br, finger_opening=0, safety_margin= 0., theta = 0.)
+
+    if np.linalg.norm(dist) < 0.00001:
+        is_collision = False
+    else:
+        is_collision = True
+    return is_collision
+
 if __name__=='__main__':
 
-    rospy.init_node('collision_helper', anonymous=True) 
+    rospy.init_node('collision_helper', anonymous=True)
     goToHome.prepGripperPicking()
 #    unit_test(finger_opening = 0.0)
     print '[Collision detection] End of program'
-    
-

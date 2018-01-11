@@ -23,7 +23,7 @@ import sys
 sys.path.append(os.environ['CODE_BASE']+'/catkin_ws/src/weight_sensor/src')
 import ws_prob
 import goToHome
-from grasping17 import place, grasp
+from grasping17 import place, grasp, retrieve, release_safe
 from ik.helper import fake_bbox_info_1, Timer, vision_transform_precise_placing_with_visualization, get_params_yaml
 from visualization_msgs.msg import MarkerArray
 from cv_bridge import CvBridge, CvBridgeError
@@ -192,6 +192,9 @@ class TaskPlanner(object):
         grasp(objInput=self.grasp_point, listener=self.listener, br=self.br, isExecute=self.isExecute,
               binId=container,  withPause=False, viz_pub=self.viz_array_pub)
 
+        retrieve(objInput=self.grasp_point, listener=self.listener, br=self.br, isExecute=self.isExecute,
+              binId=container,  withPause=False, viz_pub=self.viz_array_pub)
+
         f = random.choice(os.listdir(self.FAKE_GRASPING_DIR)) #Get fake output for the primitive
         with open(os.path.join(self.FAKE_GRASPING_DIR, f), 'r') as infile:
             self.grasping_output = json.load(infile)
@@ -307,9 +310,12 @@ class TaskPlanner(object):
                 return
             #Check if in collision
             num_attempts += 1
-            checked_output = grasp(objInput=grasp_point, listener=self.listener, br=self.br, isExecute=False,
+            grasp_output = grasp(objInput=grasp_point, listener=self.listener, br=self.br, isExecute=False,
                                    binId=container,  withPause=False, viz_pub=self.viz_array_pub)
-            if checked_output['execution_possible']:
+            retrieve_output = retrieve(objInput=grasp_point, listener=self.listener, br=self.br, isExecute=False,
+                                   binId=container,  withPause=False, viz_pub=self.viz_array_pub)
+
+            if grasp_output['execution_possible'] and retrieve_output['execution_possible']:
                 self.grasp_score = copy.deepcopy(self.all_pick_scores[num_it-1])
                 self.grasp_point = copy.deepcopy(grasp_point)
                 #Visualize before adding noise
@@ -418,7 +424,11 @@ class TaskPlanner(object):
         self.grasping_output = grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container,
                                  withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
-        self.execution_possible = self.grasping_output['execution_possible']
+
+        self.retrieve_output = retrieve(objInput=self.grasp_point, listener=self.listener, br=self.br,
+                                 isExecute=self.isExecute, binId=container,
+                                 withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
+        self.execution_possible = self.retrieve_output['execution_possible']
 
     def planned_place(self):
         if len(self.get_objects()) == 1:
@@ -481,9 +491,12 @@ class TaskPlanner(object):
         ##################
         ## stowing loop ##
         ##################
-        directory='/media/mcube/data/Dropbox (MIT)/rgrasp_dataset'
-        assert(directory)
-        self.gdr = GraspDataRecorder(directory=directory) #We instantiate the recorder
+        if rospy.get_param('have_robot'):
+            directory='/media/mcube/data/Dropbox (MIT)/rgrasp_dataset'
+            assert(directory)
+            self.gdr = GraspDataRecorder(directory=directory) #We instantiate the recorder
+        else:
+            self.gdr = None
         self.num_attempts = 0
         self.num_attempts_failed = 0
         while True:
@@ -521,7 +534,7 @@ class TaskPlanner(object):
             object_ID_msgs = String()
             object_ID_msgs.data = self.obj_ID #, self.obj_weight]
 
-            if self.grasp_point is not None:
+            if self.grasp_point is not None and rospy.get_param('have_robot'):
                 self.grasp_status_pub.publish(grasp_status_msgs)
                 self.objectType_pub.publish(object_ID_msgs)
                 self.gdr.update_topic(key='grasp_status')

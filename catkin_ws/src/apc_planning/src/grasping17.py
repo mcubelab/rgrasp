@@ -25,10 +25,14 @@ except:
     pass
 
 
-def release_safe(listener):
+def release_safe(listener, isExecute=True, withPause=False):
     plans = []
     #Initialize parameters
     spatula_tip_to_tcp_dist = rospy.get_param("/gripper/spatula_tip_to_tcp_dist")
+    l1 = 0.0
+    l2 = 0.0
+    l3 = spatula_tip_to_tcp_dist
+    tip_hand_transform = [l1, l2, l3, 0,0,0]
     bin_pose = ik.helper.get_params_yaml('bin'+str(0)+'_pose')
     UpdistFromBinFast = 0.15
     #Initial configuration of robot
@@ -46,12 +50,16 @@ def release_safe(listener):
     grasp_plan = EvalPlan('spatula.open()')
     plans.append(grasp_plan)
     #~3. Move up
-    plan, qf, plan_possible = generatePlan(q_initial, pregrasp_targetPosition, hand_orient_quat, tip_hand_transform, 'superSaiyan', plan_name = 'go_safe_bin')
+    plan, qf, plan_possible = generatePlan(q_initial, targetPose[0:3], targetPose[3:7], tip_hand_transform, 'superSaiyan', plan_name = 'go_safe_bin')
     if plan_possible:
         plans.append(plan)
         q_initial = qf
     else:
         print ('[Release Safe] Plans failed:')
+
+    #execute plan_name
+    if isExecute and plan_possible:
+        executePlanForward(plans, withPause)
 
 def grasp(objInput,
           listener,
@@ -164,7 +172,6 @@ def grasp(objInput,
     elif len(objInput)==7:
         graspPos, hand_X, hand_Y, hand_Z, grasp_width = ik.helper.get_picking_params_from_7(objInput, objId, listener, br)
 
-    print len(objInput)
     #~build gripper orientation matrix 3x3
     hand_orient_norm = np.vstack([hand_X,hand_Y,hand_Z])
     hand_orient_norm=hand_orient_norm.transpose()
@@ -268,6 +275,11 @@ def grasp(objInput,
             ik.helper.move_cart(dz=0.015)
         executePlanForward(plans_guarded2, withPause)
         rospy.set_param('is_record', False)
+
+    elif not isExecute:
+      execution_possible=plan_possible
+      
+    return compose_output()
 
 def retrieve(objInput,
               listener,
@@ -625,7 +637,7 @@ def unit_test(listener, br):
                   withPause = False,
                   viz_pub = None,
                   recorder = None)
-    #~5. place object
+    # #~5. place object
     place_dict = place(listener,
                   br,
                   isExecute = True,

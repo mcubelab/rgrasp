@@ -4,7 +4,7 @@
 echo "Setting rgrasp environment"
 
 thisFile=$_
-if [ $BASH ] 
+if [ $BASH ]
 then
   # may be a relative or absolute path
   thisFile=${BASH_SOURCE[0]}
@@ -39,16 +39,16 @@ setup_rgrasp()
   # enable some warnings by default
   export CXXFLAGS="$CXXFLAGS -Wreturn-type -Wuninitialized"
   export CFLAGS="$CFLAGS -Wreturn-type -Wuninitialized"
-  
+
   export PATH=$PATH:$HOME/software/ffmpeg-2.4.2-64bit-static # for ffmpeg software
-  
+
   export CUDNN_LIB_DIR=/usr/local/cudnn/v5/lib64  # for arc_vision
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CUDNN_LIB_DIR
-  
-  
+
+
   if [ "$HOSTNAME" == 'mcube-015' ] || [ "$HOSTNAME" == 'mcube-011' ] || [ "$HOSTNAME" == 'rpi-desktop' ] || [ "$HOSTNAME" == 'mcube-014' ] ; then
     export ROS_MASTER_URI=http://mcube-015:11311
-  fi  
+  fi
   if [ "$HOSTNAME" == 'mcube-003' ]; then
     export ROS_HOSTNAME=mcube-003
     export ROS_IP=192.168.37.13
@@ -73,7 +73,7 @@ setup_rgrasp()
     export ROS_HOSTNAME=mcube-007
     export ROS_IP=192.168.37.100
   fi
-  
+
   export ROSLAUNCH_SSH_UNKNOWN=1
 }
 
@@ -207,8 +207,8 @@ function lowersuffix {
 function ipmasq {
    if [ $# -eq 0 ]; then
      echo 'sharing wlan0 to eth0'
-     sudo iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE 
-     sudo iptables -A FORWARD -i wlan0 -o eth0 -m state --state RELATED,ESTABLISHED -j ACCEPT 
+     sudo iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE
+     sudo iptables -A FORWARD -i wlan0 -o eth0 -m state --state RELATED,ESTABLISHED -j ACCEPT
      sudo iptables -A FORWARD -i eth0 -o wlan0 -j ACCEPT
    elif [ $# -eq 1 ]; then
      echo "sharing $1 to eth0"
@@ -230,12 +230,12 @@ function set_bash {
    # sorting in old style
    LC_COLLATE="C"
    export LC_COLLATE
-   
+
    ulimit -c unlimited
    export HISTTIMEFORMAT="%d/%m/%y %T "
 }
 
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cudnn/v5.1/lib64
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cudnn/v5/lib64:/usr/local/cuda-8.0/lib64
 
 if [ -f $HOME/software/torch/install/bin/torch-activate ]; then
   source $HOME/software/torch/install/bin/torch-activate
@@ -298,4 +298,3 @@ alias openfile='xdg-open'
 alias gmail='firefox https://mail.google.com/mail/u/0/#inbox'
 
 . /usr/share/autojump/autojump.bash
-

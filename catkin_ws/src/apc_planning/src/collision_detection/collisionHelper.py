@@ -190,7 +190,7 @@ def updatePlt(pts, ax, edgeCol = 'r', lineColor = 'b'):
     ax.plot(pts.T[0], pts.T[1], pts.T[2], line_color)
     axisEqual3D(ax)
 
-def collisionFree(objInput, binId, listener, br, finger_opening=0, safety_margin= 0., theta = 0.):
+def collisionFree(objInput, binId, listener, br, finger_opening=0, safety_margin= 0., theta = 0., is_bool=False):
     #~ print 'objInput', objInput
     #~get finger points
     T = ik.helper.matrix_from_xyzquat(objInput)
@@ -209,16 +209,14 @@ def collisionFree(objInput, binId, listener, br, finger_opening=0, safety_margin
     show_plot = False
     margin=0
     (shape_translation,dist_val_min,feasible_solution,nearest_point) = collision_projection.projection_func(bin_pts,finger_pts,target_wf,target_hf,theta,show_plot,margin)
-    return dist_val_min
-
-def isCollision(objInput, binId, listener, br, finger_opening=0, safety_margin= 0., theta = 0.):
-    dist = collisionFree(objInput, binId, listener, br, finger_opening=0, safety_margin= 0., theta = 0.)
-
-    if np.linalg.norm(dist) < 0.00001:
-        is_collision = False
+    if is_bool:
+        if np.linalg.norm(dist_val_min) < 0.00001:
+            return False
+        else:
+            return True
     else:
-        is_collision = True
-    return is_collision
+        return shape_translation
+
 
 if __name__=='__main__':
 

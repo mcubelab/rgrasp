@@ -10,7 +10,7 @@ import tf
 #from collision_free_placing import  collision_free_placing
 from ik.ik import generatePlan, EvalPlan, WeightGuard, executePlanForward
 #from ik.helper import get_joints, mat2quat, get_params_yaml, reference_frames, drop_pose_transform
-from collision_detection.collisionHelper import collisionFree, isCollision
+from collision_detection.collisionHelper import collisionFree
 import gripper
 import ik.helper
 import ik.visualize_helper
@@ -37,7 +37,7 @@ def check_collision(tcp_pose, delta_pos, listener=None, br=None, binId=0):
     hand_orient_quat=ik.helper.mat2quat(hand_orient_norm)
     euler = tf.transformations.euler_from_quaternion(hand_orient_quat)
     theta = euler[2] - np.pi
-    is_collision = isCollision(graspPos, binId=binId, listener=listener, br=br, finger_opening = grasp_width, safety_margin = 0.00, theta = theta)
+    is_collision = collisionFree(graspPos, binId=binId, listener=listener, br=br, finger_opening = grasp_width, safety_margin = 0.00, theta = theta, is_bool = True)
     return is_collision
 
 def grasp_correction(delta_pos,
@@ -715,5 +715,5 @@ if __name__=='__main__':
     br = tf.TransformBroadcaster()
     rospy.sleep(0.1)
 
-    # unit_test(listener=listener, br=br)
-    unit_test_collision(listener=listener, br=br)
+    unit_test(listener=listener, br=br)
+    # unit_test_collision(listener=listener, br=br)

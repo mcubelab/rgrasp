@@ -225,6 +225,8 @@ def grasp(objInput,
     elif len(objInput)==7:
         graspPos, hand_X, hand_Y, hand_Z, grasp_width = ik.helper.get_picking_params_from_7(objInput, objId, listener, br)
 
+    #frank hack 
+    grasp_width = 0.11
     #~build gripper orientation matrix 3x3
     hand_orient_norm = np.vstack([hand_X,hand_Y,hand_Z])
     hand_orient_norm=hand_orient_norm.transpose()

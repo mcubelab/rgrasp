@@ -2,8 +2,7 @@
 
 import rospy
 import geometry_msgs.msg, std_msgs.msg, sensor_msgs.msg
-import visualization_msgs.msg, trajectory_msgs.msg, moveit_msgs.msg
-# from moveit_msgs.msg import RobotState
+import visualization_msgs.msg, trajectory_msgs.msg,  moveit_msgs.msg
 import json
 from roshelper import ROS_Wait_For_Msg
 import roshelper
@@ -19,13 +18,13 @@ import copy
 from std_msgs.msg import Int32, String,Bool, Float64
 from pr_msgs.msg import gelsightresult
 import datetime
-
 import helper
-
-#import moveit_commander
 import spatula
 
 impact_pub=rospy.Publisher('/impact_time', Bool, queue_size = 10, latch = False)
+toviz = rospy.get_param('/toviz', True)
+haverobot = rospy.get_param('/have_robot', True)
+fastvirtual = rospy.get_param('/fast_virtual', False)
 
 from ctypes import cdll, c_void_p, c_int
 _dll = cdll.LoadLibrary(os.environ['CODE_BASE'] + '/catkin_ws/devel/lib/libikfast_python.so')
@@ -34,9 +33,6 @@ _ikfastAndFindBest.argtypes = [c_void_p, c_void_p, c_void_p, c_void_p, c_void_p]
 _fkfast = _dll['fkfastPython']
 _fkfast.argtypes = [c_void_p, c_void_p]
 
-toviz = rospy.get_param('/toviz', True)
-haverobot = rospy.get_param('/have_robot', True)
-fastvirtual = rospy.get_param('/fast_virtual', False)
 
 enforceSlow = False
 

@@ -23,7 +23,7 @@ import sys
 sys.path.append(os.environ['CODE_BASE']+'/catkin_ws/src/weight_sensor/src')
 import ws_prob
 import goToHome
-from grasping17 import grasp
+from grasping17 import place, grasp, retrieve, release_safe
 from ik.helper import fake_bbox_info_1, Timer, vision_transform_precise_placing_with_visualization, get_params_yaml
 from visualization_msgs.msg import MarkerArray
 from cv_bridge import CvBridge, CvBridgeError
@@ -190,7 +190,10 @@ class TaskPlanner(object):
         print('------- DOING GRASPING ------- ')
         print(' grasp_point = ', self.grasp_point)
         grasp(objInput=self.grasp_point, listener=self.listener, br=self.br, isExecute=self.isExecute,
-              binId=container, flag=0, withPause=False, viz_pub=self.viz_array_pub)
+              binId=container,  withPause=False, viz_pub=self.viz_array_pub)
+
+        retrieve(listener=self.listener, br=self.br, isExecute=self.isExecute,
+              binId=container,  withPause=False, viz_pub=self.viz_array_pub)
 
         f = random.choice(os.listdir(self.FAKE_GRASPING_DIR)) #Get fake output for the primitive
         with open(os.path.join(self.FAKE_GRASPING_DIR, f), 'r') as infile:
@@ -307,9 +310,12 @@ class TaskPlanner(object):
                 return
             #Check if in collision
             num_attempts += 1
-            checked_output = grasp(objInput=grasp_point, listener=self.listener, br=self.br, isExecute=False,
-                                   binId=container, flag=0, withPause=False, viz_pub=self.viz_array_pub)
-            if checked_output['execution_possible']:
+            grasp_output = grasp(objInput=grasp_point, listener=self.listener, br=self.br, isExecute=False,
+                                   binId=container,  withPause=False, viz_pub=self.viz_array_pub)
+            retrieve_output = retrieve(listener=self.listener, br=self.br, isExecute=False,
+                                   binId=container,  withPause=False, viz_pub=self.viz_array_pub)
+
+            if grasp_output['execution_possible'] and retrieve_output['execution_possible']:
                 self.grasp_score = copy.deepcopy(self.all_pick_scores[num_it-1])
                 self.grasp_point = copy.deepcopy(grasp_point)
                 #Visualize before adding noise
@@ -390,7 +396,7 @@ class TaskPlanner(object):
         grasp_proposal_msgs.data = self.grasp_point
         grasp_noise_msgs = Float32MultiArray()
         grasp_noise_msgs.data = self.grasp_noise
-        
+
         if self.grasp_point is not None:
             self.grasp_proposal_pub.publish(grasp_proposal_msgs)
             self.grasp_noise_pub.publish(grasp_noise_msgs)
@@ -416,19 +422,23 @@ class TaskPlanner(object):
         ik.visualize_helper.visualize_grasping_proposals(self.proposal_viz_array_pub, np.asarray([self.grasp_point]),  self.listener, self.br, True)
 
         self.grasping_output = grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
-                                 isExecute=self.isExecute, binId=container, flag=0,
+                                 isExecute=self.isExecute, binId=container,
                                  withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
-        self.execution_possible = self.grasping_output['execution_possible']
+
+        self.retrieve_output = retrieve(listener=self.listener, br=self.br,
+                                 isExecute=self.isExecute, binId=container,
+                                 withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
+        self.execution_possible = self.retrieve_output['execution_possible']
 
     def planned_place(self):
         if len(self.get_objects()) == 1:
             fixed_container = [self.tote_ID]
         else:
             fixed_container = [1-self.tote_ID] #TODO_M: planner only accepts bins 1,2,3 and names them as 0,1,2
-        
+
         if self.PlacingPlanner.visionType == 'real': #Update HM
             self.PlacingPlanner.update_real_height_map(fixed_container[0])
-            
+
         #Get obj dimensions:
         try:
             asking_for = '/obj/'+self.obj_ID
@@ -445,8 +455,8 @@ class TaskPlanner(object):
 
         # Place object using grasping
         self.rel_pose, self.BoxBody=vision_transform_precise_placing_with_visualization(self.bbox_info,viz_pub=self.viz_array_pub,listener=self.listener)
-        grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
-                         isExecute=self.isExecute, binId=fixed_container[0], flag=2, withPause=self.withPause,
+        place(listener=self.listener, br=self.br,
+                         isExecute=self.isExecute, binId=fixed_container[0],  withPause=self.withPause,
                          rel_pose=self.rel_pose, BoxBody=self.BoxBody, place_pose=drop_pose,
                          viz_pub=self.viz_array_pub, is_drop = False, recorder=self.gdr)
 
@@ -464,12 +474,12 @@ class TaskPlanner(object):
             obj_list = self.get_objects()
             print(obj_list)
             obj_ans = raw_input('Are these the objects?(y/n)')
-        
+
         objectList_msgs = String()
         objectList_msgs.data = '\n'.join(obj_list)
         #HACK
         self.objectList_pub.publish(objectList_msgs)
-        
+
         goToHome.goToARC(slowDown=self.goHomeSlow) # 1. Initialize robot state
         if self.visionType == 'real': # 2. Passive vision update bins
             number_bins = 2
@@ -481,9 +491,12 @@ class TaskPlanner(object):
         ##################
         ## stowing loop ##
         ##################
-        directory='/media/mcube/data/Dropbox (MIT)/rgrasp_dataset'
-        assert(directory)
-        self.gdr = GraspDataRecorder(directory=directory) #We instantiate the recorder
+        if rospy.get_param('have_robot'):
+            directory='/media/mcube/data/Dropbox (MIT)/rgrasp_dataset'
+            assert(directory)
+            self.gdr = GraspDataRecorder(directory=directory) #We instantiate the recorder
+        else:
+            self.gdr = None
         self.num_attempts = 0
         self.num_attempts_failed = 0
         while True:
@@ -521,7 +534,7 @@ class TaskPlanner(object):
             object_ID_msgs = String()
             object_ID_msgs.data = self.obj_ID #, self.obj_weight]
 
-            if self.grasp_point is not None:
+            if self.grasp_point is not None and rospy.get_param('have_robot'):
                 self.grasp_status_pub.publish(grasp_status_msgs)
                 self.objectType_pub.publish(object_ID_msgs)
                 self.gdr.update_topic(key='grasp_status')

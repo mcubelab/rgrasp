@@ -4,13 +4,13 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /Global Options1
-        - /Status1
-        - /RobotModel1
-        - /InteractiveMarkers1
-        - /Marker1
-      Splitter Ratio: 0.5
-    Tree Height: 867
+        - /Realsense 01
+        - /Realsense 11
+        - /TF1/Frames1
+        - /Heightmap1
+        - /Depth 11
+      Splitter Ratio: 0.436031342
+    Tree Height: 963
   - Class: rviz/Selection
     Name: Selection
   - Class: rviz/Tool Properties
@@ -19,17 +19,30 @@ Panels:
       - /2D Nav Goal1
       - /Publish Point1
     Name: Tool Properties
-    Splitter Ratio: 0.588679
+    Splitter Ratio: 0.588679016
   - Class: rviz/Views
     Expanded:
       - /Current View1
+      - /Orbit1
     Name: Views
     Splitter Ratio: 0.5
   - Class: rviz/Time
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: Realsense 0
+  - Class: rviz/Displays
+    Help Height: 78
+    Name: Displays
+    Property Tree Widget:
+      Expanded: ~
+      Splitter Ratio: 0.5
+    Tree Height: 359
+  - Class: rviz/Views
+    Expanded:
+      - /Current View1
+    Name: Views
+    Splitter Ratio: 0.5
 Visualization Manager:
   Class: ""
   Displays:
@@ -37,9 +50,9 @@ Visualization Manager:
       Cell Size: 1
       Class: rviz/Grid
       Color: 160; 160; 164
-      Enabled: true
+      Enabled: false
       Line Style:
-        Line Width: 0.03
+        Line Width: 0.0299999993
         Value: Lines
       Name: Grid
       Normal Cell Count: 0
@@ -49,7 +62,31 @@ Visualization Manager:
         Z: 0
       Plane: XY
       Plane Cell Count: 10
-      Reference Frame: <Fixed Frame>
+      Reference Frame: map
+      Value: false
+    - Class: rviz/Image
+      Enabled: true
+      Image Topic: /arc_1/rgb_bin0
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Realsense 0
+      Normalize Range: true
+      Queue Size: 2
+      Transport Hint: raw
+      Unreliable: false
+      Value: true
+    - Class: rviz/Image
+      Enabled: true
+      Image Topic: /arc_1/rgb_bin1
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Realsense 1
+      Normalize Range: true
+      Queue Size: 2
+      Transport Hint: raw
+      Unreliable: false
       Value: true
     - Alpha: 1
       Class: rviz/RobotModel
@@ -66,22 +103,12 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        finger_left:
+        bot_finger:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        finger_right:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        gripper_left:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        gripper_right:
+        bot_spatula_centered:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -125,6 +152,16 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        top_finger:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        top_spatula:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         wsg50_base_link:
           Alpha: 1
           Show Axes: false
@@ -137,18 +174,190 @@ Visualization Manager:
       Value: true
       Visual Enabled: true
     - Class: rviz/TF
-      Enabled: false
-      Frame Timeout: 15
+      Enabled: true
+      Frame Timeout: 30
       Frames:
-        All Enabled: true
-      Marker Scale: 1
+        All Enabled: false
+        base_link:
+          Value: true
+        hand_mount:
+          Value: true
+        link_6:
+          Value: true
+        link_wrist:
+          Value: true
+        map:
+          Value: true
+        realsense:
+          Value: true
+        realsense_612201002220:
+          Value: true
+        realsense_612203002922:
+          Value: true
+        realsense_612203004574:
+          Value: true
+        realsense_612205002211:
+          Value: true
+        realsense_613201001839:
+          Value: true
+        realsense_614203000465:
+          Value: true
+        realsense_614203003651:
+          Value: true
+        realsense_614204001012:
+          Value: true
+        realsense_614205001856:
+          Value: true
+        realsense_61420501085:
+          Value: true
+        realsense_616203002024:
+          Value: true
+        realsense_616205001219:
+          Value: true
+        realsense_616205002864:
+          Value: true
+        realsense_616205004776:
+          Value: true
+        realsense_616205005772:
+          Value: true
+        realsense_617205001931:
+          Value: true
+        top_finger:
+          Value: true
+        top_spatula:
+          Value: true
+        tote:
+          Value: true
+        wsg50_base_link:
+          Value: true
+      Marker Scale: 0.200000003
       Name: TF
-      Show Arrows: true
+      Show Arrows: false
       Show Axes: true
-      Show Names: true
+      Show Names: false
       Tree:
-        {}
+        map:
+          base_link:
+            {}
+          realsense:
+            {}
+          realsense_612201002220:
+            {}
+          realsense_612203002922:
+            {}
+          realsense_612203004574:
+            {}
+          realsense_612205002211:
+            {}
+          realsense_613201001839:
+            {}
+          realsense_614203000465:
+            {}
+          realsense_614203003651:
+            {}
+          realsense_614204001012:
+            {}
+          realsense_614205001856:
+            {}
+          realsense_61420501085:
+            {}
+          realsense_616203002024:
+            {}
+          realsense_616205001219:
+            {}
+          realsense_616205002864:
+            {}
+          realsense_616205004776:
+            {}
+          realsense_616205005772:
+            {}
+          realsense_617205001931:
+            {}
+          tote:
+            {}
       Update Interval: 0
+      Value: true
+    - Class: rviz/InteractiveMarkers
+      Enable Transparency: true
+      Enabled: true
+      Name: InteractiveMarkers
+      Show Axes: false
+      Show Descriptions: false
+      Show Visual Aids: false
+      Update Topic: /affordance_marker/update
+      Value: true
+    - Class: moveit_rviz_plugin/Trajectory
+      Enabled: true
+      Name: Trajectory
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /visualization_marker
+      Name: Visualization
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: visualization_marker
+      Name: Planner_viz
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Camera
+      Enabled: false
+      Image Rendering: background and overlay
+      Image Topic: /arc_1/realsense
+      Name: Camera
+      Overlay Alpha: 0.5
+      Queue Size: 2
+      Transport Hint: raw
+      Unreliable: false
+      Value: false
+      Visibility:
+        Collision Visualize: true
+        Depth  0: true
+        Depth 1: true
+        Grid: true
+        Group_pointcloud:
+          Value: true
+          bin0_active_far: true
+          bin0_passive_far: true
+          bin0_passive_near: true
+          bin1_passive_far: true
+          bin1_passive_near: true
+          bin2_passive_far: true
+          bin2_passive_near: true
+        Heightmap:
+          Image_map_post: true
+          Image_map_pre: true
+          Image_placing_score: true
+          Value: true
+        IK VIsualize: true
+        InteractiveMarkers: true
+        Planner_viz: true
+        Realsense 0: true
+        Realsense 1: true
+        RobotModel: true
+        SGProposalMarker: true
+        TF: true
+        Trajectory: true
+        Value: true
+        Visualization: true
+        gelsight: true
+      Zoom Factor: 1
+    - Class: rviz/Image
+      Enabled: false
+      Image Topic: /rpi/gelsight/raw_image
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: gelsight
+      Normalize Range: true
+      Queue Size: 2
+      Transport Hint: raw
+      Unreliable: false
       Value: false
     - Class: rviz/InteractiveMarkers
       Enable Transparency: true
@@ -157,21 +366,315 @@ Visualization Manager:
       Show Axes: false
       Show Descriptions: true
       Show Visual Aids: false
-      Update Topic: /urdf_marker/update
+      Update Topic: /ik_interactive/update
       Value: true
+    - Class: rviz/Group
+      Displays:
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 255; 255; 255
+          Color Transformer: RGB8
+          Decay Time: 0
+          Enabled: true
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Max Intensity: 4096
+          Min Color: 0; 0; 0
+          Min Intensity: 0
+          Name: bin0_passive_near
+          Position Transformer: XYZ
+          Queue Size: 10
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.00999999978
+          Style: Points
+          Topic: /arc_1/pointcloud_612203002922
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: true
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 255; 255; 255
+          Color Transformer: RGB8
+          Decay Time: 0
+          Enabled: true
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Max Intensity: 4096
+          Min Color: 0; 0; 0
+          Min Intensity: 0
+          Name: bin0_passive_far
+          Position Transformer: XYZ
+          Queue Size: 10
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.00999999978
+          Style: Points
+          Topic: /arc_1/pointcloud_614203000465
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: true
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 255; 255; 255
+          Color Transformer: RGB8
+          Decay Time: 0
+          Enabled: true
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Max Intensity: 4096
+          Min Color: 0; 0; 0
+          Min Intensity: 0
+          Name: bin0_active_far
+          Position Transformer: XYZ
+          Queue Size: 10
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.00999999978
+          Style: Points
+          Topic: /arc_1/pointcloud_616205005772
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: true
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 255; 255; 255
+          Color Transformer: RGB8
+          Decay Time: 0
+          Enabled: true
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Max Intensity: 4096
+          Min Color: 0; 0; 0
+          Min Intensity: 0
+          Name: bin1_passive_near
+          Position Transformer: XYZ
+          Queue Size: 10
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.00999999978
+          Style: Points
+          Topic: /arc_1/pointcloud_616205001219
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: true
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 255; 255; 255
+          Color Transformer: RGB8
+          Decay Time: 0
+          Enabled: true
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Max Intensity: 4096
+          Min Color: 0; 0; 0
+          Min Intensity: 0
+          Name: bin1_passive_far
+          Position Transformer: XYZ
+          Queue Size: 10
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.00999999978
+          Style: Points
+          Topic: /arc_1/pointcloud_61420501085
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: true
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 255; 255; 255
+          Color Transformer: RGB8
+          Decay Time: 0
+          Enabled: true
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Max Intensity: 4096
+          Min Color: 0; 0; 0
+          Min Intensity: 0
+          Name: bin2_passive_near
+          Position Transformer: XYZ
+          Queue Size: 10
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.00999999978
+          Style: Points
+          Topic: /arc_1/pointcloud_612205002211
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: true
+        - Alpha: 1
+          Autocompute Intensity Bounds: true
+          Autocompute Value Bounds:
+            Max Value: 10
+            Min Value: -10
+            Value: true
+          Axis: Z
+          Channel Name: intensity
+          Class: rviz/PointCloud2
+          Color: 255; 255; 255
+          Color Transformer: RGB8
+          Decay Time: 0
+          Enabled: true
+          Invert Rainbow: false
+          Max Color: 255; 255; 255
+          Max Intensity: 4096
+          Min Color: 0; 0; 0
+          Min Intensity: 0
+          Name: bin2_passive_far
+          Position Transformer: XYZ
+          Queue Size: 10
+          Selectable: true
+          Size (Pixels): 3
+          Size (m): 0.00999999978
+          Style: Points
+          Topic: /arc_1/pointcloud_612203004574
+          Unreliable: false
+          Use Fixed Frame: true
+          Use rainbow: true
+          Value: true
+      Enabled: true
+      Name: Group_pointcloud
+    - Class: rviz/Group
+      Displays:
+        - Class: rviz/Image
+          Enabled: false
+          Image Topic: /height_map_pre
+          Max Value: 1
+          Median window: 5
+          Min Value: 0
+          Name: Image_map_pre
+          Normalize Range: true
+          Queue Size: 2
+          Transport Hint: raw
+          Unreliable: false
+          Value: false
+        - Class: rviz/Image
+          Enabled: false
+          Image Topic: /height_map_post
+          Max Value: 1
+          Median window: 5
+          Min Value: 0
+          Name: Image_map_post
+          Normalize Range: true
+          Queue Size: 2
+          Transport Hint: raw
+          Unreliable: false
+          Value: false
+        - Class: rviz/Image
+          Enabled: false
+          Image Topic: /placing_score
+          Max Value: 1
+          Median window: 5
+          Min Value: 0
+          Name: Image_placing_score
+          Normalize Range: true
+          Queue Size: 2
+          Transport Hint: raw
+          Unreliable: false
+          Value: false
+      Enabled: true
+      Name: Heightmap
     - Class: rviz/Marker
       Enabled: true
-      Marker Topic: visualization_marker
-      Name: Marker
+      Marker Topic: /proposal_visualization_marker
+      Name: SGProposalMarker
       Namespaces:
         {}
       Queue Size: 100
       Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: ik_visualization_marker_array
+      Name: IK VIsualize
+      Namespaces:
+        {}
+      Queue Size: 1000
+      Value: true
+    - Class: rviz/MarkerArray
+      Enabled: true
+      Marker Topic: collision_visualization_marker_array
+      Name: Collision Visualize
+      Namespaces:
+        {}
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Image
+      Enabled: false
+      Image Topic: /arc_1/depth_bin0
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Depth  0
+      Normalize Range: true
+      Queue Size: 2
+      Transport Hint: raw
+      Unreliable: false
+      Value: false
+    - Class: rviz/Image
+      Enabled: false
+      Image Topic: /arc_1/depth_bin1
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Depth 1
+      Normalize Range: true
+      Queue Size: 2
+      Transport Hint: raw
+      Unreliable: false
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: base_link
-    Frame Rate: 30
+    Fixed Frame: map
+    Frame Rate: 20
   Name: root
   Tools:
     - Class: rviz/Interact
@@ -191,30 +694,67 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 3.39422
+      Distance: 3.56623459
       Enable Stereo Rendering:
-        Stereo Eye Separation: 0.06
+        Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.997846
-        Y: 0.958663
-        Z: 0.973275
+        X: 0.719373107
+        Y: -0.134863228
+        Z: 0.356970847
+      Focal Shape Fixed Size: true
+      Focal Shape Size: 0.0500000007
       Name: Current View
-      Near Clip Distance: 0.01
-      Pitch: 0.534797
-      Target Frame: <Fixed Frame>
+      Near Clip Distance: 0.00999999978
+      Pitch: 0.179798439
+      Target Frame: link1_parent
       Value: Orbit (rviz)
-      Yaw: 4.65819
-    Saved: ~
+      Yaw: 5.68686867
+    Saved:
+      - Class: rviz/Orbit
+        Distance: 1.74232996
+        Enable Stereo Rendering:
+          Stereo Eye Separation: 0.0599999987
+          Stereo Focal Distance: 1
+          Swap Stereo Eyes: false
+          Value: false
+        Focal Point:
+          X: 0.218198001
+          Y: 0.473358989
+          Z: 0.425852001
+        Focal Shape Fixed Size: true
+        Focal Shape Size: 0.0500000007
+        Name: Orbit
+        Near Clip Distance: 0.00999999978
+        Pitch: 0.380398005
+        Target Frame: link1_parent
+        Value: Orbit (rviz)
+        Yaw: -1.06959999
 Window Geometry:
+  Camera:
+    collapsed: false
+  Depth  0:
+    collapsed: false
+  Depth 1:
+    collapsed: false
   Displays:
     collapsed: false
-  Height: 1148
+  Height: 1176
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd00000004000000000000013c000003f2fc0200000008fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006400fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c0061007900730100000028000003f2000000dd00fffffffb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261000000010000010f000003f2fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730100000028000003f2000000b000fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e100000197000000030000073f0000003efc0100000002fb0000000800540069006d006501000000000000073f000002f600fffffffb0000000800540069006d00650100000000000004500000000000000000000004e8000003f200000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Image_map_post:
+    collapsed: false
+  Image_map_pre:
+    collapsed: false
+  Image_placing_score:
+    collapsed: false
+  QMainWindow State: 000000ff00000000fd00000003000000000000017e00000452fc020000000ffb000000100044006900730070006c006100790073010000002800000452000000dd00fffffffb0000001000670065006c00730069006700680074000000029b000001df0000001600fffffffc00000343000000a30000000000fffffffa000000000100000002fb0000001e0049006d006100670065005f006b0069006e0065006300740032005f00310100000000ffffffff0000000000000000fb0000001e0049006d006100670065005f006b0069006e0065006300740032005f00320000000000ffffffff0000000000000000fb0000001200530065006c0065006300740069006f006e00000001e10000009b0000006400fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb0000002000730065006c0065006300740069006f006e00200062007500660066006500720200000138000000aa0000023a00000294fb00000014005700690064006500530074006500720065006f02000000e6000000d2000003ee0000030bfb0000000c004b0069006e0065006300740200000186000001060000030c00000261fb0000001c0049006d006100670065005f0061007000720069006c007400610067000000038c000000d20000000000000000fb0000000c00430061006d00650072006100000003590000006a0000001600fffffffb00000026005400720061006a006500630074006f007200790020002d00200053006c00690064006500720000000000ffffffff0000000000000000fb000000100044006900730070006c00610079007300000002ba0000012c000000dd00fffffffb0000000a005600690065007700730000000309000000dd000000b000ffffff000000010000026500000452fc020000000cfb00000016005200650061006c00730065006e00730065002000300100000028000001f50000001600fffffffb0000001000440065007000740068002000200030000000009f000000850000001600fffffffb00000016005200650061006c00730065006e00730065002000310100000223000002570000001600fffffffb0000000e0044006500700074006800200031000000021a000002600000001600fffffffc00000028000001a40000000000fffffffa000000000100000001fb0000000e00440065007000740068002000310000000000ffffffff0000000000000000fb00000016005200650061006c00730065006e007300650020003201000002bd000001bd0000000000000000fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a005600690065007700730000000028000001b0000000b000fffffffb0000001a0049006d006100670065005f006d00610070005f00700072006500000000280000010d0000001600fffffffb0000001c0049006d006100670065005f006d00610070005f0070006f007300740000000028000003070000001600fffffffb000000260049006d006100670065005f0070006c006100630069006e0067005f00730063006f007200650000000028000004520000001600fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b20000000000000000000000030000073f00000124fc0100000002fb0000000800540069006d006500000000000000073f0000030000fffffffb0000000800540069006d00650100000000000004500000000000000000000003500000045200000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Realsense 0:
+    collapsed: false
+  Realsense 1:
+    collapsed: false
   Selection:
     collapsed: false
   Time:
@@ -224,5 +764,7 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1855
-  X: 204
-Y: 198
+  X: 65
+  Y: 24
+  gelsight:
+collapsed: false

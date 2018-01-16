@@ -1,4 +1,4 @@
-cmd "0-roscore" {
+﻿cmd "0-roscore" {
     exec = "roscore";
     host = "localhost";
 }
@@ -39,6 +39,10 @@ cmd "4-testcam" {
     exec = "rosrun realsense_camera test_cam.py";
     host = "localhost";
 }
+cmd "4-gs-flip-publisher" {
+    exec = "rosrun apc_planning gs_flip_publisher.py";
+    host = "localhost";
+}
 cmd "5-rviz" {
     exec = "rosrun rviz rviz -d $CODE_BASE/catkin_ws/src/apc_config/rviz/rvizconfig.rviz";
     host = "localhost";
@@ -60,6 +64,7 @@ cmd "9-grasp_proposal_visualize" {
     exec = "rosrun apc_planning topic_initializer.py";
     host = "localhost";
 }
+
 group "calibration" {
     cmd "1-transform-calibapriltag" {
         exec = "rosrun tf static_transform_publisher -0.1725 0 0.0175 1.57079632679 0 0 /link_6 /link6_apriltag 100";
@@ -150,10 +155,12 @@ script "run_real" {
     start cmd "4-start-vision";
     wait ms 8000;
     start cmd "4-passive-vision";
+    start cmd "4-gs-flip-publisher";
     start cmd "1-transform-realsense";
     start cmd "5-rviz";
     wait ms 2000;
     start cmd "6-interactive-fitting";
+
 }
 
 script "run_virtual" {

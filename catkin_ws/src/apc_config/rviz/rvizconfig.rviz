@@ -5,7 +5,8 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /TF1/Frames1
-        - /gelsight1/Status1
+        - /gelsight1
+        - /gelsight21
       Splitter Ratio: 0.436031342
     Tree Height: 346
   - Class: rviz/Selection
@@ -177,6 +178,8 @@ Visualization Manager:
         All Enabled: false
         base_link:
           Value: true
+        bot_finger:
+          Value: true
         hand_mount:
           Value: true
         link_6:
@@ -185,9 +188,45 @@ Visualization Manager:
           Value: true
         map:
           Value: true
+        realsense:
+          Value: true
+        realsense_612201002220:
+          Value: true
+        realsense_612203002922:
+          Value: true
+        realsense_612203004574:
+          Value: true
+        realsense_612205002211:
+          Value: true
+        realsense_613201001839:
+          Value: true
+        realsense_614203000465:
+          Value: true
+        realsense_614203003651:
+          Value: true
+        realsense_614204001012:
+          Value: true
+        realsense_614205001856:
+          Value: true
+        realsense_61420501085:
+          Value: true
+        realsense_616203002024:
+          Value: true
+        realsense_616205001219:
+          Value: true
+        realsense_616205002864:
+          Value: true
+        realsense_616205004776:
+          Value: true
+        realsense_616205005772:
+          Value: true
+        realsense_617205001931:
+          Value: true
         top_finger:
           Value: true
         top_spatula:
+          Value: true
+        tote:
           Value: true
         wsg50_base_link:
           Value: true
@@ -199,6 +238,42 @@ Visualization Manager:
       Tree:
         map:
           base_link:
+            {}
+          realsense:
+            {}
+          realsense_612201002220:
+            {}
+          realsense_612203002922:
+            {}
+          realsense_612203004574:
+            {}
+          realsense_612205002211:
+            {}
+          realsense_613201001839:
+            {}
+          realsense_614203000465:
+            {}
+          realsense_614203003651:
+            {}
+          realsense_614204001012:
+            {}
+          realsense_614205001856:
+            {}
+          realsense_61420501085:
+            {}
+          realsense_616203002024:
+            {}
+          realsense_616205001219:
+            {}
+          realsense_616205002864:
+            {}
+          realsense_616205004776:
+            {}
+          realsense_616205005772:
+            {}
+          realsense_617205001931:
+            {}
+          tote:
             {}
       Update Interval: 0
       Value: true
@@ -244,7 +319,6 @@ Visualization Manager:
         Collision Visualize: true
         Depth  0: true
         Depth 1: true
-        Gelsight2: true
         Grid: true
         Group_pointcloud:
           "": true
@@ -264,10 +338,11 @@ Visualization Manager:
         Value: true
         Visualization: true
         gelsight: true
+        gelsight2: true
       Zoom Factor: 1
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /rpi/gelsight/raw_image
+      Image Topic: /rpi/gelsight/flip_raw_image
       Max Value: 1
       Median window: 5
       Min Value: 0
@@ -279,7 +354,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /rpi/gelsight/raw_image2
+      Image Topic: /rpi/gelsight/flip_raw_image2
       Max Value: 1
       Median window: 5
       Min Value: 0

@@ -46,6 +46,7 @@ class controlPolicy():
         #generate new images
         self.action_dict = self.generate_new_images(image_list, tcp_pose, binId)
         self.best_action_dict = self.select_best_action()
+        return self.best_action_dict
 
 
     def capture_images(self):
@@ -67,8 +68,8 @@ class controlPolicy():
         out_dict['images2'] = []
         out_dict['delta_pos'] = []
         #search actions through y and z grid (in world frame)
-        y_range = np.linspace(-0.025, 0.025, 2)
-        z_range = np.linspace(-0.01, 0.01, 2)
+        y_range = np.linspace(-0.025, 0.025, 5)
+        z_range = np.linspace(-0.01, 0.01, 5)
 
         for y in y_range:
             for z in z_range:
@@ -88,7 +89,7 @@ class controlPolicy():
     def select_best_action(self):
         list_images = [np.array(self.action_dict['images']), np.array(self.action_dict['images2'])]
         predictions = predict_successes(self.model, list_images)
-        self.action_dict['prediction'] = predictions
+        self.action_dict['predictions'] = predictions
         best_index = np.argmax(predictions[:,1])
         out_dict = {}
         out_dict['image'] = self.action_dict['images'][best_index]
@@ -98,15 +99,17 @@ class controlPolicy():
 
     def visualize_actions(self):
         for counter, image in enumerate(self.action_dict['images']):
-            # titles = ['Raw Image (w. back_sub)', 'Pre-Proc. Image (w. back_sub)', 'Contact Patch', 'Clean Image']
-            plt.subplot(1,1,counter+1),plt.imshow(image,'gray')
-            # plt.title(self.action_dict), plt.xticks([]), plt.yticks([])
+            f, ax = plt.subplots(1, 2)
+            ax[0].imshow(image, 'gray')
+            ax[1].imshow(image, 'gray')
+            ax[0].set_title('Success: {}'.format(self.action_dict['predictions'][counter][1]))
+            # ax[1].set_title('Success: {}'.format(self.action_dict['predictions'][counter][1]))
+            # plt.xticks([])
+            # plt.yticks([])
         plt.show()
+        plt.close('all')
+
         return
-        # out_dict['image'] = action_dict['images'][best_index]
-        # out_dict['image2'] = action_dict['images2'][best_index]
-        # out_dict['delta_pos'] = action_dict['delta_pos'][best_index]
-        # return out_dict
 
 # To test the function
 if __name__=='__main__':
@@ -125,6 +128,6 @@ if __name__=='__main__':
     topic_list = ["rpi/gelsight/flip_raw_image",  "rpi/gelsight/flip_raw_image2"]
     cp = controlPolicy(model, topic_list, listener, br)
     cp.control_policy()
-    # control_policy(listener, br)
+    # cp.visualize_actions()
     print 'done'
     pdb.set_trace()

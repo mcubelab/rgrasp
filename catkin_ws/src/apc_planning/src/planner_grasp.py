@@ -12,8 +12,6 @@ from grasp_data_recorder import GraspDataRecorder
 import signal
 import sys
 import spatula, gripper
-
-
 try:
     import passive_vision.srv
 except:
@@ -21,9 +19,12 @@ except:
 
 import sys
 sys.path.append(os.environ['CODE_BASE']+'/catkin_ws/src/weight_sensor/src')
+sys.path.append(os.environ['HOME'] + '/mcube_learning')
+from models.models import dummy_gelsight_model
 import ws_prob
 import goToHome
-from grasping17 import place, grasp, retrieve, release_safe
+from grasping17 import place, grasp, retrieve, release_safe, grasp_correction
+from control_policy import controlPolicy
 from ik.helper import fake_bbox_info_1, Timer, vision_transform_precise_placing_with_visualization, get_params_yaml
 from visualization_msgs.msg import MarkerArray
 from cv_bridge import CvBridge, CvBridgeError
@@ -31,6 +32,7 @@ from cv_bridge import CvBridge, CvBridgeError
 import sensor_msgs.msg
 from sensor_msgs.msg import Image
 from std_msgs.msg import Float32MultiArray, String
+import pdb
 
 class TaskPlanner(object):
     def __init__(self, opt):
@@ -56,6 +58,8 @@ class TaskPlanner(object):
         self.experiment = opt.experiment
         self.isExecute = opt.isExecute
         self.add_noise = opt.add_noise
+        self.is_record = opt.is_record
+        self.is_control = opt.is_control
         # ROS setup
         self.listener = tf.TransformListener()
         self.br = tf.TransformBroadcaster()
@@ -77,6 +81,10 @@ class TaskPlanner(object):
         self.bad_grasping_times = []
         #Placing
         self.PlacingPlanner = PlacingPlanner(visionType = self.visionType)
+        #Control policy
+        if self.is_control:
+            self.model = dummy_gelsight_model()
+            self.controller = controlPolicy(self.model, ["rpi/gelsight/flip_raw_image",  "rpi/gelsight/flip_raw_image2"], self.listener, self.br)
         #Weights
         self.weightSensor = ws_prob.WeightSensor()
         self.withSensorWeight = True
@@ -191,6 +199,15 @@ class TaskPlanner(object):
         print(' grasp_point = ', self.grasp_point)
         grasp(objInput=self.grasp_point, listener=self.listener, br=self.br, isExecute=self.isExecute,
               binId=container,  withPause=False, viz_pub=self.viz_array_pub)
+
+        if self.is_control:
+            #find new and improved grasp points
+            best_grasp_dict = self.controller.control_policy()
+            self.controller.visualize_actions()
+            print best_grasp_dict['delta_pos']
+
+            #go for new grasp Point
+            self.grasping_output = grasp_correction(best_grasp_dict['delta_pos'], self.listener, self.br)
 
         retrieve(listener=self.listener, br=self.br, isExecute=self.isExecute,
               binId=container,  withPause=False, viz_pub=self.viz_array_pub)
@@ -421,10 +438,19 @@ class TaskPlanner(object):
         ik.visualize_helper.visualize_grasping_proposals(self.proposal_viz_array_pub, self.all_grasp_proposals,  self.listener, self.br)
         ik.visualize_helper.visualize_grasping_proposals(self.proposal_viz_array_pub, np.asarray([self.grasp_point]),  self.listener, self.br, True)
 
+        #execute for grasp. Stop when the gripper is closed
         self.grasping_output = grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container,
                                  withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
 
+        if self.is_control:
+            #find new and improved grasp points
+            best_grasp_dict = controller.control_policy()
+            controller.visualize_actions()
+            print best_grasp_dict['delta_pos']
+
+            #go for new grasp Point
+            self.grasping_output = grasp_correction(best_grasp_dict['delta_pos'], self.listener, self.br)
         self.retrieve_output = retrieve(listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container,
                                  withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
@@ -460,7 +486,7 @@ class TaskPlanner(object):
                          rel_pose=self.rel_pose, BoxBody=self.BoxBody, place_pose=drop_pose,
                          viz_pub=self.viz_array_pub, is_drop = False, recorder=self.gdr)
 
-    def run_data_collection(self):
+    def run_experiments(self):
         #######################
         ## initialize system ##
         #######################
@@ -491,7 +517,7 @@ class TaskPlanner(object):
         ##################
         ## stowing loop ##
         ##################
-        if rospy.get_param('have_robot'):
+        if rospy.get_param('have_robot') and self.is_record:
             directory='/media/mcube/data/Dropbox (MIT)/rgrasp_dataset'
             assert(directory)
             self.gdr = GraspDataRecorder(directory=directory) #We instantiate the recorder
@@ -599,8 +625,12 @@ if __name__ == '__main__':
         help='Name object considered', default='None')
     parser.add_option('-r', '--random_noise', action='store_true', dest='add_noise',
         help='Add random noise to grasp proposal?', default=False)
+    parser.add_option('-b', '--record_data', action='store_true', dest='is_record',
+        help='Turn data recording on/off?', default=True)
+    parser.add_option('-c', '--control', action='store_true', dest='is_control',
+        help='Turn control policy on/off?', default=False)
     (opt, args) = parser.parse_args()
 
     p = TaskPlanner(opt)
 
-    p.run_data_collection()
+    p.run_experiments()

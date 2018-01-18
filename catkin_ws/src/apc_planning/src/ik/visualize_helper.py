@@ -31,7 +31,7 @@ def visualize_grasping_proposals(proposal_viz_array_pub, proposals, listener, br
          #~get grasp pose and gripper opening from vision
         if len(objInput)==12:
             graspPos, hand_X, hand_Y, hand_Z, grasp_width = helper.get_picking_params_from_12(objInput)
-            graspPos = graspPos + hand_X*0.02*1
+            graspPos = graspPos #+ hand_X*0.02*1
             grasp_score = objInput[-1]
         elif len(objInput)==7:
             graspPos, hand_X, hand_Y, hand_Z, grasp_width = helper.get_picking_params_from_7(objInput, 'dummy', listener, br)

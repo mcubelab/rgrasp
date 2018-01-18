@@ -382,9 +382,9 @@ if ~isempty(flushGraspPredictions)
 %     flushObjectNames = [newFlushObjectNames;flushObjectNames];
 end
 
-if ~isempty(graspPredictions)
-    graspPredictions(:,1:3) = graspPredictions(:,1:3) - graspPredictions(:,9:11)*0.02;
-end
+%if ~isempty(graspPredictions)
+%    graspPredictions(:,1:3) = graspPredictions(:,1:3) - graspPredictions(:,9:11)*0.02;
+%end
 
 
 

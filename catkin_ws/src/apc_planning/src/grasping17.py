@@ -216,27 +216,28 @@ def grasp(objInput,
     ## Picking primitive  ##
     ###############################
 #        ik.visualize_helper.visualize_grasping_proposals(viz_pub, np.asarray([objInput]),  listener, br, False)
-        #~Define reference frames
-        world_X, world_Y, world_Z, tote_X, tote_Y, tote_Z, tote_pose_pos = ik.helper.reference_frames(listener= listener, br=br)
+    #~Define reference frames
+    world_X, world_Y, world_Z, tote_X, tote_Y, tote_Z, tote_pose_pos = ik.helper.reference_frames(listener= listener, br=br)
 
-        #~get grasp pose and gripper opening from vision
-        if len(objInput)==12:
-            graspPos, hand_X, hand_Y, hand_Z, grasp_width = ik.helper.get_picking_params_from_12(objInput)
-        elif len(objInput)==7:
-            graspPos, hand_X, hand_Y, hand_Z, grasp_width = ik.helper.get_picking_params_from_7(objInput, objId, listener, br)
+    #~get grasp pose and gripper opening from vision
+    if len(objInput)==12:
+        graspPos, hand_X, hand_Y, hand_Z, grasp_width = ik.helper.get_picking_params_from_12(objInput)
+        #graspPos = graspPos + hand_X*0.02*1
+    elif len(objInput)==7:
+        graspPos, hand_X, hand_Y, hand_Z, grasp_width = ik.helper.get_picking_params_from_7(objInput, objId, listener, br)
 
-        #frank hack for stationary spatula:
-        grasp_width = 0.11
-        #~build gripper orientation matrix 3x3
-        hand_orient_norm = np.vstack([hand_X,hand_Y,hand_Z])
-        hand_orient_norm=hand_orient_norm.transpose()
+    #frank hack for stationary spatula:
+    grasp_width = 0.11
+    #~build gripper orientation matrix 3x3
+    hand_orient_norm = np.vstack([hand_X,hand_Y,hand_Z])
+    hand_orient_norm=hand_orient_norm.transpose()
 
-        #~Grasp relocation script
-        hand_orient_quat=ik.helper.mat2quat(hand_orient_norm)
-        euler = tf.transformations.euler_from_quaternion(hand_orient_quat)
-        theta = euler[2] - np.pi
-        colFreePose = collisionFree(graspPos, binId=binId, listener=listener, br=br, finger_opening = grasp_width, safety_margin = 0.00, theta = theta)
-        graspPos[0:2] = colFreePose[0:2]
+    #~Grasp relocation script
+    hand_orient_quat=ik.helper.mat2quat(hand_orient_norm)
+    euler = tf.transformations.euler_from_quaternion(hand_orient_quat)
+    theta = euler[2] - np.pi
+    colFreePose = collisionFree(graspPos, binId=binId, listener=listener, br=br, finger_opening = grasp_width, safety_margin = 0.00, theta = theta)
+    graspPos[0:2] = colFreePose[0:2]
 
         #################################
         ## GENERATE PLANS OF PRIMITIVE ##
@@ -281,7 +282,7 @@ def grasp(objInput,
     plans.append(sleep_plan)
 
      #~5. perform guarded move down
-    grasp_targetPosition[2] = bin_pose[2] -  rospy.get_param('/tote/height') + 0.025 #~frank hack for safety
+    grasp_targetPosition[2] = bin_pose[2] -  rospy.get_param('/tote/height') + 0.01  #~frank hack for safety
 
     plan, qf, plan_possible = generatePlan(q_initial, grasp_targetPosition, hand_orient_quat, tip_hand_transform, 'faster', guard_on=WeightGuard(binId, threshold = 100), plan_name = 'guarded_pick')
     if plan_possible:
@@ -327,7 +328,7 @@ def grasp(objInput,
         rospy.set_param('is_record', True)
         executePlanForward(plans_guarded, withPause)
         if rospy.get_param('is_contact'):
-            ik.helper.move_cart(dz=0.015)
+            ik.helper.move_cart(dz=0.005)
         executePlanForward(plans_guarded2, withPause)
         rospy.set_param('is_record', False)
 

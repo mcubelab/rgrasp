@@ -16,29 +16,14 @@ import pdb
 import ik
 from matplotlib import pyplot as plt
 
+def predict_success(model, img):
+    img = np.expand_dims(img, axis=0)
+    pred = model.predict(img)
+    return np.squeeze(pred, axis=0)
 
-# def capture_image(topic_name):
-#     img = rospy.wait_for_message(topic_name, sensor_msgs.msg.Image)
-#     return img
-#
-# def predict_success(model, img):
-#     img = np.expand_dims(img, axis=0)
-#     pred = model.predict(img)
-#     return np.squeeze(pred, axis=0)
-#
-# def predict_successes(model, images):
-#     pred = model.predict(images)
-#     return pred
-#
-#
-# def select_best_action(model, action_dict):
-#     predictions = predict_successes(model, np.array(action_dict['images']))
-#     best_index = np.argmax(predictions[:,1])
-#     out_dict = {}
-#     out_dict['image'] = action_dict['images'][best_index]
-#     out_dict['delta_pos'] = action_dict['delta_pos'][best_index]
-#     return out_dict
-
+def predict_successes(model, images):
+    pred = model.predict(images)
+    return pred
 
 class controlPolicy():
     '''
@@ -59,8 +44,9 @@ class controlPolicy():
         #get current robot pose
         tcp_pose = ik.helper.get_tcp_pose(self.listener, tcp_offset = rospy.get_param("/gripper/spatula_tip_to_tcp_dist"))
         #generate new images
-        action_dict = self.generate_new_images(image_list, tcp_pose, binId)
-        best_action_dict = select_best_action(model, action_dict)
+        self.action_dict = self.generate_new_images(image_list, tcp_pose, binId)
+        self.best_action_dict = self.select_best_action()
+
 
     def capture_images(self):
         #capture images
@@ -97,8 +83,30 @@ class controlPolicy():
                 out_dict['images'].append(translate_image(image_list[0], pos_pixel[0], pos_pixel[1]))
                 out_dict['images2'].append(translate_image(image_list[1], pos_pixel[0], pos_pixel[1]))
                 out_dict['delta_pos'].append(delta_pos)
-
         return out_dict
+
+    def select_best_action(self):
+        list_images = [np.array(self.action_dict['images']), np.array(self.action_dict['images2'])]
+        predictions = predict_successes(self.model, list_images)
+        self.action_dict['prediction'] = predictions
+        best_index = np.argmax(predictions[:,1])
+        out_dict = {}
+        out_dict['image'] = self.action_dict['images'][best_index]
+        out_dict['image2'] = self.action_dict['images2'][best_index]
+        out_dict['delta_pos'] = self.action_dict['delta_pos'][best_index]
+        return out_dict
+
+    def visualize_actions(self):
+        for counter, image in enumerate(self.action_dict['images']):
+            # titles = ['Raw Image (w. back_sub)', 'Pre-Proc. Image (w. back_sub)', 'Contact Patch', 'Clean Image']
+            plt.subplot(1,1,counter+1),plt.imshow(image,'gray')
+            # plt.title(self.action_dict), plt.xticks([]), plt.yticks([])
+        plt.show()
+        return
+        # out_dict['image'] = action_dict['images'][best_index]
+        # out_dict['image2'] = action_dict['images2'][best_index]
+        # out_dict['delta_pos'] = action_dict['delta_pos'][best_index]
+        # return out_dict
 
 # To test the function
 if __name__=='__main__':
@@ -106,11 +114,17 @@ if __name__=='__main__':
     listener = tf.TransformListener()
     br = tf.TransformBroadcaster()
     rospy.sleep(0.3)
+    print 'start'
     #initialize model
-    model_single = resnet_w_dense_layers(layers_size=[], activation_type=['relu'], num_classes=2, is_train = False)
-    model_single2 = vgg16_w_dense_layers(layers_size=[], activation_type=['relu'], num_classes=2, is_train = False)
-    model = image_combined([model_single, model_single2]], layers_size = [32], activation_type = ['relu'], num_classes = None, is_train = False)
+    model_gelsight = resnet_w_dense_layers(layers_size=[], is_train = True)
+    model_rgb = resnet_w_dense_layers(layers_size=[], is_train = True)
+    for layer in model_rgb.layers:
+        layer.name = layer.name + '_2'
+    model = image_combined([model_gelsight, model_rgb], layers_size = [], activation_type = ['relu'], num_classes=2, is_train = True)
+
     topic_list = ["rpi/gelsight/flip_raw_image",  "rpi/gelsight/flip_raw_image2"]
     cp = controlPolicy(model, topic_list, listener, br)
+    cp.control_policy()
     # control_policy(listener, br)
+    print 'done'
     pdb.set_trace()

@@ -366,9 +366,9 @@ if ~isempty(flushGraspPredictions)
 end
 
 % Adjust grasp proposals location based on finger shift
-if ~isempty(graspPredictions)
-    graspPredictions(:,1:3) = graspPredictions(:,1:3) - graspPredictions(:,9:11)*0.02;
-end
+%if ~isempty(graspPredictions)
+%    graspPredictions(:,1:3) = graspPredictions(:,1:3) - graspPredictions(:,9:11)*0.02;
+%end
 
 % Save grasp proposals in row major order
 graspPredictions = graspPredictions';

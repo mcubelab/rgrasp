@@ -265,10 +265,10 @@ class TaskPlanner(object):
         ### Add some random noise
         #grasp properties: [surfaceCentroid,graspDirection,graspDepth,graspJawWidth,gripperAngleDirection,graspConf]];
         #grasp properties: x,y,z,[0,0,-1],depth, width_gripper,angledirection, score
-        std_x = 0.03
-        std_y = 0.03
-        std_ori = 45
-        std_width = 0.02
+        std_x = 0.025
+        std_y = 0.025
+        std_ori = 5
+        std_width = 0.0
         noise_x = np.random.uniform(-std_x,std_x)
         noise_y = np.random.uniform(-std_y,std_y)
         noise_ori = np.random.uniform(-std_ori,std_ori)
@@ -452,6 +452,7 @@ class TaskPlanner(object):
 
         #~frank hack: drop pose
         drop_pose = get_params_yaml('bin'+str(fixed_container[0])+'_pose')
+        drop_pose[1] = drop_pose[1] + 0.03
 
         # Place object using grasping
         self.rel_pose, self.BoxBody=vision_transform_precise_placing_with_visualization(self.bbox_info,viz_pub=self.viz_array_pub,listener=self.listener)

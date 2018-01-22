@@ -439,18 +439,19 @@ class TaskPlanner(object):
         ik.visualize_helper.visualize_grasping_proposals(self.proposal_viz_array_pub, np.asarray([self.grasp_point]),  self.listener, self.br, True)
 
         #execute for grasp. Stop when the gripper is closed
+        back_img_list = self.controller.capture_images()
         self.grasping_output = grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container,
                                  withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
 
         if self.is_control:
             #find new and improved grasp points
-            best_grasp_dict = controller.control_policy()
-            controller.visualize_actions()
+            best_grasp_dict = self.controller.control_policy(back_img_list)
+            self.controller.visualize_actions()
             print best_grasp_dict['delta_pos']
 
             #go for new grasp Point
-            self.grasping_output = grasp_correction(best_grasp_dict['delta_pos'], self.listener, self.br)
+            self.grasping_output = grasp_correction(self.grasp_point, best_grasp_dict['delta_pos'], self.listener, self.br)
         self.retrieve_output = retrieve(listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container,
                                  withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)

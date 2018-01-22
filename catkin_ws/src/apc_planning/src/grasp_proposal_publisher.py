@@ -17,7 +17,7 @@ import numpy as np
 def visualize_passive():
     ## Parse arguments
     parser = optparse.OptionParser()
-    
+
     (opt, args) = parser.parse_args()
     parser.add_option('-v', '--vision', action='store', dest='visionType',
         help='real or virtual', default='real')
@@ -33,7 +33,12 @@ def visualize_passive():
         help='Name object considered', default='None')
     parser.add_option('-r', '--random_noise', action='store_true', dest='add_noise',
         help='Add random noise to grasp proposal?', default=False)
+    parser.add_option('-b', '--record_data', action='store_true', dest='is_record',
+        help='Turn data recording on/off?', default=True)
+    parser.add_option('-c', '--control', action='store_true', dest='is_control',
+        help='Turn control policy on/off?', default=False)
     (opt, args) = parser.parse_args()
+
 
     p = TaskPlanner(opt)
 
@@ -43,7 +48,7 @@ def visualize_passive():
         print("getPassiveVisionEstimate 'update hm sg', '', ", bin_id)
         p.getPassiveVisionEstimate('update hm sg', '', bin_id)
     p.getBestGraspingPoint(0)
-    
+
 
     markers_msg = MarkerArray()
     m0 = createDeleteAllMarker('pick_proposals')
@@ -53,14 +58,11 @@ def visualize_passive():
     print('I will print: {} grasp proposals'.format(len(p.all_grasp_proposals)))
     ik.visualize_helper.visualize_grasping_proposals(p.proposal_viz_array_pub, p.all_grasp_proposals,  p.listener, p.br)
     ik.visualize_helper.visualize_grasping_proposals(p.proposal_viz_array_pub, np.asarray([p.grasp_point]),  p.listener, p.br,  is_selected =True)
-    
+
     p.all_grasp_proposals = None
 
 
 if __name__=='__main__':
     rospy.init_node('grasp_proposal_publisher')
-    
+
     visualize_passive()
-    
-    
-    

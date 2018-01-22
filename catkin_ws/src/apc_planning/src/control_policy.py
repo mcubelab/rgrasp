@@ -5,10 +5,11 @@ mcube_learning_path = os.environ['HOME'] + '/mcube_learning'
 sys.path.append(mcube_learning_path)
 
 from models.models import resnet_w_dense_layers, image_combined
-from helper.image_helper import convert_world2image, convert_image2world, translate_image, crop_gelsight
+from helper.image_helper import convert_world2image, convert_image2world, translate_image, crop_gelsight, back_substraction, preprocess_image
 from helper.helper import load_file
 from grasping17 import check_collision
 from cv_bridge import CvBridge, CvBridgeError
+from PIL import Image
 
 import numpy as np
 import scipy
@@ -38,17 +39,26 @@ class controlPolicy():
         self.bridge = CvBridge()
 
 
-    def control_policy(self, binId=0):
+    def control_policy(self, back_img_list, binId=0):
         #load data
+        background_images = back_img_list
         #capture image
         image_list = self.capture_images()
         #get current robot pose
         tcp_pose = ik.helper.get_tcp_pose(self.listener, tcp_offset = rospy.get_param("/gripper/spatula_tip_to_tcp_dist"))
-        #generate new images
-        self.action_dict = self.generate_new_images(image_list, tcp_pose, binId)
+        #perform background substraction
+        image_sub_list=[]
+        image_sub_list.append(back_substraction(image_list[0], background_images[0]))
+        image_sub_list.append(back_substraction(image_list[1], background_images[1]))
+        #generate new iamges
+        self.action_dict = self.generate_new_images(image_sub_list, tcp_pose, binId)
         self.best_action_dict = self.select_best_action()
         return self.best_action_dict
 
+    # def back_sub(self, image_list, back_list):
+    #     for i in range(len(image_list)):
+    #         image_list[i] = back_substraction(image_list[i], back_list[i])
+    #     return image_list
 
     def capture_images(self):
         #capture images
@@ -56,14 +66,14 @@ class controlPolicy():
         image_list = []
         for topic in self.image_topic_list:
             if rospy.get_param('have_robot'):
-                image_ros = rospy.wait_for_message(topic)
+                image_ros = rospy.wait_for_message(topic, sensor_msgs.msg.Image)
                 image_list.append(self.bridge.imgmsg_to_cv2(image_ros, 'rgb8'))
             else:
                 image_path = '/media/mcube/data/Dropbox (MIT)/images/gelsight_fingerprint.png'
                 image_list.append(cv2.imread(image_path, 1))
         return image_list
 
-    def generate_new_images(self, image_list, tcp_pose, binId):
+    def generate_new_images(self, back_image_list, tcp_pose, binId):
         out_dict = {}
         out_dict['images'] = []
         out_dict['images2'] = []
@@ -80,13 +90,33 @@ class controlPolicy():
                 #y in world frame -> x in pixel frame
                 #z in world frame -> y in pixel frame
                 pos_pixel = convert_world2image(np.array([y,z]))
+                #resize image
+                pdb.set_trace()
+                img0 =  Image.fromarray(back_image_list[0])
+                img1 =  Image.fromarray(back_image_list[1])
+                img0 = img0.resize((224, 224))
+                img1 = img1.resize((224, 224))
+                img0=np.array(img0)
+                img1=np.array(img1)
 
-                gelsight_img1 = scipy.misc.imresize(crop_gelsight(image_list[0],40,0,15,18), (224,224,3))
-                gelsight_img2 = scipy.misc.imresize(crop_gelsight(image_list[1],25,10,37,25), (224,224,3))
+                #2. resize imagene
+                img0 =preprocess_image(img0)
+                img1 =preprocess_image(img1)
 
+
+
+                #crop image and resize
+                img0 = scipy.misc.imresize(crop_gelsight(img0, bottom_edge = 40, top_edge = 0, left_edge = 15, right_edge = 18), (224,224,3))
+                img1 = scipy.misc.imresize(crop_gelsight(img1,bottom_edge = 25, top_edge = 10, left_edge = 37, right_edge = 25), (224,224,3))
                 #translate image
-                out_dict['images'].append(translate_image(gelsight_img1, pos_pixel[0], pos_pixel[1]))
-                out_dict['images2'].append(translate_image(gelsight_img2, pos_pixel[0], pos_pixel[1]))
+                img0 = translate_image(img0, pos_pixel[0], pos_pixel[1])
+                img1 = translate_image(img1, pos_pixel[0], pos_pixel[1])
+                #preprocess image
+                # img0 = preprocess_image(img0)
+                # img1 = preprocess_image(img1)
+                #output images
+                out_dict['images'].append(img0)
+                out_dict['images2'].append(img1)
                 out_dict['delta_pos'].append(delta_pos)
         return out_dict
 

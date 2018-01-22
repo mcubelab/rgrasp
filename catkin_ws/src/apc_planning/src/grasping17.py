@@ -41,7 +41,8 @@ def check_collision(tcp_pose, delta_pos, listener, br, binId=0):
     is_collision = collisionFree(graspPos, binId=binId, listener=listener, br=br, finger_opening = grasp_width, safety_margin = 0.00, theta = theta, is_bool = True)
     return is_collision
 
-def grasp_correction(delta_pos,
+def grasp_correction(objInput,
+                        delta_pos,
                         listener,
                         br,
                         isExecute = True,
@@ -52,22 +53,24 @@ def grasp_correction(delta_pos,
                         recorder = None):
 
     #define constants
-    spatula_tip_to_tcp_dist = rospy.get_param("/gripper/spatula_tip_to_tcp_dist")
-    l1 = 0.0
-    l2 = 0.0
-    l3 = spatula_tip_to_tcp_dist
-    tip_hand_transform = [l1, l2, l3, 0,0,0]
-    #get current robot configuration
-    targetPose = ik.helper.get_tcp_pose(listener, tcp_offset = spatula_tip_to_tcp_dist)
-    #make sure poses are array types
-    targetPose = np.array(targetPose)
-    delta_pos = np.array(delta_pos)
-    #compute new grasp location
-    objInput = np.zeros((7))
-    objInput[0:3] = targetPose[0:3] + delta_pos
-    objInput[3:7] = targetPose[3:7]
+    # spatula_tip_to_tcp_dist = rospy.get_param("/gripper/spatula_tip_to_tcp_dist")
+    # l1 = 0.0
+    # l2 = 0.0
+    # l3 = spatula_tip_to_tcp_dist
+    # tip_hand_transform = [l1, l2, l3, 0,0,0]
+    # #get current robot configuration
+    # targetPose = ik.helper.get_tcp_pose(listener, tcp_offset = spatula_tip_to_tcp_dist)
+    # #make sure poses are array types
+    # targetPose = np.array(targetPose)
+    # delta_pos = np.array(delta_pos)
+    # #compute new grasp location
+    # objInput_tmp = np.zeros((7))
+    # objInput_tmp[0:3] = targetPose[0:3] + delta_pos
+    # objInput_tmp[3:7] = targetPose[3:7]
+    objInput[0:3] = objInput[0:3] + delta_pos
     #release grasp safely
     release_safe(listener)
+
     #go for new position
     return grasp(objInput,
               listener,
@@ -660,6 +663,7 @@ def unit_test(listener, br):
     objInput.append(ik.helper.get_params_yaml('bin1_pose'))
     objInput.append(ik.helper.get_params_yaml('bin2_pose'))
 
+    objInput[0][3:7] = np.array([0.707,0,0.707,0])
     #~1. grasp object
     grasp_dict = grasp(objInput[0],
                   listener,
@@ -671,7 +675,8 @@ def unit_test(listener, br):
                   viz_pub = None,
                   recorder = None)
     #~2. regrasp object
-    regrasp_dict = grasp_correction(np.array([0.02, 0.01, 0.]),
+    regrasp_dict = grasp_correction(objInput[0],
+                            np.array([0.02, 0.01, 0.]),
                             listener,
                             br)
     #~3. retrieve object

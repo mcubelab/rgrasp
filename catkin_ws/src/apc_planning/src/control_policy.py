@@ -5,12 +5,13 @@ mcube_learning_path = os.environ['HOME'] + '/mcube_learning'
 sys.path.append(mcube_learning_path)
 
 from models.models import resnet_w_dense_layers, image_combined
-from helper.image_helper import convert_world2image, convert_image2world, translate_image
+from helper.image_helper import convert_world2image, convert_image2world, translate_image, crop_gelsight
 from helper.helper import load_file
 from grasping17 import check_collision
 from cv_bridge import CvBridge, CvBridgeError
 
 import numpy as np
+import scipy
 import sensor_msgs
 import pdb
 import ik
@@ -58,7 +59,7 @@ class controlPolicy():
                 image_ros = rospy.wait_for_message(topic)
                 image_list.append(self.bridge.imgmsg_to_cv2(image_ros, 'rgb8'))
             else:
-                image_path = os.environ['CODE_BASE'] + '/docs/images/gelsight_fingerprint.png'
+                image_path = '/media/mcube/data/Dropbox (MIT)/images/gelsight_fingerprint.png'
                 image_list.append(cv2.imread(image_path, 1))
         return image_list
 
@@ -80,9 +81,12 @@ class controlPolicy():
                 #z in world frame -> y in pixel frame
                 pos_pixel = convert_world2image(np.array([y,z]))
 
+                gelsight_img1 = scipy.misc.imresize(crop_gelsight(image_list[0],40,0,15,18), (224,224,3))
+                gelsight_img2 = scipy.misc.imresize(crop_gelsight(image_list[1],25,10,37,25), (224,224,3))
+
                 #translate image
-                out_dict['images'].append(translate_image(image_list[0], pos_pixel[0], pos_pixel[1]))
-                out_dict['images2'].append(translate_image(image_list[1], pos_pixel[0], pos_pixel[1]))
+                out_dict['images'].append(translate_image(gelsight_img1, pos_pixel[0], pos_pixel[1]))
+                out_dict['images2'].append(translate_image(gelsight_img2, pos_pixel[0], pos_pixel[1]))
                 out_dict['delta_pos'].append(delta_pos)
         return out_dict
 

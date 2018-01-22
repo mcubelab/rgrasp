@@ -20,7 +20,7 @@ except:
 import sys
 sys.path.append(os.environ['CODE_BASE']+'/catkin_ws/src/weight_sensor/src')
 sys.path.append(os.environ['HOME'] + '/mcube_learning')
-from models.models import dummy_gelsight_model
+from models.models import two_gelsight_model
 import ws_prob
 import goToHome
 from grasping17 import place, grasp, retrieve, release_safe, grasp_correction
@@ -83,7 +83,7 @@ class TaskPlanner(object):
         self.PlacingPlanner = PlacingPlanner(visionType = self.visionType)
         #Control policy
         if self.is_control:
-            self.model = dummy_gelsight_model()
+            self.model = two_gelsight_model()
             self.controller = controlPolicy(self.model, ["rpi/gelsight/flip_raw_image",  "rpi/gelsight/flip_raw_image2"], self.listener, self.br)
         #Weights
         self.weightSensor = ws_prob.WeightSensor()

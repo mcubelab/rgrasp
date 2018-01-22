@@ -13,6 +13,7 @@ import pandas as pd
 import thread
 import gripper, spatula
 import datetime
+import copy
 
 class GraspDataRecorder:
   ##This class records the data gathered through the sensors
@@ -40,7 +41,6 @@ class GraspDataRecorder:
                     'ws_2': {'topic':'ws_stream{}'.format(2), 'msg_format':Float64},
                     'gs_image': {'topic':'rpi/gelsight/flip_raw_image', 'msg_format':Image},
                     'gs_image2': {'topic':'rpi/gelsight/flip_raw_image2', 'msg_format':Image},
-#                    'gs_image_compressed': {'topic':'rpi/gelsight/raw_image/compressed', 'msg_format':CompressedImage},
                     'gs_deflection': {'topic':'rpi/gelsight/deflection', 'msg_format':Int32},
                     'gs_contactarea': {'topic':'rpi/gelsight/contactarea', 'msg_format':gelsight_contactarea}, # Reformat DONE
                     'hand_commands': {'topic':'/hand_commands', 'msg_format':JointState}, # Reformat
@@ -199,23 +199,25 @@ class GraspDataRecorder:
 
   def __save_action(self):
       print '[RECORDER]: Saving action data...'
-
       #Directory creation
-      path = self.data_recorded['directory'] + '/' + str(self.data_recorded['action_id'])
+      path = self.data_recorded_copy['directory'] + '/' + str(self.data_recorded_copy['action_id'])
       if not os.path.exists(path):
         os.makedirs(path)
 
-      print self.data_recorded['grasp_status']
       #We save all the readings from the sensors
       for key in self.topic_dict:
-          #print key
+          if key == 'liftoff_time':
+              print ('[RECORDER]: SAVING LIFTOFF TIME')
+
           values_filename = str(key) + '_values'
           timestamps_filename = str(key) + '_timestamps'
+
           try:
-            values, timestamps = zip(*self.data_recorded[key])
+            values, timestamps = zip(*self.data_recorded_copy[key])
             np.savez_compressed(path + '/' + values_filename, values)
             np.savez_compressed(path + '/' + timestamps_filename, timestamps)
           except Exception as e:
+            print '[RECORDER]: ERROR WHILE SAVING (' + str(key) + ') :'
             print e
 
 
@@ -321,6 +323,8 @@ class GraspDataRecorder:
     del self.data_recorded['depth_count']
 
     if save_action:
+        self.data_recorded_copy = copy.deepcopy(self.data_recorded)
+        # self.__save_action(data)
         thread.start_new_thread(self.__save_action, ())
         thread.start_new_thread(self.__update_experiment_info, ())
 
@@ -331,6 +335,7 @@ class GraspDataRecorder:
       self.data_recorded['object_id'] = object_id
 
   def update_topic(self, key):
+    print '[RECORDER]: UPDATING INFO FROM TOPIC: ' + str(key)
     #if key == 'grasp_status':
         #print 'GRASP STATUS RECEIVED!!!!!!!!!!!!!!!!!!!!!!!!!!'
     #This function changes the value of the given topic for the msg and saves it
@@ -347,7 +352,7 @@ class GraspDataRecorder:
 
         time.sleep(1)
     except Exception as e:
-        print 1
+        print '[RECORDER]: ERROR WHILE UPDATING TOPIC 1'
         print e
 
     try:
@@ -364,7 +369,7 @@ class GraspDataRecorder:
         self.__update_experiment_info() #We reenter the last experiment info with the updated data_recorded
         self.kill_recorder() #We save this file
     except Exception as e:
-        print 2
+        print '[RECORDER]: ERROR WHILE UPDATING TOPIC 2'
         print e
 
 

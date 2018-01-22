@@ -24,6 +24,7 @@
 # Clion Files
 catkin_ws/src/cmake-build-debug/
 catkin_ws/src/.idea/
+catkin_ws/src/realsense_camera/.idea/
 
 catkin_ws/install
 catkin_ws/build

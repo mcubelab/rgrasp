@@ -209,6 +209,7 @@ def collisionFree(objInput, binId, listener, br, finger_opening=0, safety_margin
     show_plot = False
     margin=0
     (shape_translation,dist_val_min,feasible_solution,nearest_point) = collision_projection.projection_func(bin_pts,finger_pts,target_wf,target_hf,theta,show_plot,margin)
+
     if is_bool:
         if np.linalg.norm(dist_val_min) < 0.00001:
             return False

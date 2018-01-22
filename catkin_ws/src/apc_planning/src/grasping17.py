@@ -24,8 +24,9 @@ try:
 except:
     pass
 
-def check_collision(tcp_pose, delta_pos, listener=None, br=None, binId=0):
-
+def check_collision(tcp_pose, delta_pos, listener, br, binId=0):
+    #new positions
+    tcp_pose[0:3] = tcp_pose[0:3] + delta_pos
     #~Define reference frames
     world_X, world_Y, world_Z, tote_X, tote_Y, tote_Z, tote_pose_pos = ik.helper.reference_frames(listener= listener, br=br)
     #~get grasp pose and gripper opening from vision

@@ -235,7 +235,7 @@ function set_bash {
    export HISTTIMEFORMAT="%d/%m/%y %T "
 }
 
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cudnn/v5.1/lib64:/usr/local/cuda/lib64:/usr/local/cudnn/v5/lib64
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cudnn/v5.1/lib64:/usr/local/cuda-8.0/lib64
 
 if [ -f $HOME/software/torch/install/bin/torch-activate ]; then
   source $HOME/software/torch/install/bin/torch-activate

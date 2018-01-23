@@ -13,6 +13,7 @@ from ik.ik import generatePlan, EvalPlan, WeightGuard, executePlanForward
 from collision_detection.collisionHelper import collisionFree
 import gripper
 import ik.helper
+import ik.roshelper
 import ik.visualize_helper
 import sensor_msgs.msg
 import std_msgs.msg
@@ -53,13 +54,17 @@ def grasp_correction(objInput,
                         recorder = None):
 
     #define constants
-    # spatula_tip_to_tcp_dist = rospy.get_param("/gripper/spatula_tip_to_tcp_dist")
+    spatula_tip_to_tcp_dist = rospy.get_param("/gripper/spatula_tip_to_tcp_dist")
     # l1 = 0.0
     # l2 = 0.0
     # l3 = spatula_tip_to_tcp_dist
     # tip_hand_transform = [l1, l2, l3, 0,0,0]
     # #get current robot configuration
-    # targetPose = ik.helper.get_tcp_pose(listener, tcp_offset = spatula_tip_to_tcp_dist)
+    tcpPose = ik.helper.get_tcp_pose(listener, tcp_offset = spatula_tip_to_tcp_dist)
+    delta_pose_hand = np.zeros((7))
+    delta_pose_hand[0:3] = delta_pos + np.array([0,0,spatula_tip_to_tcp_dist])
+    delta_pose_hand[3:7] = np.array([0,0,0,1])
+    pose_world = ik.roshelper.poseTransform(delta_pose_hand, "link_6", "map", listener)
     # #make sure poses are array types
     # targetPose = np.array(targetPose)
     # delta_pos = np.array(delta_pos)
@@ -67,12 +72,13 @@ def grasp_correction(objInput,
     # objInput_tmp = np.zeros((7))
     # objInput_tmp[0:3] = targetPose[0:3] + delta_pos
     # objInput_tmp[3:7] = targetPose[3:7]
-    objInput[0:3] = objInput[0:3] + delta_pos
+    #delta_pos is in hand_frame
+    objInput_arr = np.array(objInput)
+    objInput_arr[0:3] = pose_world[0:3]
     #release grasp safely
     release_safe(listener)
-
     #go for new position
-    return grasp(objInput,
+    return grasp(objInput_arr,
               listener,
               br,
               isExecute = True,
@@ -675,7 +681,7 @@ def unit_test(listener, br):
                   viz_pub = None,
                   recorder = None)
     #~2. regrasp object
-    regrasp_dict = grasp_correction(objInput[0],
+    regrasp_dict = rrection(objInput[0],
                             np.array([0.02, 0.01, 0.]),
                             listener,
                             br)

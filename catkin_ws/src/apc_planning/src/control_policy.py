@@ -9,7 +9,7 @@ from helper.image_helper import convert_world2image, convert_image2world, transl
 from helper.helper import load_file
 from grasping17 import check_collision
 from cv_bridge import CvBridge, CvBridgeError
-from PIL import Image
+# from PIL import Image
 
 import numpy as np
 import scipy
@@ -87,37 +87,29 @@ class controlPolicy():
                 delta_pos = np.array([0,y,z])
                 is_collision = check_collision(tcp_pose, delta_pos, self.listener, self.br, binId)
                 # print is_collision
-                #y in world frame -> x in pixel frame
-                #z in world frame -> y in pixel frame
-                pos_pixel = convert_world2image(np.array([y,z]))
+                #x in pixel frame -> y in hand frame
+                #y in pixel frame -> -z in hand frame
+                pos_pixel = convert_world2image(np.array([y,-z]))
                 #resize image
-                pdb.set_trace()
-                img0 =  Image.fromarray(back_image_list[0])
-                img1 =  Image.fromarray(back_image_list[1])
-                img0 = img0.resize((224, 224))
-                img1 = img1.resize((224, 224))
-                img0=np.array(img0)
-                img1=np.array(img1)
-
-                #2. resize imagene
-                img0 =preprocess_image(img0)
-                img1 =preprocess_image(img1)
-
-
-
-                #crop image and resize
+                # img0 =  Image.fromarray(back_image_list[0])
+                # img1 =  Image.fromarray(back_image_list[1])
+                # img0 = img0.resize((224, 224))
+                # img1 = img1.resize((224, 224))
+                img0=scipy.misc.imresize(back_image_list[0], (224,224,3))
+                img1=scipy.misc.imresize(back_image_list[1], (224,224,3))
+                #2. crop and Resize
                 img0 = scipy.misc.imresize(crop_gelsight(img0, bottom_edge = 40, top_edge = 0, left_edge = 15, right_edge = 18), (224,224,3))
                 img1 = scipy.misc.imresize(crop_gelsight(img1,bottom_edge = 25, top_edge = 10, left_edge = 37, right_edge = 25), (224,224,3))
-                #translate image
+                #3. translate
                 img0 = translate_image(img0, pos_pixel[0], pos_pixel[1])
                 img1 = translate_image(img1, pos_pixel[0], pos_pixel[1])
-                #preprocess image
-                # img0 = preprocess_image(img0)
-                # img1 = preprocess_image(img1)
+                #4. preprocess
+                img0 =preprocess_image(img0)
+                img1 =preprocess_image(img1)
                 #output images
                 out_dict['images'].append(img0)
                 out_dict['images2'].append(img1)
-                out_dict['delta_pos'].append(delta_pos)
+                out_dict['delta_pos'].append(-delta_pos)
         return out_dict
 
     def select_best_action(self):
@@ -129,20 +121,32 @@ class controlPolicy():
         out_dict['image'] = self.action_dict['images'][best_index]
         out_dict['image2'] = self.action_dict['images2'][best_index]
         out_dict['delta_pos'] = self.action_dict['delta_pos'][best_index]
+        out_dict['prediction'] = self.action_dict['predictions'][best_index]
         return out_dict
 
     def visualize_actions(self):
         for counter, image in enumerate(self.action_dict['images']):
             f, ax = plt.subplots(1, 2)
-            ax[0].imshow(image, 'gray')
-            ax[1].imshow(image, 'gray')
+            ax[0].imshow(self.action_dict['images'][counter], 'gray')
+            ax[1].imshow(self.action_dict['images2'][counter], 'gray')
             ax[0].set_title('Success: {}'.format(self.action_dict['predictions'][counter][1]))
             # ax[1].set_title('Success: {}'.format(self.action_dict['predictions'][counter][1]))
             # plt.xticks([])
             # plt.yticks([])
         plt.show()
         plt.close('all')
+        return
 
+    def visualize_best_action(self):
+        f, ax = plt.subplots(1, 2)
+        ax[0].imshow(self.best_action_dict['image'], 'gray')
+        ax[1].imshow(self.best_action_dict['image2'], 'gray')
+        ax[0].set_title('Success: {} delta_pos:{}'.format(self.best_action_dict['prediction'][1], self.best_action_dict['delta_pos']))
+        # ax[1].set_title('Success: {}'.format(self.action_dict['predictions'][counter][1]))
+        # plt.xticks([])
+        # plt.yticks([])
+        plt.show()
+        plt.close('all')
         return
 
 # To test the function

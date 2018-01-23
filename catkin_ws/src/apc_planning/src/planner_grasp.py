@@ -202,12 +202,14 @@ class TaskPlanner(object):
 
         if self.is_control:
             #find new and improved grasp points
-            best_grasp_dict = self.controller.control_policy()
+            back_img_list = self.controller.capture_images()
+            best_grasp_dict = self.controller.control_policy(back_img_list)
             self.controller.visualize_actions()
+            self.controller.visualize_best_action()
             print best_grasp_dict['delta_pos']
 
             #go for new grasp Point
-            self.grasping_output = grasp_correction(best_grasp_dict['delta_pos'], self.listener, self.br)
+            self.grasping_output = grasp_correction(self.grasp_point, best_grasp_dict['delta_pos'], self.listener, self.br)
 
         retrieve(listener=self.listener, br=self.br, isExecute=self.isExecute,
               binId=container,  withPause=False, viz_pub=self.viz_array_pub)
@@ -447,7 +449,8 @@ class TaskPlanner(object):
         if self.is_control:
             #find new and improved grasp points
             best_grasp_dict = self.controller.control_policy(back_img_list)
-            self.controller.visualize_actions()
+            # self.controller.visualize_actions()
+            self.controller.visualize_best_action()
             print best_grasp_dict['delta_pos']
 
             #go for new grasp Point

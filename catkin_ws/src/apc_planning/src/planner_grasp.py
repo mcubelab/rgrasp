@@ -204,7 +204,7 @@ class TaskPlanner(object):
             #find new and improved grasp points
             back_img_list = self.controller.capture_images()
             best_grasp_dict = self.controller.control_policy(back_img_list)
-            self.controller.visualize_actions(with_CAM = True)
+            self.controller.visualize_actions(with_CAM = False)
             self.controller.visualize_best_action()
             print best_grasp_dict['delta_pos']
 

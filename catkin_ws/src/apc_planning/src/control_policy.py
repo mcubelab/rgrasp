@@ -73,7 +73,7 @@ class controlPolicy():
                 image_list.append(cv2.imread(image_path, 1))
         return image_list
 
-    def generate_new_images(self, back_image_list, tcp_pose, binId, visualize_score_map = True):
+    def generate_new_images(self, back_image_list, tcp_pose, binId, visualize_score_map = False):
         out_dict = {}
         out_dict['images'] = []
         out_dict['images2'] = []
@@ -128,7 +128,7 @@ class controlPolicy():
         out_dict['prediction'] = self.action_dict['predictions'][best_index]
         return out_dict
 
-    def visualize_actions(self, with_CAM = True):
+    def visualize_actions(self, with_CAM = False):
         for counter, image in enumerate(self.action_dict['images']):
             f, ax = plt.subplots(1, 2)
             ax[0].imshow(self.action_dict['images'][counter], 'gray')

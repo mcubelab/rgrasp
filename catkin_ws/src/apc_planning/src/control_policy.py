@@ -110,7 +110,7 @@ class controlPolicy():
                 out_dict['images'].append(img0)
                 out_dict['images2'].append(img1)
                 out_dict['delta_pos'].append(-delta_pos)
-                self.score_map[y][z] = self.model.predict([img0, img1])
+                self.score_map[y][z] = self.model.predict([img0, img1])[1]
                 if visualize_score_map:
                     plt.imshow(self.score_map)
                     plt.show()

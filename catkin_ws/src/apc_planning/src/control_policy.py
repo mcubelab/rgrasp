@@ -141,19 +141,14 @@ class controlPolicy():
                 conv_layer = -1
                 softmax_layer = -1 #Last layer
                 desired_class=1
-                conv_layers = [-3, -4]
-                print self.model.layers[-3]
-                print self.model.layers[-4]
-                print self.model.layers[-5]
-                print self.model.layers[-3].name
-                pdb.set_trace()
-                img = [self.action_dict['images'][counter], self.action_dict['images2'][counter]]
+                conv_layers = [-7, -8]
+                img = [np.expand_dims(self.action_dict['images'][counter], axis=0), np.expand_dims(self.action_dict['images2'][counter], axis=0)]
                 CAM = plot_CAM(img, self.model, conv_layers, softmax_layer, desired_class)
         plt.show()
         plt.close('all')
         return
 
-    def visualize_best_action(self):
+    def visualize_best_action(self, with_CAM = True):
         f, ax = plt.subplots(1, 2)
         ax[0].imshow(self.best_action_dict['image'], 'gray')
         ax[1].imshow(self.best_action_dict['image2'], 'gray')
@@ -163,6 +158,13 @@ class controlPolicy():
         # plt.yticks([])
         plt.show()
         plt.close('all')
+        if with_CAM:                
+            conv_layer = -1
+            softmax_layer = -1 #Last layer
+            desired_class=1
+            conv_layers = [-7, -8]
+            img = [np.expand_dims(self.action_dict['images'][counter], axis=0), np.expand_dims(self.action_dict['images2'][counter], axis=0)]
+            CAM = plot_CAM(img, self.model, conv_layers, softmax_layer, desired_class)
         return
 
 # To test the function

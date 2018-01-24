@@ -10,7 +10,7 @@ from helper.helper import load_file
 from grasping17 import check_collision
 from cv_bridge import CvBridge, CvBridgeError
 # from PIL import Image
-
+from helper.visualize_CAM import plot_CAM
 import numpy as np
 import scipy
 import sensor_msgs
@@ -73,7 +73,7 @@ class controlPolicy():
                 image_list.append(cv2.imread(image_path, 1))
         return image_list
 
-    def generate_new_images(self, back_image_list, tcp_pose, binId):
+    def generate_new_images(self, back_image_list, tcp_pose, binId, visualize_score_map = False):
         out_dict = {}
         out_dict['images'] = []
         out_dict['images2'] = []
@@ -81,7 +81,7 @@ class controlPolicy():
         #search actions through y and z grid (in world frame)
         y_range = np.linspace(-0.025, 0.025, 5)
         z_range = np.linspace(-0.01, 0.01, 5)
-
+        self.score_map = np.zeros([y_range, z_range])
         for y in y_range:
             for z in z_range:
                 delta_pos = np.array([0,y,z])
@@ -110,6 +110,10 @@ class controlPolicy():
                 out_dict['images'].append(img0)
                 out_dict['images2'].append(img1)
                 out_dict['delta_pos'].append(-delta_pos)
+                self.score_map[y][z] = self.model.predict([img0, img1])[1]
+                if visualize_score_map:
+                    plt.imshow(self.score_map)
+                    plt.show()
         return out_dict
 
     def select_best_action(self):
@@ -124,7 +128,7 @@ class controlPolicy():
         out_dict['prediction'] = self.action_dict['predictions'][best_index]
         return out_dict
 
-    def visualize_actions(self):
+    def visualize_actions(self, with_CAM = False):
         for counter, image in enumerate(self.action_dict['images']):
             f, ax = plt.subplots(1, 2)
             ax[0].imshow(self.action_dict['images'][counter], 'gray')
@@ -133,6 +137,19 @@ class controlPolicy():
             # ax[1].set_title('Success: {}'.format(self.action_dict['predictions'][counter][1]))
             # plt.xticks([])
             # plt.yticks([])
+            if with_CAM:                
+                conv_layer = -3
+                softmax_layer = -1 #Last layer
+                desired_class=1
+                model_gelsight = resnet_w_dense_layers(layers_size=[], is_train = True)
+                model_gelsight2 = resnet_w_dense_layers(layers_size=[], is_train = True)
+                for layer in model_gelsight2.layers:
+                    layer.name = layer.name + '_2'
+                gelsight_conv_layer = self.model.layers.index(model_gelsight.layers[conv_layer])
+                gelsight2_conv_layer = self.model.layers.index(model_gelsight2.layers[conv_layer])
+                conv_layers = [gelsight_conv_layer, gelsight2_conv_layer]
+                img = [self.action_dict['images'][counter], self.action_dict['images2'][counter]]
+                CAM = plot_CAM(img, self.model, conv_layers, softmax_layer, desired_class)
         plt.show()
         plt.close('all')
         return

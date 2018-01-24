@@ -681,7 +681,7 @@ def unit_test(listener, br):
                   viz_pub = None,
                   recorder = None)
     #~2. regrasp object
-    regrasp_dict = rrection(objInput[0],
+    regrasp_dict = grasp_correction(objInput[0],
                             np.array([0.02, 0.01, 0.]),
                             listener,
                             br)

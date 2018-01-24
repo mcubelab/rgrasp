@@ -58,6 +58,7 @@ class TaskPlanner(object):
         self.experiment = opt.experiment
         self.isExecute = opt.isExecute
         self.add_noise = opt.add_noise
+        self.is_hand = opt.is_hand
         self.is_record = opt.is_record
         self.is_control = opt.is_control
         # ROS setup
@@ -280,33 +281,65 @@ class TaskPlanner(object):
         self.all_pick_proposals.sort(key=lambda x: x[-1], reverse=True)
         self.num_pick_proposals = len(self.all_pick_scores)
 
+    def noise_initialize(self):
+        std_x = 0.0
+        std_y = 0.025
+        std_ori = 0.
+        std_width = 0.0
+        noise_x = np.random.uniform(-std_x,std_x)
+        noise_y =  np.random.uniform(-std_y,std_y)
+        noise_ori = np.random.uniform(-std_ori,std_ori)
+        noise_width = np.random.uniform(-std_width,std_width)
+        self.grasp_std = [std_x,std_y, std_ori, std_width]
+        self.grasp_noise = [noise_x,noise_y, noise_ori, noise_width]
+        return
+
     def perturb_grasp_point(self):
         ### Add some random noise
         #grasp properties: [surfaceCentroid,graspDirection,graspDepth,graspJawWidth,gripperAngleDirection,graspConf]];
         #grasp properties: x,y,z,[0,0,-1],depth, width_gripper,angledirection, score
-        std_x = 0.025
-        std_y = 0.025
-        std_ori = 5
-        std_width = 0.0
-        noise_x = np.random.uniform(-std_x,std_x)
-        noise_y = np.random.uniform(-std_y,std_y)
-        noise_ori = np.random.uniform(-std_ori,std_ori)
-        noise_width = np.random.uniform(-std_width,std_width)
-        self.grasp_noise = [noise_x,noise_y, noise_ori, noise_width]
         ## Update
+        self.noise_initialize()
         #x
-        self.grasp_point[0] = self.grasp_point[0]+noise_x
+        self.grasp_point[0] = self.grasp_point[0]+self.grasp_noise[0]
         #y
-        self.grasp_point[1] = self.grasp_point[1]+noise_y
+        self.grasp_point[1] = self.grasp_point[1]+self.grasp_noise[1]
         #width
-        self.grasp_point[7] = self.grasp_point[7]+noise_width
+        self.grasp_point[7] = self.grasp_point[7]+self.grasp_noise[3]
         #ori
         initial_ori = math.acos(self.grasp_point[9])*180/math.pi
-        new_ori = initial_ori + noise_ori
+        new_ori = initial_ori + self.grasp_noise[2]
         rad_new_ori = new_ori*math.pi/180
         self.grasp_point[8] = -math.sin(rad_new_ori)
         self.grasp_point[9] = math.cos(rad_new_ori)
         ## if needed, we could compute the new score of the proposal...
+        return
+
+    def perturb_grasp_point_hand_frame(self):
+        ### Add some random noise in the hand frame as defined in RVIZ link_6
+        self.noise_initialize()
+        #get grasp pose
+        graspPos, hand_X, hand_Y, hand_Z, grasp_width = ik.helper.get_picking_params_from_12(self.grasp_point)
+        hand_orient_norm = np.vstack([hand_X,hand_Y,hand_Z])
+        hand_orient_norm=hand_orient_norm.transpose()
+        hand_orient_quat=ik.helper.mat2quat(hand_orient_norm)
+        grasp_pose = np.zeros(7)
+        grasp_pose[0:3] = self.grasp_point[0:3]
+        grasp_pose[3:7] = hand_orient_quat
+        #publish new frame
+        ik.roshelper.pubFrame(self.br, pose=grasp_pose, frame_id='hand_frame', parent_frame_id='map', npub=5)
+        #perturn grasp
+        delta_pose_hand = np.zeros((7))
+        delta_pose_hand[0:3] = np.array([self.grasp_noise[0], self.grasp_noise[1], 0])
+        delta_pose_hand[3:7] = np.array([0,0,0,1])
+        #convert perturbation back to world frame
+        pose_world = ik.roshelper.poseTransform(delta_pose_hand, "hand_frame", "map", self.listener)
+        #overwrite original grasp proposal
+        self.grasp_point[0] = pose_world[0]
+        self.grasp_point[1] = pose_world[1]
+        self.grasp_point[7] = self.grasp_point[7]+self.grasp_noise[3]
+        #ori
+        #TODO
         return
 
     def getBestGraspingPoint(self, container):
@@ -347,7 +380,10 @@ class TaskPlanner(object):
                 print ('[Planner]*************************************** Add noise*****************')
                 print ('[Planner]', self.add_noise)
                 if self.add_noise:
-                    self.perturb_grasp_point()
+                    if self.is_hand:
+                        self.perturb_grasp_point_hand_frame()
+                    else:
+                        self.perturb_grasp_point()
                 print('Best grasp point:', grasp_point, ' with score: ', self.grasp_score, 'in bin: ', container)
                 return
             if grasp_point is not None:
@@ -441,18 +477,21 @@ class TaskPlanner(object):
         ik.visualize_helper.visualize_grasping_proposals(self.proposal_viz_array_pub, np.asarray([self.grasp_point]),  self.listener, self.br, True)
 
         #execute for grasp. Stop when the gripper is closed
-        back_img_list = self.controller.capture_images()
+        if self.is_control:
+            back_img_list = self.controller.capture_images()
+
         self.grasping_output = grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container,
                                  withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
+         #pause
 
         if self.is_control:
             #find new and improved grasp points
             best_grasp_dict = self.controller.control_policy(back_img_list)
-            # self.controller.visualize_actions()
+            self.controller.visualize_actions()
             self.controller.visualize_best_action()
-            print best_grasp_dict['delta_pos']
-
+            #save network information action_dict and best_action_dict
+            #unpause
             #go for new grasp Point
             self.grasping_output = grasp_correction(self.grasp_point, best_grasp_dict['delta_pos'], self.listener, self.br)
         self.retrieve_output = retrieve(listener=self.listener, br=self.br,
@@ -630,6 +669,8 @@ if __name__ == '__main__':
         help='Name object considered', default='None')
     parser.add_option('-r', '--random_noise', action='store_true', dest='add_noise',
         help='Add random noise to grasp proposal?', default=False)
+    parser.add_option('-f', '--hand_frame', action='store_true', dest='is_hand',
+        help='Hand frame vs. world frame', default=False)
     parser.add_option('-b', '--record_data', action='store_true', dest='is_record',
         help='Turn data recording on/off?', default=True)
     parser.add_option('-c', '--control', action='store_true', dest='is_control',

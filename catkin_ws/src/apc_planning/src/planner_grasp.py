@@ -109,7 +109,9 @@ class TaskPlanner(object):
         self.im_input_depth_1_pub=rospy.Publisher('/im_input_depth_1',Image,queue_size = 10, latch=True)
         self.im_back_depth_1_pub=rospy.Publisher('/im_back_depth_1',Image,queue_size = 10, latch=True)
         self.experiment_comments_pub=rospy.Publisher('/exp_comments',String,queue_size = 10, latch=True)
-        self.objectList_pub=rospy.Publisher('/objectList',String,queue_size = 10, latch=True)
+        self.grasp_noise_pub=rospy.Publisher('/grasp_noise',Float32MultiArray,queue_size = 10, latch=True)
+        self.grasp_noise_std_dev_pub=rospy.Publisher('/grasp_noise_std_dev',Float32MultiArray,queue_size = 10, latch=True)
+        self.objectType_pub=rospy.Publisher('/objectType',String,queue_size = 10, latch=True)
         self.objectType_pub=rospy.Publisher('/objectType',String,queue_size = 10, latch=True)
         rospy.sleep(0.5)
 
@@ -292,6 +294,8 @@ class TaskPlanner(object):
         noise_width = np.random.uniform(-std_width,std_width)
         self.grasp_std = [std_x,std_y, std_ori, std_width]
         self.grasp_noise = [noise_x,noise_y, noise_ori, noise_width]
+        self.grasp_noise_std_dev_pub.publish(grasp_std)
+        self.grasp_noise_pub.publish(grasp_noise)
         return
 
     def perturb_grasp_point(self):
@@ -483,15 +487,22 @@ class TaskPlanner(object):
         self.grasping_output = grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container,
                                  withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
-         #pause
 
         if self.is_control:
+            # WE PAUSE THE RECOORDER TO SAVE DATA
+            self.gdr.pause_recording()
+
             #find new and improved grasp points
             best_grasp_dict = self.controller.control_policy(back_img_list)
             self.controller.visualize_actions()
             self.controller.visualize_best_action()
             #save network information action_dict and best_action_dict
-            #unpause
+            self.gdr.save_item(item_name='action_dict', data=self.controller.action_dict)
+            self.gdr.save_item(item_name='best_action_dict', data=self.controller.best_action_dict)
+
+            #WE UNPAUSE THE RECORDER
+            self.gdr.replay_recording()
+
             #go for new grasp Point
             self.grasping_output = grasp_correction(self.grasp_point, best_grasp_dict['delta_pos'], self.listener, self.br)
         self.retrieve_output = retrieve(listener=self.listener, br=self.br,

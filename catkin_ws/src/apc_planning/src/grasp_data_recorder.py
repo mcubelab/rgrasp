@@ -68,7 +68,9 @@ class GraspDataRecorder:
                     'impact_time': {'topic':'/impact_time', 'msg_format':Bool},
                     'objectList': {'topic':'/objectList', 'msg_format':String},
                     'objectType': {'topic':'/objectType', 'msg_format':String},
-                    'liftoff_time': {'topic':'/liftoff_time', 'msg_format':String}
+                    'liftoff_time': {'topic':'/liftoff_time', 'msg_format':String},
+                    'grasp_noise': {'topic':'/grasp_noise', 'msg_format':Float32MultiArray},
+                    'grasp_noise_std_dev': {'topic':'/grasp_noise_std_dev', 'msg_format':Float32MultiArray}
                     }
 
     #We delete the sensors we do not want to record
@@ -410,3 +412,22 @@ class GraspDataRecorder:
         event_dict[name] = timestamp
 
       return event_dict
+
+  def save_item(self, item_name, data):
+      val = [(item_name, rospy.get_time())]
+      self.data_recorded[item_name] = val
+
+
+  def pause_recording(self):
+      print '################## RECORDING_PAUSED ########################'
+      #We unregister from the topics
+      for key in self.subscribers:
+          self.subscribers[key].unregister()
+
+  def replay_recording(self):
+      print '################## RECORDING_RESTARTED ########################'
+      self.subscribers = {}
+      for key in self.topic_dict: #We subscribe to every topic in the topic_dict
+          topic = self.topic_dict[key]['topic']
+          msg_format = self.topic_dict[key]['msg_format']
+          self.subscribers[key] = rospy.Subscriber(topic, msg_format, self.__callback, key)

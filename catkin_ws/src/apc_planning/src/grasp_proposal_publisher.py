@@ -33,6 +33,8 @@ def visualize_passive():
         help='Name object considered', default='None')
     parser.add_option('-r', '--random_noise', action='store_true', dest='add_noise',
         help='Add random noise to grasp proposal?', default=False)
+    parser.add_option('-f', '--hand_frame', action='store_true', dest='is_hand',
+        help='Hand frame vs. world frame', default=False)
     parser.add_option('-b', '--record_data', action='store_true', dest='is_record',
         help='Turn data recording on/off?', default=True)
     parser.add_option('-c', '--control', action='store_true', dest='is_control',

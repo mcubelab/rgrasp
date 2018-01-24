@@ -631,7 +631,7 @@ class TaskPlanner(object):
                 self.save_passive_vision_images(self.tote_ID)
 
             if self.fails_in_row > 3: # 10. Failed too many times, take action
-                if self.infinite_looping:
+                if self.infinite_looping and len(obj_list) > 1:
                     self.switch_tote()
                     print('The pick failed 4 times in a row, switching totes, the tote id is {}'.format(self.tote_ID))
                 else:

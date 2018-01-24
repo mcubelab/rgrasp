@@ -13,6 +13,7 @@ import goToHome
 from subprocess import call
 import lasers
 import grasp_proposal_publisher
+import ik.helper
 
 rospy.init_node('gui', anonymous=True)
 
@@ -41,9 +42,16 @@ def stop_lasers1():
     lasers.stop(1)
     
 def test_passive():
-    #~ pass
     grasp_proposal_publisher.visualize_passive()
-    #~ call('rosrun apc_planning grasp_proposal_publisher.py ')
+    
+def go_up():
+    gripper.open()
+    ik.helper.move_cart(dz=.3)
+    
+def go_up_arc():
+    gripper.open()
+    ik.helper.move_cart(dz=.3)
+    goToHome.goToARC()
     
     
 
@@ -65,6 +73,10 @@ B4 = Tkinter.Button(top, text = 'spatula open', command = spatula.open)
 B4.pack()
 C1 = Tkinter.Button(top, text = 'test passive vision', command = test_passive)
 C1.pack()
+C2 = Tkinter.Button(top, text = 'go up safe', command = go_up)
+C2.pack()
+C3 = Tkinter.Button(top, text = 'go up arc', command = go_up_arc)
+C3.pack()
 
 
 top.mainloop()

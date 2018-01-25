@@ -283,7 +283,7 @@ class TaskPlanner(object):
 
     def noise_initialize(self):
         std_x = 0.0
-        std_y = 0.025
+        std_y = 0.05
         std_ori = 0.
         std_width = 0.0
         noise_x = np.random.uniform(-std_x,std_x)

@@ -46,18 +46,18 @@ cam_configs = {'612203002922': {'bin_num': 'bin0', 'place': 'passive_near', 'ns'
 
               '616205001219': {'bin_num': 'bin1', 'place': 'passive_near', 'ns': 'arc_1'}, 
               '61420501085': {'bin_num': 'bin1', 'place': 'passive_far', 'ns': 'arc_1'}, 
-              '616205004776': {'bin_num': 'bin1', 'place': 'active_near', 'ns': 'arc_1'}, 
-              '614203003651': {'bin_num': 'bin1', 'place': 'active_far', 'ns': 'arc_1'},
+              #~ '616205004776': {'bin_num': 'bin1', 'place': 'active_near', 'ns': 'arc_1'}, 
+              #~ '614203003651': {'bin_num': 'bin1', 'place': 'active_far', 'ns': 'arc_1'},
 
               '612205002211': {'bin_num': 'bin2', 'place': 'passive_near', 'ns': 'arc_2'}, 
               '612203004574': {'bin_num': 'bin2', 'place': 'passive_far', 'ns': 'arc_2'}, 
-              '614205001856': {'bin_num': 'bin2', 'place': 'active_near', 'ns': 'arc_2'}, 
-              '613201001839': {'bin_num': 'bin2', 'place': 'active_far', 'ns': 'arc_2'},
+              #~ '614205001856': {'bin_num': 'bin2', 'place': 'active_near', 'ns': 'arc_2'}, 
+              #~ '613201001839': {'bin_num': 'bin2', 'place': 'active_far', 'ns': 'arc_2'},
 
               '617205001931': {'bin_num': 'bin3', 'place': 'passive_near', 'ns': 'arc_2'}, 
-              '612201002220': {'bin_num': 'bin3', 'place': 'passive_far', 'ns': 'arc_2'}, 
-              '616203002024': {'bin_num': 'bin3', 'place': 'active_near', 'ns': 'arc_2'}, 
-              '614204001012': {'bin_num': 'bin3', 'place': 'active_far', 'ns': 'arc_2'}}
+              '612201002220': {'bin_num': 'bin3', 'place': 'passive_far', 'ns': 'arc_2'}}
+              #~ '616203002024': {'bin_num': 'bin3', 'place': 'active_near', 'ns': 'arc_2'}, 
+              #~ '614204001012': {'bin_num': 'bin3', 'place': 'active_far', 'ns': 'arc_2'}}
 
 
 argv = sys.argv
@@ -69,7 +69,7 @@ else:
 
 for cameraid in cameraids:
     print 'calibrating', cameraid
-    save_dir = os.environ["ARCDATA_BASE"] + "/camera_calib/" + cameraid + '/'
+    save_dir = os.environ["DATA_BASE"] + "/camera_calib/" + cameraid + '/'
     with open(save_dir+'data.json') as data_file:    
         data = json.load(data_file)
 

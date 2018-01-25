@@ -69,10 +69,6 @@ group "calibration" {
         exec = "rosrun tf static_transform_publisher 0 -0.025 0.195 0 0 0 /link_6 /cross_tip 100";
         host = "localhost";
     }
-    cmd "1-transform-calibhook" {
-        exec = "rosrun tf static_transform_publisher -0.00883883476 0.00883883476 0.15 0 0 0 /link_6 /cross_tip 100";
-        host = "localhost";
-    }
     cmd "1-transform-realsense" {
         exec = "rosrun passive_vision pub_extrinsic.py 612203002922";
         host = "localhost";

@@ -81,12 +81,12 @@ def get_numbers_from_file(filename):
 
 
 def get_int(cameraid):
-    ret = get_numbers_from_file(os.environ['ARC_BASE'] + '/catkin_ws/src/passive_vision/camerainfo/' + cameraid + '.intrinsics.txt')
+    ret = get_numbers_from_file(os.environ['CODE_BASE'] + '/catkin_ws/src/passive_vision/camerainfo/' + cameraid + '.intrinsics.txt')
     print ret
     return [ret[0], ret[4], ret[2], ret[5], 0,0,0,0,0]
     
 def get_ext(cameraid):
-    ret = get_numbers_from_file(os.environ['ARC_BASE'] + '/catkin_ws/src/passive_vision/camerainfo/' + cameraid + '.pose.txt')
+    ret = get_numbers_from_file(os.environ['CODE_BASE'] + '/catkin_ws/src/passive_vision/camerainfo/' + cameraid + '.pose.txt')
     
     print 'read mat: ', np.array(ret).reshape((4,4))
     return np.array(ret).reshape((4,4))
@@ -96,7 +96,7 @@ def save_ext(cameraid, cam):
     mat[0][3] = cam[0]
     mat[1][3] = cam[1]
     mat[2][3] = cam[2]
-    filename = os.environ['ARC_BASE'] + '/catkin_ws/src/passive_vision/camerainfo/' + cameraid + '.pose.txt'
+    filename = os.environ['CODE_BASE'] + '/catkin_ws/src/passive_vision/camerainfo/' + cameraid + '.pose.txt'
     mat = np.linalg.inv(mat)
     
     print 'saved mat: ', mat
@@ -105,7 +105,7 @@ def save_ext(cameraid, cam):
 
 
 def save_depth_param(cameraid, cam):
-    filename = os.environ['ARC_BASE'] + '/catkin_ws/src/passive_vision/camerainfo/' + cameraid + '.xyz.offset.txt'
+    filename = os.environ['CODE_BASE'] + '/catkin_ws/src/passive_vision/camerainfo/' + cameraid + '.xyz.offset.txt'
     
     print 'saved param: ', cam
     with open(filename, 'w') as output_file:
@@ -144,7 +144,7 @@ if __name__ == '__main__':
 
     cameraid = sys.argv[1] #'612203002922'
 
-    save_dir = os.environ["ARCDATA_BASE"] + "/camera_calib/" + cameraid + '/'
+    save_dir = os.environ["DATA_BASE"] + "/camera_calib/" + cameraid + '/'
 
 
     x0_ext = get_ext(cameraid)

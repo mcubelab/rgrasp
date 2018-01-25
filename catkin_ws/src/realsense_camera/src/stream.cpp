@@ -5,6 +5,7 @@
 #include <time.h>
 #include <std_msgs/Float32MultiArray.h>
 #include <std_msgs/MultiArrayDimension.h>
+#include <boost/algorithm/string.hpp>
 
 const std::string currentDateTime() {
   time_t     now = time(0);
@@ -572,6 +573,8 @@ int main(int argc, char **argv) {
   int camera_bin2_id =1;
   
   for (int i=0;i<device_count;i++){
+    boost::erase_all(cam_serial_nums[i], " ");
+
     if ((cam_serial_nums[i])==camera_bin0_serial){
       camera_bin0_id = i;
     }

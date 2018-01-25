@@ -18,6 +18,7 @@ import cv2
 from sensor_msgs.msg import Image
 from robot_comm.srv import *
 from realsense_camera.srv import snapshot
+import pdb 
 
 import os
 import errno
@@ -61,13 +62,13 @@ cam_configs = {'612203002922': {'bin_num': 'bin0', 'place': 'passive_near', 'ns'
 
               '616205001219': {'bin_num': 'bin1', 'place': 'passive_near', 'ns': 'arc_1'}, 
               '61420501085': {'bin_num': 'bin1', 'place': 'passive_far', 'ns': 'arc_1'}, 
-              '616205004776': {'bin_num': 'bin1', 'place': 'active_near', 'ns': 'arc_1'}, 
-              '614203003651': {'bin_num': 'bin1', 'place': 'active_far', 'ns': 'arc_1'},
+              #'616205004776': {'bin_num': 'bin1', 'place': 'active_near', 'ns': 'arc_1'}, 
+              #'614203003651': {'bin_num': 'bin1', 'place': 'active_far', 'ns': 'arc_1'},
 
               '612205002211': {'bin_num': 'bin2', 'place': 'passive_near', 'ns': 'arc_1'}, 
               '612203004574': {'bin_num': 'bin2', 'place': 'passive_far', 'ns': 'arc_1'}, 
-              '614205001856': {'bin_num': 'bin2', 'place': 'active_near', 'ns': 'arc_1'}, 
-              '613201001839': {'bin_num': 'bin2', 'place': 'active_far', 'ns': 'arc_1'},
+              #'614205001856': {'bin_num': 'bin2', 'place': 'active_near', 'ns': 'arc_1'}, 
+              #'613201001839': {'bin_num': 'bin2', 'place': 'active_far', 'ns': 'arc_1'},
 
               '617205001931': {'bin_num': 'bin3', 'place': 'passive_near', 'ns': 'arc_1'}, 
               '612201002220': {'bin_num': 'bin3', 'place': 'passive_far', 'ns': 'arc_1'}, 
@@ -163,7 +164,7 @@ for cameraid in cameraids:
     bridge = CvBridge()
 
     data = []
-    save_dir = os.environ["ARCDATA_BASE"] + "/camera_calib/" + cameraid + '/'
+    save_dir = os.environ["DATA_BASE"] + "/camera_calib/" + cameraid + '/'
 
     import shutil
     try:
@@ -189,7 +190,8 @@ for cameraid in cameraids:
                 
                 point_cloud_xyz = capture[ cam_config['ns'] ](cameraid).point_cloud_xyz
                 
-                msg = rospy.wait_for_message(cam_config['ns']+"/realsense", Image)
+                #~ msg = rospy.wait_for_message(cam_config['ns']+"/realsense", Image)
+                msg = rospy.wait_for_message("/arc_1/rgb_bin0", Image)
                 timestr = timestr + 1
                 image_name = str(save_dir)+str(timestr)+".pgm"
                 pointcloud_name = str(save_dir)+str(timestr)+".npy"

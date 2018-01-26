@@ -51,8 +51,7 @@ class TaskPlanner(object):
         self.fails_in_row = 0
         self.switch_dict = {0:1,1:0}
         self.version = 1.0
-        self.experiment_description = "Comments: Passive vision is recorded in passive_vision_data folder with time stamps."
-        self.experiment_description = "Comments: Passive vision is recorded in passive_vision_data folder with time stamps."
+        self.experiment_description = "Comments: Ramps installed. Collection using 2 gelsights for glucose object. Noise value: y:0.07"
         # Configuration
         self.withPause = opt.withPause
         self.experiment = opt.experiment
@@ -283,7 +282,7 @@ class TaskPlanner(object):
 
     def noise_initialize(self):
         std_x = 0.0
-        std_y = 0.05
+        std_y = 0.07
         std_ori = 0.
         std_width = 0.0
         noise_x = np.random.uniform(-std_x,std_x)

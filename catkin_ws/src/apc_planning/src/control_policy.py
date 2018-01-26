@@ -38,6 +38,11 @@ class controlPolicy():
         self.br = br
         self.bridge = CvBridge()
 
+        self.action_dict_pub=rospy.Publisher('/action_dict',String,queue_size = 10, latch=True)
+        self.best_action_dict_pub=rospy.Publisher('/best_action_dict',String,queue_size = 10, latch=True)
+
+
+
 
     def control_policy(self, back_img_list, binId=0):
         #load data
@@ -53,6 +58,9 @@ class controlPolicy():
         #generate new iamges
         self.action_dict = self.generate_new_images(image_sub_list, tcp_pose, binId)
         self.best_action_dict = self.select_best_action()
+
+        # TODO: Save this 2 things
+
         return self.best_action_dict
 
     # def back_sub(self, image_list, back_list):
@@ -137,7 +145,7 @@ class controlPolicy():
             # ax[1].set_title('Success: {}'.format(self.action_dict['predictions'][counter][1]))
             # plt.xticks([])
             # plt.yticks([])
-            if with_CAM:                
+            if with_CAM:
                 conv_layer = -1
                 softmax_layer = -1 #Last layer
                 desired_class=1

@@ -122,7 +122,8 @@ class controlPolicy():
                 out_dict['delta_pos'].append(-delta_pos)
                 self.score_map[it_y][it_z] = self.model.predict([np.expand_dims(img0, axis=0), np.expand_dims(img1, axis=0)])[0][1]
         if visualize_score_map:
-            plt.imshow(self.score_map, extent=[y_range[0], y_range[-1], z_range[0], z_range[-1]])
+            plt.pcolor(self.score_map, extent=[y_range[0], y_range[-1], z_range[0], z_range[-1]])
+            plt.colorbar()
             plt.show()
         return out_dict
 
@@ -139,11 +140,13 @@ class controlPolicy():
         return out_dict
 
     def visualize_actions(self, with_CAM = True):
+        num_img = 5
         for counter, image in enumerate(self.action_dict['images']):
-            f, ax = plt.subplots(1, 2)
-            ax[0].imshow(self.action_dict['images'][counter], 'gray')
-            ax[1].imshow(self.action_dict['images2'][counter], 'gray')
-            ax[0].set_title('Success: {}'.format(self.action_dict['predictions'][counter][1]))
+            if np.mod(counter,5) == 0:
+                f, ax = plt.subplots(num_img, 1)
+            combined_image = np.concatenate((self.action_dict['images'][counter], self.action_dict['images2'][counter]), axis=1)
+            # ax[1].imshow(self.action_dict['images2'][counter], 'gray')
+            ax[num_img-1-np.mod(counter,5)].set_title('Success: {}'.format(self.action_dict['predictions'][counter][1]))
             # ax[1].set_title('Success: {}'.format(self.action_dict['predictions'][counter][1]))
             # plt.xticks([])
             # plt.yticks([])
@@ -153,7 +156,10 @@ class controlPolicy():
                 desired_class=1
                 conv_layers = [-7, -8]
                 img = [np.expand_dims(self.action_dict['images'][counter], axis=0), np.expand_dims(self.action_dict['images2'][counter], axis=0)]
-                CAM = plot_CAM(img, self.model, conv_layers, softmax_layer, desired_class)
+                CAM = plot_CAM(img, self.model, conv_layers, softmax_layer, desired_class, show_plot=False)
+                combined_CAM = np.concatenate((CAM[0], CAM[1]), axis=1)*0.5+combined_image*0.5
+                combined_image = np.concatenate((combined_image, combined_CAM), axis=1)
+            ax[num_img-1-np.mod(counter,5)].imshow(combined_image, 'gray')
         plt.show()
         plt.close('all')
         return

@@ -17,6 +17,8 @@ import sensor_msgs
 import pdb
 import ik
 from matplotlib import pyplot as plt
+from std_msgs.msg import Float32MultiArray, String
+
 
 def predict_success(model, img):
     img = np.expand_dims(img, axis=0)
@@ -166,7 +168,7 @@ class controlPolicy():
         # plt.yticks([])
         plt.show()
         plt.close('all')
-        if with_CAM:                
+        if with_CAM:
             conv_layer = -1
             softmax_layer = -1 #Last layer
             desired_class=1

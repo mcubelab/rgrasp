@@ -121,10 +121,10 @@ class controlPolicy():
                 out_dict['images2'].append(img1)
                 out_dict['delta_pos'].append(-delta_pos)
                 self.score_map[it_y][it_z] = self.model.predict([np.expand_dims(img0, axis=0), np.expand_dims(img1, axis=0)])[0][1]
-        if visualize_score_map:
-            plt.pcolor(self.score_map, extent=[y_range[0], y_range[-1], z_range[0], z_range[-1]])
-            plt.colorbar()
-            plt.show()
+        # if visualize_score_map:
+        #     plt.pcolor(self.score_map, extent=[y_range[0], y_range[-1], z_range[0], z_range[-1]])
+        #     plt.colorbar()
+        #     plt.show()
         return out_dict
 
     def select_best_action(self):
@@ -143,6 +143,7 @@ class controlPolicy():
         num_img = 5
         for counter, image in enumerate(self.action_dict['images']):
             if np.mod(counter,5) == 0:
+                plt.show()
                 f, ax = plt.subplots(num_img, 1)
             combined_image = np.concatenate((self.action_dict['images'][counter], self.action_dict['images2'][counter]), axis=1)
             # ax[1].imshow(self.action_dict['images2'][counter], 'gray')
@@ -157,10 +158,17 @@ class controlPolicy():
                 conv_layers = [-7, -8]
                 img = [np.expand_dims(self.action_dict['images'][counter], axis=0), np.expand_dims(self.action_dict['images2'][counter], axis=0)]
                 CAM = plot_CAM(img, self.model, conv_layers, softmax_layer, desired_class, show_plot=False)
-                combined_CAM = np.concatenate((CAM[0], CAM[1]), axis=1)*0.5+combined_image*0.5
+                CAM0 = np.zeros((CAM[0][0].shape[0], CAM[0][0].shape[1], 3))
+                CAM0[:, :, 0] = CAM[0][0]
+                CAM0[:, :, 1] = CAM[0][0]
+                CAM0[:, :, 2] = CAM[0][0]
+                CAM1 = np.zeros((CAM[0][1].shape[0], CAM[0][1].shape[1], 3))
+                CAM1[:, :, 0] = CAM[0][1]
+                CAM1[:, :, 1] = CAM[0][1]
+                CAM1[:, :, 2] = CAM[0][1]
+                combined_CAM = np.concatenate((CAM0, CAM1), axis=1)*0.5+combined_image*0.5
                 combined_image = np.concatenate((combined_image, combined_CAM), axis=1)
-            ax[num_img-1-np.mod(counter,5)].imshow(combined_image, 'gray')
-        plt.show()
+            ax[num_img-1-np.mod(counter,5)].imshow(combined_image,  'gray')
         plt.close('all')
         return
 
@@ -179,7 +187,7 @@ class controlPolicy():
             softmax_layer = -1 #Last layer
             desired_class=1
             conv_layers = [-7, -8]
-            img = [np.expand_dims(self.action_dict['images'][counter], axis=0), np.expand_dims(self.action_dict['images2'][counter], axis=0)]
+            img = [np.expand_dims(self.best_action_dict['image'], axis=0), np.expand_dims(self.best_action_dict['image2'], axis=0)]
             CAM = plot_CAM(img, self.model, conv_layers, softmax_layer, desired_class)
         return
 

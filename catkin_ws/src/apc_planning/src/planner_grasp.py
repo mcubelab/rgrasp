@@ -496,8 +496,8 @@ class TaskPlanner(object):
 
             #find new and improved grasp points
             best_grasp_dict = self.controller.control_policy(back_img_list)
-            self.controller.visualize_actions()
-            self.controller.visualize_best_action()
+            self.controller.visualize_actions(with_CAM = False)
+            self.controller.visualize_best_action(with_CAM = False)
             #save network information action_dict and best_action_dict
             self.gdr.save_item(item_name='action_dict', data=self.controller.action_dict)
             self.gdr.save_item(item_name='best_action_dict', data=self.controller.best_action_dict)

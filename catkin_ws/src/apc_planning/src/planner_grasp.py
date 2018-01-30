@@ -51,7 +51,7 @@ class TaskPlanner(object):
         self.fails_in_row = 0
         self.switch_dict = {0:1,1:0}
         self.version = 1.0
-        self.experiment_description = "Comments: Ramps installed. Collection using 2 gelsights for clorox_utility_brush object. Noise value: y:0.07"
+        self.experiment_description = "Comments: Ramps installed. Collection using 2 gelsights for glucose object. Noise value: y:0.07. Gelsight 2 broken. Don't use in data collection"
         # Configuration
         self.withPause = opt.withPause
         self.experiment = opt.experiment
@@ -661,7 +661,7 @@ class TaskPlanner(object):
 
             if self.fails_in_row > 3: # 10. Failed too many times, take action
                 if self.infinite_looping and len(obj_list) > 1:
-                    self.switch_tote()
+                    #self.switch_tote()
                     print('The pick failed 4 times in a row, switching totes, the tote id is {}'.format(self.tote_ID))
                 else:
                     print('The pick failed 4 times in a row, stopping')

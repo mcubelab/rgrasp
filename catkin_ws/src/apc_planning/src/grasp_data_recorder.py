@@ -35,6 +35,7 @@ class GraspDataRecorder:
 
   def __reset_vars(self, action, action_id, tote_num, frame_rate_ratio, image_size):
     #Dictionary with all the topics that we will need to subscribe (HARDCODED)
+    self.save_data_recorded = True
     self.topic_dict = {
                     'ws_0': {'topic':'ws_stream{}'.format(0), 'msg_format':Float64},
                     'ws_1': {'topic':'ws_stream{}'.format(1), 'msg_format':Float64},
@@ -65,6 +66,7 @@ class GraspDataRecorder:
                     'depth_bin2': {'topic':'/arc_1/depth_bin2', 'msg_format':Image},
                     'wsg_driver': {'topic':'/wsg_50_driver/status', 'msg_format':Status}, # Reformat DONE
                     'exp_comments': {'topic':'/exp_comments', 'msg_format':String},
+                    'exp_type': {'topic':'/exp_type', 'msg_format':String},
                     'impact_time': {'topic':'/impact_time', 'msg_format':Bool},
                     'objectList': {'topic':'/objectList', 'msg_format':String},
                     'objectType': {'topic':'/objectType', 'msg_format':String},
@@ -301,6 +303,7 @@ class GraspDataRecorder:
 
   def start_recording(self, action, action_id, tote_num=1, frame_rate_ratio=10, image_size=-1):
     print '################## RECORDING_NOW ############################'
+    self.save_data_recorded = True
 
     action_id = str(action) + '_' + str(action_id)
     self.__reset_vars(action=action, action_id=action_id, tote_num=tote_num, frame_rate_ratio=frame_rate_ratio, image_size=image_size)
@@ -324,12 +327,11 @@ class GraspDataRecorder:
     del self.data_recorded['rgb_count']
     del self.data_recorded['depth_count']
 
-    if save_action:
+    if save_action & self.save_data_recorded:
         self.data_recorded_copy = copy.deepcopy(self.data_recorded)
         # self.__save_action(data)
         thread.start_new_thread(self.__save_action, ())
         thread.start_new_thread(self.__update_experiment_info, ())
-
     return
 
 

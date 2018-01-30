@@ -1,4 +1,4 @@
-/obj:    
+/obj:
   #~ toilet_brush:
     #~ dimensions: [0.403, 0.168, 0.085]
     #~ name: toilet_brush
@@ -14,11 +14,16 @@
     #~ name: scotch_sponges
     #~ type: wrapped
     #~ weight: 0.064
-  up_glucose_bottle:
-    dimensions: [0.136, 0.068, 0.068]
-    name: up_glucose_bottle
+  clorox_utility_brush:
+    dimensions: [0.14, 0.1, 0.08]
+    name: clorox_utility_brush
     type: cylinder
-    weight: 0.274
+    weight: 0.143
+  # up_glucose_bottle:
+  #   dimensions: [0.136, 0.068, 0.068]
+  #   name: up_glucose_bottle
+  #   type: cylinder
+  #   weight: 0.274
   #~ reynolds_wrap:
     #~ dimensions: [0.319, 0.047, 0.047]
     #~ name: reynolds_wrap

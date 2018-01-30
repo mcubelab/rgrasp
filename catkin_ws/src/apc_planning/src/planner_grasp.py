@@ -51,7 +51,7 @@ class TaskPlanner(object):
         self.fails_in_row = 0
         self.switch_dict = {0:1,1:0}
         self.version = 1.0
-        self.experiment_description = "Comments: Ramps installed. Collection using 2 gelsights for glucose object. Noise value: y:0.07"
+        self.experiment_description = "Comments: Ramps installed. Collection using 2 gelsights for clorox_utility_brush object. Noise value: y:0.07"
         # Configuration
         self.withPause = opt.withPause
         self.experiment = opt.experiment
@@ -60,6 +60,10 @@ class TaskPlanner(object):
         self.is_hand = opt.is_hand
         self.is_record = opt.is_record
         self.is_control = opt.is_control
+        if self.is_control:
+            self.experiment_type = "is_control"
+        else:
+            self.experiment_type = "is_data_collection"
         # ROS setup
         self.listener = tf.TransformListener()
         self.br = tf.TransformBroadcaster()
@@ -108,6 +112,7 @@ class TaskPlanner(object):
         self.im_input_depth_1_pub=rospy.Publisher('/im_input_depth_1',Image,queue_size = 10, latch=True)
         self.im_back_depth_1_pub=rospy.Publisher('/im_back_depth_1',Image,queue_size = 10, latch=True)
         self.experiment_comments_pub=rospy.Publisher('/exp_comments',String,queue_size = 10, latch=True)
+        self.experiment_type_pub=rospy.Publisher('/exp_type',String,queue_size = 10, latch=True)
         # self.grasp_noise_pub=rospy.Publisher('/grasp_noise',Float32MultiArray,queue_size = 10, latch=True)
         # self.grasp_noise_std_dev_pub=rospy.Publisher('/grasp_noise_std_dev',Float32MultiArray,queue_size = 10, latch=True)
         self.objectList_pub=rospy.Publisher('/objectList',String,queue_size = 10, latch=True)
@@ -206,8 +211,8 @@ class TaskPlanner(object):
             #find new and improved grasp points
             back_img_list = self.controller.capture_images()
             best_grasp_dict = self.controller.control_policy(back_img_list)
-            self.controller.visualize_actions(with_CAM = False)
-            self.controller.visualize_best_action()
+            # self.controller.visualize_actions(with_CAM = False)
+            # self.controller.visualize_best_action()
             print best_grasp_dict['delta_pos']
 
             #go for new grasp Point
@@ -460,7 +465,10 @@ class TaskPlanner(object):
             self.grasp_noise_pub.publish(grasp_noise_msgs)
         comments_msgs = String()
         comments_msgs.data = self.experiment_description
+        experiment_type_msgs = String()
+        experiment_type_msgs.data = self.experiment_type
         self.experiment_comments_pub.publish(comments_msgs)
+        self.experiment_type_pub.publish(experiment_type_msgs)
 
         if self.grasp_point is None:
             print('It was suppose to do grasping, but there is no grasp proposal')
@@ -491,22 +499,30 @@ class TaskPlanner(object):
         self.gdr.save_item(item_name='grasp_noise', data=self.grasp_noise)
 
         if self.is_control:
-            # WE PAUSE THE RECOORDER TO SAVE DATA
-            self.gdr.pause_recording()
+            if gripper.getGripperopening() > 0.015:
+                print ('[Planner]: ', gripper.getGripperopening())
+                # WE PAUSE THE RECOORDER TO SAVE DATA
+                self.gdr.pause_recording()
 
-            #find new and improved grasp points
-            best_grasp_dict = self.controller.control_policy(back_img_list)
-            self.controller.visualize_actions(with_CAM = False)
-            self.controller.visualize_best_action(with_CAM = False)
-            #save network information action_dict and best_action_dict
-            self.gdr.save_item(item_name='action_dict', data=self.controller.action_dict)
-            self.gdr.save_item(item_name='best_action_dict', data=self.controller.best_action_dict)
+                #find new and improved grasp points
+                best_grasp_dict = self.controller.control_policy(back_img_list)
+                # self.controller.visualize_actions(with_CAM = False)
+                # self.controller.visualize_best_action(with_CAM = False)
+                #save network information action_dict and best_action_dict
+                self.gdr.save_item(item_name='action_dict', data=self.controller.action_dict)
+                self.gdr.save_item(item_name='best_action_dict', data=self.controller.best_action_dict)
+                #WE UNPAUSE THE RECORDER
+                self.gdr.replay_recording()
+                #go for new grasp Point
+                self.grasping_output = grasp_correction(self.grasp_point, best_grasp_dict['delta_pos'], self.listener, self.br)
+            else:
+                self.gdr.save_data_recorded = False
 
-            #WE UNPAUSE THE RECORDER
-            self.gdr.replay_recording()
-
-            #go for new grasp Point
-            self.grasping_output = grasp_correction(self.grasp_point, best_grasp_dict['delta_pos'], self.listener, self.br)
+        if self.experiment_type == 'is_data_collection':
+            if gripper.getGripperopening() > 0.015:
+                pass
+            else:
+                self.gdr.save_data_recorded = False
         self.retrieve_output = retrieve(listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container,
                                  withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)

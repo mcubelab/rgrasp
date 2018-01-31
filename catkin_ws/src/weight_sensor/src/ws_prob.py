@@ -33,6 +33,8 @@ class WeightSensor(object):
 
         # We start the fall detection publisher to record time during shaking
         self.pub = rospy.Publisher('/ws_drop_detect', Int32, queue_size=1)
+        self.drop_detected = True
+        self.drop_detection_bin = -1
 
     def calibrateWeights(self, withSensor=True):
         '''Compute baseline for tote weights and zero out readings,
@@ -78,7 +80,7 @@ class WeightSensor(object):
         (self.weight_buffer[stream_number]).append(data.data)
 
         #Detecting object drop
-        if (self.drop_detected == False):
+        if self.drop_detected == False:
             self.__identify_impact()
 
 
@@ -156,34 +158,42 @@ class WeightSensor(object):
         else:
             raise ValueError('Impossible bin number input')
 
-
-    def __identify_impact(self, threshold, binNum):
+    def __identify_impact(self):
         binNum = self.drop_detection_bin
+        if binNum == -1 or len(self.weight_buffer[binNum]) < 3:
+            return
 
         # 1. We get the mean of the first n-2 readings
         first_mean = 0
-        for index in range(self.sensor_count-2):
-            first_mean += self.weight_buffer[binNum][index]/(self.sensor_count-2)
+        n = len(self.weight_buffer[binNum])-2
+        for index in range(len(self.weight_buffer[binNum])-2):
+            first_mean += self.weight_buffer[binNum][index]/(len(self.weight_buffer[binNum])-2)
 
         last_mean = 0
-        for index in (self.sensor_count-range(2)-1):
+        for index in range(2):
+            index = len(self.weight_buffer[binNum])-1-index
             last_mean += self.weight_buffer[binNum][index]/2
 
         if ((last_mean - first_mean)/2) > self.threshold:
-            self.__drop_detected = True
-            pub.publish(1)
+            self.drop_detected = True
+            print "[WS DROP LISTENER]: Drop detected!"
+            self.pub.publish(1)
 
 
     def start_listening_for_drop(self, bin_num, threshold=50):
+        print "[WS DROP LISTENER]: START listening for drop called"
         self.drop_detected = False
-        self.drop_detection_bin = self.convertBinNum(binNum)
+        self.drop_detection_bin = self.convertBinNum(bin_num)
         self.threshold = threshold
 
-
     def stop_listening_for_drop(self):
-        if self.__drop_detected == False:
-            self.__drop_detected == True
-            pub.publish(0)
+        print "[WS DROP LISTENER]: STOP listening for drop called"
+        if self.drop_detected == False:
+            self.drop_detected = True
+            self.pub.publish(0)
+            print "[WS DROP LISTENER]: Drop NOT detected!"
+        self.drop_detected = True
+
 
 if __name__ == "__main__":
     rospy.init_node('ws_prob')

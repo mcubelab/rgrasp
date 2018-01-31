@@ -72,8 +72,8 @@ class GraspDataRecorder:
                     'objectType': {'topic':'/objectType', 'msg_format':String},
                     'liftoff_time': {'topic':'/liftoff_time', 'msg_format':String},
                     'grasp_noise': {'topic':'/grasp_noise', 'msg_format':Float32MultiArray},
-                    'grasp_noise_std_dev': {'topic':'/grasp_noise_std_dev', 'msg_format':Float32MultiArray}#,
-                    #'ws_drop_detect': {'topic':'/ws_drop_detect', 'msg_format':Int32}
+                    'grasp_noise_std_dev': {'topic':'/grasp_noise_std_dev', 'msg_format':Float32MultiArray},
+                    'ws_drop_detect': {'topic':'/ws_drop_detect', 'msg_format':Int32}
                     }
 
     #We delete the sensors we do not want to record
@@ -275,9 +275,9 @@ class GraspDataRecorder:
           message = self.data_recorded['grasp_status'][0][0]
           success = message['position'][0]
           if success > 0:
-              print '++++++++++++++++++++++++++++++++++++++++++++++++++GRASP SUCCESFULL'
+              print '[RECORDER]: GRASP SUCCESFULL'
           else:
-              print '++++++++++++++++++++++++++++++++++++++++++++++++++GRASP  NOT  SUCCESFULL'
+              print '[RECORDER]: GRASP  NOT  SUCCESFULL'
           info['success'] = success
       except Exception as e:
           print '[RECORDER]: ERROR FINDING SUCCESS:'
@@ -330,6 +330,7 @@ class GraspDataRecorder:
 
     if save_action & self.save_data_recorded:
         self.data_recorded_copy = copy.deepcopy(self.data_recorded)
+        time.sleep(1)
         # self.__save_action(data)
         thread.start_new_thread(self.__save_action, ())
         thread.start_new_thread(self.__update_experiment_info, ())
@@ -395,9 +396,10 @@ class GraspDataRecorder:
           spatula.open()
           sys.exit()
       #check if some sensors have count = 0
+
       for term in info_dict:
           if 'count' in term:
-              if ((info_dict[term]==0) and (term not in ['objectList_count', 'wsg_driver_count', 'grasp_status_count', 'objectType_count','im_input_depth_0_count','im_input_depth_1_count','im_back_depth_0_count','im_back_depth_1_count','im_input_color_0_count','im_input_color_1_count','im_back_color_0_count','im_back_color_1_count'])):
+              if ((info_dict[term]==0) and (term not in ['objectList_count', 'wsg_driver_count', 'grasp_status_count', 'objectType_count','im_input_depth_0_count','im_input_depth_1_count','im_back_depth_0_count','im_back_depth_1_count','im_input_color_0_count','im_input_color_1_count','im_back_color_0_count','im_back_color_1_count', 'ws_drop_detect_count'])):
                   abort()
 
 

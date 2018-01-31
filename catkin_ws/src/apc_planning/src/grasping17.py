@@ -292,7 +292,7 @@ def grasp(objInput,
     plans.append(sleep_plan)
 
      #~5. perform guarded move down
-    grasp_targetPosition[2] = bin_pose[2] -  rospy.get_param('/tote/height') + 0.01  #~frank hack for safety
+    grasp_targetPosition[2] = bin_pose[2] -  rospy.get_param('/tote/height') + 0.02  #~frank hack for safety
 
     plan, qf, plan_possible = generatePlan(q_initial, grasp_targetPosition, hand_orient_quat, tip_hand_transform, 'faster', guard_on=WeightGuard(binId, threshold = 100), plan_name = 'guarded_pick')
     if plan_possible:
@@ -407,6 +407,7 @@ def retrieve(listener,
     low_threshold = 0.0035
     high_threshold = 0.017
     #shake robot
+    rospy.sleep(1.5)
     if gripper.getGripperopening()>high_threshold and isExecute:
         # We initialize drop listener
         ws_object.start_listening_for_drop(bin_num=binId)

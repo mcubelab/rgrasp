@@ -72,7 +72,8 @@ class GraspDataRecorder:
                     'objectType': {'topic':'/objectType', 'msg_format':String},
                     'liftoff_time': {'topic':'/liftoff_time', 'msg_format':String},
                     'grasp_noise': {'topic':'/grasp_noise', 'msg_format':Float32MultiArray},
-                    'grasp_noise_std_dev': {'topic':'/grasp_noise_std_dev', 'msg_format':Float32MultiArray}
+                    'grasp_noise_std_dev': {'topic':'/grasp_noise_std_dev', 'msg_format':Float32MultiArray}#,
+                    #'ws_drop_detect': {'topic':'/ws_drop_detect', 'msg_format':Int32}
                     }
 
     #We delete the sensors we do not want to record
@@ -396,7 +397,7 @@ class GraspDataRecorder:
       #check if some sensors have count = 0
       for term in info_dict:
           if 'count' in term:
-              if ((info_dict[term]==0) and (term not in ['gs_image2_count', 'objectList_count', 'wsg_driver_count', 'grasp_status_count', 'objectType_count','im_input_depth_0_count','im_input_depth_1_count','im_back_depth_0_count','im_back_depth_1_count','im_input_color_0_count','im_input_color_1_count','im_back_color_0_count','im_back_color_1_count'])):
+              if ((info_dict[term]==0) and (term not in ['objectList_count', 'wsg_driver_count', 'grasp_status_count', 'objectType_count','im_input_depth_0_count','im_input_depth_1_count','im_back_depth_0_count','im_back_depth_1_count','im_input_color_0_count','im_input_color_1_count','im_back_color_0_count','im_back_color_1_count'])):
                   abort()
 
 

@@ -40,7 +40,7 @@ def shake(speed_name='superSaiyan'):
  #convert to mm
  dx=0. #mm
  dy=10. #mm
- dz=0. #mm
+ dz=10. #mm
  #Define ros services
  getCartRos = rospy.ServiceProxy('/robot1_GetCartesian', robot_GetCartesian)
  setCartRos = rospy.ServiceProxy('/robot1_SetCartesian', robot_SetCartesian)
@@ -52,14 +52,16 @@ def shake(speed_name='superSaiyan'):
              'fast': (100,30), 'slow': (50,15)}
  setSpeed(name2vel[speed_name][0], name2vel[speed_name][1])
 
- if (c.x+dx) < 1.2*1000 and (c.x-dx)>0.8*1000 and (c.y+dy) < .55*1000 and (c.y-dy)>-.55*1000 and (c.z+dz) < 1.*1000 and (c.z-dz)>0.6*1000:
-     for i in xrange(6):
-         setCartRos(c.x+dx, c.y+dy, c.z+dz, c.q0, c.qx, c.qy, c.qz)
-         setCartRos(c.x-dx, c.y-dy, c.z-dz, c.q0, c.qx, c.qy, c.qz)
-     setCartRos(c.x, c.y, c.z, c.q0, c.qx, c.qy, c.qz)
- else:
-     print ('[Helper] Current position dangerous for shaking')
-     print (c.x, c.y, c.z, c.q0, c.qx, c.qy, c.qz)
+ # if (c.x+dx) < 1.2*1000 and (c.x-dx)>0.8*1000 and (c.y+dy) < .55*1000 and (c.y-dy)>-.55*1000 and (c.z+dz) < 1.*1000 and (c.z-dz)>0.6*1000:
+ for i in xrange(6):
+     setCartRos(c.x+dx, c.y+dy, c.z, c.q0, c.qx, c.qy, c.qz)
+     setCartRos(c.x-dx, c.y-dy, c.z, c.q0, c.qx, c.qy, c.qz)
+     setCartRos(c.x, c.y, c.z+dz, c.q0, c.qx, c.qy, c.qz)
+     setCartRos(c.x, c.y, c.z-dz, c.q0, c.qx, c.qy, c.qz)
+ setCartRos(c.x, c.y, c.z, c.q0, c.qx, c.qy, c.qz)
+ # else:
+ #     print ('[Helper] Current position dangerous for shaking')
+ #     print (c.x, c.y, c.z, c.q0, c.qx, c.qy, c.qz)
 # p.setSpeedByName('fast')
 
 def GetJoints(joint_topic):

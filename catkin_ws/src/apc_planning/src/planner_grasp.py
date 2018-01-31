@@ -51,7 +51,7 @@ class TaskPlanner(object):
         self.fails_in_row = 0
         self.switch_dict = {0:1,1:0}
         self.version = 1.0
-        self.experiment_description = "Comments: Ramps installed. Collection using 2 gelsights for glucose object. Noise value: y:0.07. Gelsight 2 broken. Don't use in data collection"
+        self.experiment_description = "Comments: Ramps installed. Collection using 2 gelsights for glucose object. Noise value: Borders of object. Control policy off/ with double grasping and shaking."
         # Configuration
         self.withPause = opt.withPause
         self.experiment = opt.experiment
@@ -288,15 +288,19 @@ class TaskPlanner(object):
         self.num_pick_proposals = len(self.all_pick_scores)
 
     def noise_initialize(self):
+        max_length = max(rospy.get_param('obj/{}/dimensions'.format(self.get_objects()[0]))) #TODO: only valid for 1 object
+        min_length = min(rospy.get_param('obj/{}/dimensions'.format(self.get_objects()[0]))) #TODO: only valid for 1 object
+        gel_length = 0.05
+        interval = max_length/2. + gel_length/2. - min_length/2.
         std_x = 0.0
-        std_y = 0.07
+        # std_y = 0.07 #
         std_ori = 0.
         std_width = 0.0
         noise_x = np.random.uniform(-std_x,std_x)
-        noise_y =  np.random.uniform(-std_y,std_y)
+        noise_y =  (np.random.randint(2)*2-1)*(min_length/2. - gel_length/4.+ np.random.uniform(0,interval)) #np.random.uniform(-std_y,std_y)
         noise_ori = np.random.uniform(-std_ori,std_ori)
         noise_width = np.random.uniform(-std_width,std_width)
-        self.grasp_std = [std_x,std_y, std_ori, std_width]
+        self.grasp_std = [std_x,gel_length/2., std_ori, std_width]
         self.grasp_noise = [noise_x,noise_y, noise_ori, noise_width]
         # self.grasp_noise_std_dev_pub.publish(np.asarray(self.grasp_std))
         # self.grasp_noise_pub.publish(np.asarray(self.grasp_noise))
@@ -499,7 +503,7 @@ class TaskPlanner(object):
         self.gdr.save_item(item_name='grasp_noise', data=self.grasp_noise)
 
         if self.is_control:
-            if gripper.getGripperopening() > 0.015:
+            if gripper.getGripperopening() > 0.017:
                 print ('[Planner]: ', gripper.getGripperopening())
                 # WE PAUSE THE RECOORDER TO SAVE DATA
                 self.gdr.pause_recording()
@@ -515,14 +519,19 @@ class TaskPlanner(object):
                 self.gdr.replay_recording()
                 #go for new grasp Point
                 self.grasping_output = grasp_correction(self.grasp_point, best_grasp_dict['delta_pos'], self.listener, self.br)
+                self.gdr.save_data_recorded = True
             else:
                 self.gdr.save_data_recorded = False
 
+        #frank hack for double grasping
         if self.experiment_type == 'is_data_collection':
-            if gripper.getGripperopening() > 0.015:
-                pass
+            if gripper.getGripperopening() > 0.017:
+                self.grasping_output = grasp_correction(self.grasp_point, np.array([0,0,0]), self.listener, self.br)
+                self.gdr.save_data_recorded = True
             else:
                 self.gdr.save_data_recorded = False
+
+
         self.retrieve_output = retrieve(listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container,
                                  withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
@@ -618,7 +627,8 @@ class TaskPlanner(object):
                 #Identify object
                 max_prob_index = (self.weight_info[self.tote_ID]['probs']).tolist().index(max(self.weight_info[self.tote_ID]['probs']))
                 self.obj_ID = obj_list[max_prob_index]
-
+                if self.obj_ID == 'no_item':
+                    self.execution_possible = False
                 if self.execution_possible == None:
                     self.execution_possible = False
 #            if self.visionType == 'real': # 7. Update vision state of the tote

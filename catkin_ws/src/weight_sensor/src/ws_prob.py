@@ -8,6 +8,8 @@ import rospy
 from ast import literal_eval
 from std_msgs.msg import Float64
 import numpy as np
+import thread
+from std_msgs.msg import Int32
 
 class WeightSensor(object):
     '''Calibrate and Read Weight Sensor'''
@@ -28,6 +30,9 @@ class WeightSensor(object):
         # Start subscriber
         self.weight_buffer = [[0 for _ in xrange(self.num_samples)] for _ in xrange(self.sensor_count)]
         self.listener()
+
+        # We start the fall detection publisher to record time during shaking
+        self.pub = rospy.Publisher('/ws_drop_detect', Int32, queue_size=1)
 
     def calibrateWeights(self, withSensor=True):
         '''Compute baseline for tote weights and zero out readings,
@@ -55,7 +60,7 @@ class WeightSensor(object):
 
         item_list.append('no_item')
         realBinNum = self.convertBinNum(binNum)
- 
+
         # After compute the weight deficits found from the sensors
         weight = self.subtracted_weight(realBinNum,
                             real=withSensor, sim_weight=givenWeights)
@@ -71,6 +76,11 @@ class WeightSensor(object):
     def callback(self, data, stream_number):
         (self.weight_buffer[stream_number]).pop(0)
         (self.weight_buffer[stream_number]).append(data.data)
+
+        #Detecting object drop
+        if (self.drop_detected == False):
+            self.__identify_impact()
+
 
     def subtracted_weight(self, binNum,
                           real=True,
@@ -119,7 +129,7 @@ class WeightSensor(object):
         normalization_factor = sum(prob_vec)+1e-6
         prob_vec_norm = np.divide(prob_vec, normalization_factor)
 
-        print '[WS] Measured weight is {:6.2f} g'.format(measured_weight), 
+        print '[WS] Measured weight is {:6.2f} g'.format(measured_weight),
         print 'in bin {}\n[WS]'.format(binNum),
         wp = zip(item_list, obj_weights, prob_vec_norm)
         wp.sort(key=lambda x: x[2], reverse=True)
@@ -146,5 +156,34 @@ class WeightSensor(object):
         else:
             raise ValueError('Impossible bin number input')
 
+
+    def __identify_impact(self, threshold, binNum):
+        binNum = self.drop_detection_bin
+
+        # 1. We get the mean of the first n-2 readings
+        first_mean = 0
+        for index in range(self.sensor_count-2):
+            first_mean += self.weight_buffer[binNum][index]/(self.sensor_count-2)
+
+        last_mean = 0
+        for index in (self.sensor_count-range(2)-1):
+            last_mean += self.weight_buffer[binNum][index]/2
+
+        if ((last_mean - first_mean)/2) > self.threshold:
+            self.__drop_detected = True
+            pub.publish(1)
+
+
+    def start_listening_for_drop(self, bin_num, threshold=50):
+        self.drop_detected = False
+        self.drop_detection_bin = self.convertBinNum(binNum)
+        self.threshold = threshold
+
+
+    def stop_listening_for_drop(self):
+        if self.__drop_detected == False:
+            self.__drop_detected == True
+            pub.publish(0)
+
 if __name__ == "__main__":
-    rospy.init_node('ws_prob') 
+    rospy.init_node('ws_prob')

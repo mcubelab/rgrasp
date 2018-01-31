@@ -369,6 +369,7 @@ def retrieve(listener,
     l3 = spatula_tip_to_tcp_dist
     tip_hand_transform = [l1, l2, l3, 0,0,0]
     delta_vision_pose = ik.helper.get_params_yaml('vision_pose_picking')
+    delta_vision_pose[3:7] = np.array([0,1,0,0])
     vision_pos=np.array(bin_pose[0:3])+np.array(delta_vision_pose[0:3])
     vision_pos[2] = 0.17786528
     plans = []
@@ -408,7 +409,11 @@ def retrieve(listener,
 
     #~Check if picking success
     low_threshold = 0.0035
-    high_threshold = 0.015
+    high_threshold = 0.017
+    #shake robot
+    if gripper.getGripperopening()>high_threshold and isExecute:
+        ik.ik.shake()
+        rospy.sleep(2.)
 
     if isExecute and plan_possible:
       rospy.sleep(2)
@@ -417,7 +422,7 @@ def retrieve(listener,
           rospy.loginfo('[Picking] ***************')
           rospy.loginfo('[Picking] Pick Successful (Gripper Opening Test)')
           rospy.loginfo('[Picking] ***************')
-          execution_possible = None #temporary hack
+          execution_possible = True #temporary hack
       else:
           rospy.loginfo('[Picking] ***************')
           rospy.loginfo( '[Picking] Pick Inconclusive (Gripper Opening Test)')

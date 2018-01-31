@@ -232,7 +232,7 @@ def grasp(objInput,
     #~get grasp pose and gripper opening from vision
     if len(objInput)==12:
         graspPos, hand_X, hand_Y, hand_Z, grasp_width = ik.helper.get_picking_params_from_12(objInput)
-        graspPos = graspPos # + hand_X*0.02*1
+        graspPos = graspPos# + hand_X*0.02*1
     elif len(objInput)==7:
         graspPos, hand_X, hand_Y, hand_Z, grasp_width = ik.helper.get_picking_params_from_7(objInput, objId, listener, br)
 
@@ -306,7 +306,7 @@ def grasp(objInput,
     plans_guarded2.append(grasp_plan)
 
     #~8. Close gripper
-    grasp_plan = EvalPlan('helper.graspinGripper(%f,%f)'%(800,30))
+    grasp_plan = EvalPlan('helper.graspinGripper(%f,%f)'%(800,50))
     plans_guarded2.append(grasp_plan)
 
     #~9. sleep
@@ -405,18 +405,18 @@ def retrieve(listener,
 
     #~Check if picking success
     low_threshold = 0.0035
-    high_threshold = 0.017
+    high_threshold = 0.025
     #shake robot
     rospy.sleep(1.5)
-    if gripper.getGripperopening()>high_threshold and isExecute:
-        # We initialize drop listener
-        ws_object.start_listening_for_drop(bin_num=binId)
-
-        ik.ik.shake()
-        rospy.sleep(2.)
-
-        # We stop drop listener
-        ws_object.stop_listening_for_drop()
+    # if gripper.getGripperopening()>high_threshold and isExecute:
+    #     # We initialize drop listener
+    #     ws_object.start_listening_for_drop(bin_num=binId)
+    #
+    #     ik.ik.shake()
+    #     rospy.sleep(2.)
+    #
+    #     # We stop drop listener
+    #     ws_object.stop_listening_for_drop()
 
     ### We stop recording
     if recorder is not None:

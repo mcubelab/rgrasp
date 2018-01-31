@@ -80,6 +80,7 @@ class TaskPlanner(object):
         self.all_grasp_proposals = None
         self.grasp_noise = [0,0,0,0]
         self.grasp_point = None
+        self.grasp_std = None
         #Bad points
         self.bad_grasping_points = []
         self.bad_grasping_times = []
@@ -498,11 +499,11 @@ class TaskPlanner(object):
         self.grasping_output = grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container,
                                  withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
+        if self.is_record==True:
+            self.gdr.save_item(item_name='grasp_noise_std_dev', data=self.grasp_std)
+            self.gdr.save_item(item_name='grasp_noise', data=self.grasp_noise)
 
-        self.gdr.save_item(item_name='grasp_noise_std_dev', data=self.grasp_std)
-        self.gdr.save_item(item_name='grasp_noise', data=self.grasp_noise)
-
-        if self.is_control:
+        if self.is_control==True:
             if gripper.getGripperopening() > 0.017:
                 print ('[Planner]: ', gripper.getGripperopening())
                 # WE PAUSE THE RECOORDER TO SAVE DATA
@@ -524,12 +525,12 @@ class TaskPlanner(object):
                 self.gdr.save_data_recorded = False
 
         #frank hack for double grasping
-        if self.experiment_type == 'is_data_collection':
-            if gripper.getGripperopening() > 0.017:
-                self.grasping_output = grasp_correction(self.grasp_point, np.array([0,0,0]), self.listener, self.br)
-                self.gdr.save_data_recorded = True
-            else:
-                self.gdr.save_data_recorded = False
+        # if self.experiment_type == 'is_data_collection':
+        #     if gripper.getGripperopening() > 0.017:
+        #         self.grasping_output = grasp_correction(self.grasp_point, np.array([0,0,0]), self.listener, self.br)
+        #         self.gdr.save_data_recorded = True
+        #     else:
+        #         self.gdr.save_data_recorded = False
 
 
         self.retrieve_output = retrieve(listener=self.listener, br=self.br,
@@ -564,7 +565,7 @@ class TaskPlanner(object):
         # Place object using grasping
         self.rel_pose, self.BoxBody=vision_transform_precise_placing_with_visualization(self.bbox_info,viz_pub=self.viz_array_pub,listener=self.listener)
         place(listener=self.listener, br=self.br,
-                         isExecute=self.isExecute, binId=fixed_container[0],  withPause=self.withPause,
+                         isExecute=self.isExecute, binId=1,  withPause=self.withPause,
                          rel_pose=self.rel_pose, BoxBody=self.BoxBody, place_pose=drop_pose,
                          viz_pub=self.viz_array_pub, is_drop = False, recorder=self.gdr)
 
@@ -575,18 +576,18 @@ class TaskPlanner(object):
 
         #Get object list
         obj_list = self.get_objects()
-        print(obj_list)
+        # print(obj_list)
         #assert(False)
-        obj_ans = raw_input('Are these the objects?(y/n)')
-        while obj_ans != 'y':
-            obj_list = self.get_objects()
-            print(obj_list)
-            obj_ans = raw_input('Are these the objects?(y/n)')
+        # obj_ans = raw_input('Are these the objects?(y/n)')
+        # while obj_ans != 'y':
+            # obj_list = self.get_objects()
+            # print(obj_list)
+            # obj_ans = raw_input('Are these the objects?(y/n)')
 
-        objectList_msgs = String()
-        objectList_msgs.data = '\n'.join(obj_list)
-        #HACK
-        self.objectList_pub.publish(objectList_msgs)
+        # objectList_msgs = String()
+        # objectList_msgs.data = '\n'.join(obj_list)
+        # HACK
+        # self.objectList_pub.publish(objectList_msgs)
 
         goToHome.goToARC(slowDown=self.goHomeSlow) # 1. Initialize robot state
         if self.visionType == 'real': # 2. Passive vision update bins
@@ -599,12 +600,13 @@ class TaskPlanner(object):
         ##################
         ## stowing loop ##
         ##################
-        if rospy.get_param('have_robot') and self.is_record:
+        if (rospy.get_param('have_robot')==True and self.is_record==True):
             directory='/media/mcube/data/Dropbox (MIT)/rgrasp_dataset'
             assert(directory)
             self.gdr = GraspDataRecorder(directory=directory) #We instantiate the recorder
         else:
             self.gdr = None
+
         self.num_attempts = 0
         self.num_attempts_failed = 0
         while True:
@@ -625,12 +627,12 @@ class TaskPlanner(object):
                     self.execution_possible = True
 
                 #Identify object
-                max_prob_index = (self.weight_info[self.tote_ID]['probs']).tolist().index(max(self.weight_info[self.tote_ID]['probs']))
-                self.obj_ID = obj_list[max_prob_index]
-                if self.obj_ID == 'no_item':
-                    self.execution_possible = False
-                if self.execution_possible == None:
-                    self.execution_possible = False
+                # max_prob_index = (self.weight_info[self.tote_ID]['probs']).tolist().index(max(self.weight_info[self.tote_ID]['probs']))
+                # self.obj_ID = obj_list[max_prob_index]
+                # if self.obj_ID == 'no_item':
+                #     self.execution_possible = False
+                # if self.execution_possible == None:
+                #     self.execution_possible = False
 #            if self.visionType == 'real': # 7. Update vision state of the tote
 #                self.getPassiveVisionEstimate('update hm sg', '', self.tote_ID)
 #                self.save_passive_vision_images(self.tote_ID)
@@ -643,9 +645,9 @@ class TaskPlanner(object):
             object_ID_msgs = String()
             object_ID_msgs.data = self.obj_ID #, self.obj_weight]
 
-            if self.grasp_point is not None and rospy.get_param('have_robot'):
+            if self.grasp_point is not None and rospy.get_param('have_robot')==True and self.is_record==True:
                 self.grasp_status_pub.publish(grasp_status_msgs)
-                self.objectType_pub.publish(object_ID_msgs)
+                # self.objectType_pub.publish(object_ID_msgs)
                 self.gdr.update_topic(key='grasp_status')
                 self.gdr.update_topic(key='objectType')
 
@@ -654,7 +656,7 @@ class TaskPlanner(object):
                 self.fails_in_row = 0
                 self.bbox_info = fake_bbox_info_1(self.listener)#Give bounding box to the object
                 self.bbox_info[7:10] = [self.max_dimension, self.max_dimension, self.max_dimension]
-                self.planned_place() #TODO_M
+                self.planned_place()
             else:
                 self.num_attempts_failed += 1
                 self.fails_in_row += 1
@@ -684,8 +686,8 @@ class TaskPlanner(object):
         signal.signal(signal.SIGINT, self.original_sigint)
 
         print('Program manually stopped')
-
-        self.gdr.kill_recorder()
+        if self.gdr:
+            self.gdr.kill_recorder()
 
         signal.signal(signal.SIGINT, self.stop_running)
 
@@ -706,13 +708,13 @@ if __name__ == '__main__':
         help='Whether to run passive vision experiments', default=False)
     parser.add_option('-i', '--item', action='store', dest='objectType',
         help='Name object considered', default='None')
-    parser.add_option('-r', '--random_noise', action='store_true', dest='add_noise',
+    parser.add_option('-r', '--random_noise',  dest='add_noise',
         help='Add random noise to grasp proposal?', default=False)
-    parser.add_option('-f', '--hand_frame', action='store_true', dest='is_hand',
+    parser.add_option('-f', '--hand_frame',  dest='is_hand',
         help='Hand frame vs. world frame', default=False)
-    parser.add_option('-b', '--record_data', action='store_true', dest='is_record',
+    parser.add_option('-b', '--record_data', dest='is_record',
         help='Turn data recording on/off?', default=True)
-    parser.add_option('-c', '--control', action='store_true', dest='is_control',
+    parser.add_option('-c', '--control', dest='is_control',
         help='Turn control policy on/off?', default=False)
     (opt, args) = parser.parse_args()
 

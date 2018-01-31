@@ -14,11 +14,11 @@
     #~ name: scotch_sponges
     #~ type: wrapped
     #~ weight: 0.064
-  # clorox_utility_brush:
-  #   dimensions: [0.14, 0.1, 0.08]
-  #   name: clorox_utility_brush
-  #   type: cylinder
-  #   weight: 0.143
+  clorox_utility_brush:
+    dimensions: [0.14, 0.1, 0.08]
+    name: clorox_utility_brush
+    type: cylinder
+    weight: 0.143
   up_glucose_bottle:
     dimensions: [0.136, 0.068, 0.068]
     name: up_glucose_bottle

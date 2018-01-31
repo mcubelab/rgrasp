@@ -29,11 +29,12 @@ class Program:
         self.x0_int = x0_int
 
     def obj_func(self, cam):
+
         c0 = cam[0]
         c1 = cam[1]
         c2 = cam[2]
         diff = []
-        
+
         #print matrix_from_xyzrpy([0,0,0, c,0,0])
         for i in xrange(len(self.point3Ds)):
             point3D = self.point3Ds[i]
@@ -41,11 +42,11 @@ class Program:
             #point3D_pc_trans = np.array(point3D_pc + [1.0]) * c
             #import ipdb; ipdb.set_trace()
             point3D_pc_trans = np.dot(matrix_from_xyzrpy([c2 * point3D_pc[0] / point3D_pc[2],c2 * point3D_pc[1] / point3D_pc[2],c2, 0,0,0]), np.array([point3D_pc[0], point3D_pc[1], point3D_pc[2], 1.0]) )
-            
+
             #point3D_pc_trans[0] = point3D_pc[0] + c * point3D_pc[0] / point3D_pc[2]
             #point3D_pc_trans[1] = point3D_pc[1] + c * point3D_pc[1] / point3D_pc[2]
-            #point3D_pc_trans[2] = point3D_pc[2] + c 
-            
+            #point3D_pc_trans[2] = point3D_pc[2] + c
+
             point3D_pc_world = np.dot(self.x0_ext, point3D_pc_trans)
             #print point3D, point3D_pc_world[0:3].tolist()
             diff_ = npa(point3D, dtype=np.float) - point3D_pc_world[0:3].tolist()
@@ -55,7 +56,7 @@ class Program:
         print res / len(self.point3Ds)
         err = res / len(self.point3Ds)
         return err
-        
+
 
     def run(self):
 
@@ -84,10 +85,10 @@ def get_int(cameraid):
     ret = get_numbers_from_file(os.environ['CODE_BASE'] + '/catkin_ws/src/passive_vision/camerainfo/' + cameraid + '.intrinsics.txt')
     print ret
     return [ret[0], ret[4], ret[2], ret[5], 0,0,0,0,0]
-    
+
 def get_ext(cameraid):
     ret = get_numbers_from_file(os.environ['CODE_BASE'] + '/catkin_ws/src/passive_vision/camerainfo/' + cameraid + '.pose.txt')
-    
+
     print 'read mat: ', np.array(ret).reshape((4,4))
     return np.array(ret).reshape((4,4))
 
@@ -98,7 +99,7 @@ def save_ext(cameraid, cam):
     mat[2][3] = cam[2]
     filename = os.environ['CODE_BASE'] + '/catkin_ws/src/passive_vision/camerainfo/' + cameraid + '.pose.txt'
     mat = np.linalg.inv(mat)
-    
+
     print 'saved mat: ', mat
     with open(filename, 'w') as output_file:
         output_file.writelines(' '.join(str(j) for j in i) + '\n' for i in mat)
@@ -106,7 +107,7 @@ def save_ext(cameraid, cam):
 
 def save_depth_param(cameraid, cam):
     filename = os.environ['CODE_BASE'] + '/catkin_ws/src/passive_vision/camerainfo/' + cameraid + '.xyz.offset.txt'
-    
+
     print 'saved param: ', cam
     with open(filename, 'w') as output_file:
         output_file.writelines(' '.join(str(j) for j in cam))
@@ -126,9 +127,9 @@ if __name__ == '__main__':
               '616205004776': {'bin_num': 'bin1', 'place': 'active_near', 'ns': 'arc_1'},
               '614203003651': {'bin_num': 'bin1', 'place': 'active_far', 'ns': 'arc_1'},
 
-              '612205002211': {'bin_num': 'bin2', 'place': 'passive_near', 'ns': 'arc_2'}, 
-              '612204001396': {'bin_num': 'bin2', 'place': 'passive_far', 'ns': 'arc_2'}, 
-              '614205001856': {'bin_num': 'bin2', 'place': 'active_near', 'ns': 'arc_2'}, 
+              '612205002211': {'bin_num': 'bin2', 'place': 'passive_near', 'ns': 'arc_2'},
+              '612204001396': {'bin_num': 'bin2', 'place': 'passive_far', 'ns': 'arc_2'},
+              '614205001856': {'bin_num': 'bin2', 'place': 'active_near', 'ns': 'arc_2'},
               '613201001839': {'bin_num': 'bin2', 'place': 'active_far', 'ns': 'arc_2'},
 
               '617205001931': {'bin_num': 'bin3', 'place': 'passive_near', 'ns': 'arc_2'},
@@ -162,7 +163,7 @@ if __name__ == '__main__':
     depth_image = np.zeros((480,640,3), np.float32)
     import matplotlib.pyplot as plt
     import matplotlib.image as mpimg
-    
+
     seqs = []
     for d in data:
         # read the file
@@ -170,12 +171,12 @@ if __name__ == '__main__':
         tmp = np.load(save_dir + d["pointcloud_path"])
         rgb_image = mpimg.imread(save_dir + d["pic_path"])
         point3d_ = tmp[int(y*3*640 + x*3) : int(y*3*640 + x*3 + 3)].tolist()
-        
+
         #~ for i in xrange(480):
             #~ for j in xrange(640):
                 #~ for k in [2]:
                     #~ depth_image[i][j][k] = tmp[int(i*3*640 + j*3 + 2)]
-        
+
         #depth_image[int(y)][int(x)][0] = 5.0
         #blend_depth_image = rgb_image + depth_image
         #blend_depth_image[int(y)][int(x)][0] = 5.0
@@ -183,31 +184,32 @@ if __name__ == '__main__':
         #plt.show()
         #import ipdb; ipdb.set_trace()
         #raw_input('pause')
-        
+
         if(np.linalg.norm(point3d_) < 1e-9):   # discard bad points
            continue
         point3ds_pc.append(point3d_)
         print point3d_
-        
+
         point2ds.append(d["cross2d"])
         point3ds.append(d["cross3d"][0:3])
         seqs.append(d["pic_path"])
+
     p = Program(point3ds, point3ds_pc, x0, x0_ext, x0_int)
     cam = p.run()
 
     # show result
-    
+
     c0 = cam[0]
     c1 = cam[1]
     c2 = cam[2]
-    
+
     from mpl_toolkits.mplot3d import Axes3D
     import matplotlib.pyplot as plt
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     point3Ds_pc_trans_world = []
     point3Ds_pc_world = []
-    
+
     point3Ds_pc_cam = []
     point3Ds_cam = []
     point3D_pc_trans_cam = []
@@ -215,36 +217,36 @@ if __name__ == '__main__':
         # read the file
         point3D_pc = point3ds_pc[i]
         point3D_pc_trans = np.dot(matrix_from_xyzrpy([c2 * point3D_pc[0] / point3D_pc[2],c2 * point3D_pc[1] / point3D_pc[2],c2, 0,0,0]), np.array([point3D_pc[0], point3D_pc[1], point3D_pc[2], 1.0]) )
-            
+
         point3D_pc_trans_cam.append(point3D_pc_trans[0:3].tolist())
         point3D_pc_trans_world = np.dot(x0_ext, point3D_pc_trans)[0:3]
         point3Ds_pc_trans_world.append(point3D_pc_trans_world.tolist())
         point3D_pc_world = np.dot(x0_ext, np.array(point3D_pc +[1.0]))[0:3]
         point3Ds_pc_world.append(point3D_pc_world.tolist())
-        
+
         point3D_cam = np.dot(np.linalg.inv(x0_ext), np.array(point3ds[i] +[1.0]))[0:3]
         point3Ds_cam.append(point3D_cam)
-        
+
         print seqs[i], np.linalg.norm(np.array(point3D_cam)-np.array(point3D_pc))
-            
+
     (xs, ys, zs) = zip(*point3ds)
     s1 = ax.scatter(xs, ys, zs, c='g')
     (xs, ys, zs) = zip(*point3Ds_pc_trans_world)
     s2 = ax.scatter(xs, ys, zs, c='r')
     (xs, ys, zs) = zip(*point3Ds_pc_world)
     s3 = ax.scatter(xs, ys, zs, c='b')
-    
+
     ax.legend([s1, s2, s3], ['robot', 'point3Ds_pc_trans_world', 'point3Ds_pc_world'])
-    
+
     #~ (xs, ys, zs) = zip(*point3Ds_cam)
     #~ s1 = ax.scatter(xs, ys, zs, c='g')
     #~ (xs, ys, zs) = zip(*point3ds_pc)
     #~ s2 = ax.scatter(xs, ys, zs, c='b')
     #~ (xs, ys, zs) = zip(*point3D_pc_trans_cam)
     #~ s3 = ax.scatter(xs, ys, zs, c='r')
-    
+
     #~ ax.legend([s1, s2, s3], ['robot', 'point3Ds_pc_cam', 'point3D_pc_trans_cam'])
-        
+
     ax.set_xlabel('X Label')
     ax.set_ylabel('Y Label')
     ax.set_zlabel('Z Label')

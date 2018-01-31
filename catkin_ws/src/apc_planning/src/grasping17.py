@@ -354,7 +354,8 @@ def retrieve(listener,
               binId=0,
               withPause = False,
               viz_pub = None,
-              recorder = None):
+              recorder = None,
+              ws_object = None):
 
     liftoff_pub = rospy.Publisher('/liftoff_time', std_msgs.msg.String, queue_size = 10, latch=False)
 
@@ -402,18 +403,24 @@ def retrieve(listener,
       #Execute non-guarded grasp plan move
       executePlanForward(plans_grasping, withPause)
 
-      ###We stop recording
-      if recorder is not None:
-          recorder.stop_recording(save_action=True)
-          lasers.stop(binId)
-
     #~Check if picking success
     low_threshold = 0.0035
     high_threshold = 0.017
     #shake robot
     if gripper.getGripperopening()>high_threshold and isExecute:
+        # We initialize drop listener
+        ws_object.start_listening_for_drop(bin_num=binId)
+
         ik.ik.shake()
         rospy.sleep(2.)
+
+        # We stop drop listener
+        ws_object.stop_listening_for_drop()
+
+    ### We stop recording
+    if recorder is not None:
+        recorder.stop_recording(save_action=True)
+        lasers.stop(binId)
 
     if isExecute and plan_possible:
       rospy.sleep(2)

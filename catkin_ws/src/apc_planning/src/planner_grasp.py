@@ -219,7 +219,7 @@ class TaskPlanner(object):
             self.grasping_output = grasp_correction(self.grasp_point, best_grasp_dict['delta_pos'], self.listener, self.br)
 
         retrieve(listener=self.listener, br=self.br, isExecute=self.isExecute,
-              binId=container,  withPause=False, viz_pub=self.viz_array_pub)
+              binId=container,  withPause=False, viz_pub=self.viz_array_pub, ws_object=self.weightSensor)
 
         f = random.choice(os.listdir(self.FAKE_GRASPING_DIR)) #Get fake output for the primitive
         with open(os.path.join(self.FAKE_GRASPING_DIR, f), 'r') as infile:
@@ -377,7 +377,7 @@ class TaskPlanner(object):
             grasp_output = grasp(objInput=grasp_point, listener=self.listener, br=self.br, isExecute=False,
                                    binId=container,  withPause=False, viz_pub=self.viz_array_pub)
             retrieve_output = retrieve(listener=self.listener, br=self.br, isExecute=False,
-                                   binId=container,  withPause=False, viz_pub=self.viz_array_pub)
+                                   binId=container,  withPause=False, viz_pub=self.viz_array_pub, ws_object=self.weightSensor)
 
             if grasp_output['execution_possible'] and retrieve_output['execution_possible']:
                 self.grasp_score = copy.deepcopy(self.all_pick_scores[num_it-1])
@@ -534,7 +534,7 @@ class TaskPlanner(object):
 
         self.retrieve_output = retrieve(listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container,
-                                 withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
+                                 withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr, ws_object=self.weightSensor)
         self.execution_possible = self.retrieve_output['execution_possible']
 
     def planned_place(self):

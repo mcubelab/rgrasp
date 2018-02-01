@@ -405,7 +405,7 @@ def retrieve(listener,
 
     #~Check if picking success
     low_threshold = 0.0035
-    high_threshold = 0.017
+    high_threshold = 0.027
     #shake robot
     rospy.sleep(1.5)
     if gripper.getGripperopening()>high_threshold and isExecute:

@@ -599,7 +599,7 @@ class TaskPlanner(object):
         ##################
         ## stowing loop ##
         ##################
-        if rospy.get_param('have_robot') and self.is_record:
+        if (rospy.get_param('have_robot')==True and self.is_record==True):
             directory='/media/mcube/data/Dropbox (MIT)/rgrasp_dataset'
             assert(directory)
             self.gdr = GraspDataRecorder(directory=directory) #We instantiate the recorder
@@ -706,13 +706,13 @@ if __name__ == '__main__':
         help='Whether to run passive vision experiments', default=False)
     parser.add_option('-i', '--item', action='store', dest='objectType',
         help='Name object considered', default='None')
-    parser.add_option('-r', '--random_noise', action='store_true', dest='add_noise',
+    parser.add_option('-r', '--random_noise', action='store', dest='add_noise',
         help='Add random noise to grasp proposal?', default=False)
-    parser.add_option('-f', '--hand_frame', action='store_true', dest='is_hand',
+    parser.add_option('-f', '--hand_frame', action='store', dest='is_hand',
         help='Hand frame vs. world frame', default=False)
-    parser.add_option('-b', '--record_data', action='store_true', dest='is_record',
+    parser.add_option('-b', '--record_data', action='store', dest='is_record',
         help='Turn data recording on/off?', default=True)
-    parser.add_option('-c', '--control', action='store_true', dest='is_control',
+    parser.add_option('-c', '--control', action='store', dest='is_control',
         help='Turn control policy on/off?', default=False)
     (opt, args) = parser.parse_args()
 

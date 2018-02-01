@@ -301,6 +301,24 @@ class GraspDataRecorder:
       df.to_csv(path_or_buf=self.directory+'/experiment_summary.csv')
       return
 
+  def __get_drop_time(self):
+    r = -1
+    try:
+        if self.data_recorded['ws_drop_detect'].first == 1:
+            liftoff_time = self.data_recorded['liftoff_time'].second
+            ws_drop_time = self.data_recorded['ws_drop_detect'].second
+            r = ws_drop_time - liftoff_time
+    except Exception as e:
+        pass
+    return r
+
+  def __get_shaking_time(self):
+    liftoff_time = 0
+    try:
+        liftoff_time = self.data_recorded['liftoff_time'].second
+    except Exception as e:
+        liftoff_time = self.data_recorded['liftoff_time'][0].second
+    return self.stop_time - liftoff_time
 
   def start_recording(self, action, action_id, tote_num=1, frame_rate_ratio=10, image_size=-1):
     print '################## RECORDING_NOW ############################'
@@ -327,6 +345,9 @@ class GraspDataRecorder:
     #We delete the support variables for the framerate
     del self.data_recorded['rgb_count']
     del self.data_recorded['depth_count']
+
+    # self.data_recorded['drop_duration'] = self.__get_drop_time()
+    # self.data_recorded['shaking_duration'] = self.__get_shaking_time()
 
     if save_action & self.save_data_recorded:
         self.data_recorded_copy = copy.deepcopy(self.data_recorded)
@@ -411,6 +432,15 @@ class GraspDataRecorder:
 
       for val, timestamp in self.data_recorded['liftoff_time']:
         event_dict['liftoff_time'] = timestamp
+
+      try:
+          for val, timestamp in self.data_recorded['ws_drop_detect']:
+              if val == 0:
+                event_dict['ws_drop_detect_time'] = -1
+              else:
+                event_dict['ws_drop_detect_time'] = timestamp
+      except Exception as e:
+          event_dict['ws_drop_detect_time'] = -1
 
       for val, timestamp in self.data_recorded['hand_commands']:
         name = val['name'][0]

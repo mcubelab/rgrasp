@@ -158,17 +158,13 @@ class controlPolicy():
                 conv_layers = [-7, -8]
                 img = [np.expand_dims(self.action_dict['images'][counter], axis=0), np.expand_dims(self.action_dict['images2'][counter], axis=0)]
                 CAM = plot_CAM(img, self.model, conv_layers, softmax_layer, desired_class, show_plot=False)
+                CAM0 = CAM[0]
                 CAM0 = cm.jet(plt.Normalize(np.amin(CAM0),np.amax(CAM0))(CAM0))
                 CAM0 = CAM0[:,:,0:3]
-                CAM0[:, :, 0] = CAM[0][0]
-                CAM0[:, :, 1] = CAM[0][0]
-                CAM0[:, :, 2] = CAM[0][0]
-                CAM1 = np.zeros((CAM[0][1].shape[0], CAM[0][1].shape[1], 3))
-                CAM1[:, :, 0] = CAM[0][1]
-                CAM1[:, :, 1] = CAM[0][1]
-                CAM1[:, :, 2] = CAM[0][1]
-                combined_CAM = CAM0 = cm.jet(plt.Normalize(np.amin(CAM1),np.amax(CAM1))(CAM1))
+                CAM1 = CAM[1]
+                CAM1 = cm.jet(plt.Normalize(np.amin(CAM1),np.amax(CAM1))(CAM1))
                 CAM1 = CAM1[:,:,0:3]
+                combined_CAM = np.concatenate([CAM0, CAM1],axis=1)
                 combined_image = np.concatenate((combined_image, combined_CAM), axis=1)
             ax[num_img-1-np.mod(counter,5)].imshow(combined_image,  'gray')
         plt.close('all')

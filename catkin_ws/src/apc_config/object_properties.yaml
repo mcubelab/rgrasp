@@ -1,9 +1,9 @@
 /obj:
-  #~ toilet_brush:
-    #~ dimensions: [0.403, 0.168, 0.085]
-    #~ name: toilet_brush
-    #~ type: other
-    #~ weight: 0.130
+  # toilet_brush:
+  #   dimensions: [0.403, 0.168, 0.085]
+  #   name: toilet_brush
+  #   type: other
+  #   weight: 0.130
   #~ woods_extension_cord:
     #~ dimensions: [0.17, 0.075, 0.027]
     #~ name: woods_extension_cord
@@ -19,6 +19,16 @@
   #   name: clorox_utility_brush
   #   type: cylinder
   #   weight: 0.143
+  # rawlings_baseball:
+  #   dimensions: [0.073, 0.073, 0.073]
+  #   name: rawlings_baseball
+  #   type: other
+  #   weight: 0.1471
+  # elmers_washable_no_run_school_glue:
+  #   dimensions: [0.145, 0.065, 0.028]
+  #   name: elmers_washable_no_run_school_glue
+  #   type: other
+  #   weight: 0.1455
   up_glucose_bottle:
     dimensions: [0.136, 0.068, 0.068]
     name: up_glucose_bottle

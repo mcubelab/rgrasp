@@ -120,7 +120,7 @@ class controlPolicy():
                 out_dict['images'].append(img0)
                 out_dict['images2'].append(img1)
                 out_dict['delta_pos'].append(-delta_pos)
-                self.score_map[it_y][it_z] = self.model.predict([np.expand_dims(img0, axis=0), np.expand_dims(img1, axis=0)])[0][1]
+                self.score_map[it_y][it_z] = self.model.predict([np.expand_dims(img0, axis=0), np.expand_dims(img1, axis=0)])[0][0]
         # if visualize_score_map:
         #     plt.pcolor(self.score_map, extent=[y_range[0], y_range[-1], z_range[0], z_range[-1]])
         #     plt.colorbar()
@@ -131,7 +131,7 @@ class controlPolicy():
         list_images = [np.array(self.action_dict['images']), np.array(self.action_dict['images2'])]
         predictions = predict_successes(self.model, list_images)
         self.action_dict['predictions'] = predictions
-        best_index = np.argmax(predictions[:,1])
+        best_index = np.argmax(predictions[:,0])
         out_dict = {}
         out_dict['image'] = self.action_dict['images'][best_index]
         out_dict['image2'] = self.action_dict['images2'][best_index]
@@ -147,7 +147,7 @@ class controlPolicy():
                 f, ax = plt.subplots(num_img, 1)
             combined_image = np.concatenate((self.action_dict['images'][counter], self.action_dict['images2'][counter]), axis=1)
             # ax[1].imshow(self.action_dict['images2'][counter], 'gray')
-            ax[num_img-1-np.mod(counter,5)].set_title('Success: {}'.format(self.action_dict['predictions'][counter][1]))
+            ax[num_img-1-np.mod(counter,5)].set_title('Success: {}'.format(self.action_dict['predictions'][counter][0]))
             # ax[1].set_title('Success: {}'.format(self.action_dict['predictions'][counter][1]))
             # plt.xticks([])
             # plt.yticks([])

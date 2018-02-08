@@ -51,7 +51,7 @@ class TaskPlanner(object):
         self.fails_in_row = 0
         self.switch_dict = {0:1,1:0}
         self.version = 1.0
-        self.experiment_description = "Comments: Ramps installed. Collection using 2 gelsights for glucose object. Noise value: Borders of object. Control policy off/ with double grasping and shaking."
+        self.experiment_description = "Comments: Ramps installed. Control policy with raw background sub. resnet. Glucose bottle. Noise value: Borders of object."
         # Configuration
         self.withPause = opt.withPause
         self.experiment = opt.experiment
@@ -499,8 +499,8 @@ class TaskPlanner(object):
                                  isExecute=self.isExecute, binId=container,
                                  withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
 
-        self.gdr.save_item(item_name='grasp_noise_std_dev', data=self.grasp_std)
-        self.gdr.save_item(item_name='grasp_noise', data=self.grasp_noise)
+        # self.gdr.save_item(item_name='grasp_noise_std_dev', data=self.grasp_std)
+        # self.gdr.save_item(item_name='grasp_noise', data=self.grasp_noise)
 
         if self.is_control:
             if gripper.getGripperopening() > 0.017:
@@ -510,7 +510,7 @@ class TaskPlanner(object):
 
                 #find new and improved grasp points
                 best_grasp_dict = self.controller.control_policy(back_img_list)
-                # self.controller.visualize_actions(with_CAM = False)
+                self.controller.visualize_actions(with_CAM = False)
                 # self.controller.visualize_best_action(with_CAM = False)
                 #save network information action_dict and best_action_dict
                 self.gdr.save_item(item_name='action_dict', data=self.controller.action_dict)
@@ -526,7 +526,7 @@ class TaskPlanner(object):
         #frank hack for double grasping
         if self.experiment_type == 'is_data_collection':
             if gripper.getGripperopening() > 0.017:
-                self.grasping_output = grasp_correction(self.grasp_point, np.array([0,0,0]), self.listener, self.br)
+                # self.grasping_output = grasp_correction(self.grasp_point, np.array([0,0,0]), self.listener, self.br)
                 self.gdr.save_data_recorded = True
             else:
                 self.gdr.save_data_recorded = False

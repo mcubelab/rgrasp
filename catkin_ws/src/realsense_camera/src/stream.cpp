@@ -564,7 +564,7 @@ int main(int argc, char **argv) {
     }
   }
   
-  std::string camera_bin0_serial = "612203002922";
+  std::string camera_bin0_serial = "614203000465";//612203002922
   std::string camera_bin1_serial = "616205001219";
   std::string camera_bin2_serial = "612205002211";
     

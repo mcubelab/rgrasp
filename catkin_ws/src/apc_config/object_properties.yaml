@@ -1,14 +1,19 @@
 /obj:
+  irish_spring_soap:
+    dimensions: [0.1, 0.064, 0.039]
+    name: irish_spring_soap
+    type: box
+    weight: 0.1127
   # toilet_brush:
   #   dimensions: [0.403, 0.168, 0.085]
   #   name: toilet_brush
   #   type: other
   #   weight: 0.130
-  #~ woods_extension_cord:
-    #~ dimensions: [0.17, 0.075, 0.027]
-    #~ name: woods_extension_cord
-    #~ type: other
-    #~ weight: 0.137
+  # woods_extension_cord:
+  #   dimensions: [0.17, 0.075, 0.027]
+  #   name: woods_extension_cord
+  #   type: other
+  #   weight: 0.137
   #~ scotch_sponges:
     #~ dimensions: [0.159, 0.083, 0.072]
     #~ name: scotch_sponges
@@ -29,11 +34,11 @@
   #   name: elmers_washable_no_run_school_glue
   #   type: other
   #   weight: 0.1455
-  up_glucose_bottle:
-    dimensions: [0.136, 0.068, 0.068]
-    name: up_glucose_bottle
-    type: cylinder
-    weight: 0.274
+  # up_glucose_bottle:
+  #   dimensions: [0.136, 0.068, 0.068]
+  #   name: up_glucose_bottle
+  #   type: cylinder
+  #   weight: 0.274
   #~ reynolds_wrap:
     #~ dimensions: [0.319, 0.047, 0.047]
     #~ name: reynolds_wrap

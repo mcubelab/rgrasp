@@ -17,7 +17,10 @@ import ik.roshelper
 import ik.visualize_helper
 import sensor_msgs.msg
 import std_msgs.msg
+import goToHome
 from visualization_msgs.msg import MarkerArray
+from cv_bridge import CvBridge, CvBridgeError
+import cv2
 #from grasp_data_recorder import GraspDataRecorder
 import datetime
 try:
@@ -232,7 +235,7 @@ def grasp(objInput,
     #~get grasp pose and gripper opening from vision
     if len(objInput)==12:
         graspPos, hand_X, hand_Y, hand_Z, grasp_width = ik.helper.get_picking_params_from_12(objInput)
-        graspPos = graspPos # + hand_X*0.02*1
+        graspPos = graspPos  - hand_X*0.015*1
     elif len(objInput)==7:
         graspPos, hand_X, hand_Y, hand_Z, grasp_width = ik.helper.get_picking_params_from_7(objInput, objId, listener, br)
 
@@ -742,6 +745,6 @@ if __name__=='__main__':
     listener = tf.TransformListener()
     br = tf.TransformBroadcaster()
     rospy.sleep(0.1)
-
-    unit_test(listener=listener, br=br)
+    calibrate_gelsight()
+    # unit_test(listener=listener, br=br)
     # unit_test_collision(listener=listener, br=br)

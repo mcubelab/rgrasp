@@ -449,8 +449,7 @@ class GraspDataRecorder:
       return event_dict
 
   def save_item(self, item_name, data):
-      val = [(item_name, rospy.get_time())]
-      self.data_recorded[item_name] = val
+      self.data_recorded[item_name] = [(data, rospy.get_time())]
 
 
   def pause_recording(self):

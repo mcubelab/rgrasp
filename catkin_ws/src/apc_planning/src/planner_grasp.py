@@ -28,7 +28,7 @@ from control_policy import controlPolicy
 from ik.helper import fake_bbox_info_1, Timer, vision_transform_precise_placing_with_visualization, get_params_yaml
 from visualization_msgs.msg import MarkerArray
 from cv_bridge import CvBridge, CvBridgeError
-
+from gelsight import calibrate_gelsight
 import sensor_msgs.msg
 from sensor_msgs.msg import Image
 from std_msgs.msg import Float32MultiArray, String
@@ -51,7 +51,7 @@ class TaskPlanner(object):
         self.fails_in_row = 0
         self.switch_dict = {0:1,1:0}
         self.version = 1.0
-        self.experiment_description = "Comments: Ramps installed. Control policy with raw background sub. resnet. Glucose bottle. Noise value: Borders of object."
+        self.experiment_description = "Comments: Data collection. rawlings_baseball. Noise value: Borders of object."
         # Configuration
         self.withPause = opt.withPause
         self.experiment = opt.experiment
@@ -291,13 +291,15 @@ class TaskPlanner(object):
         max_length = max(rospy.get_param('obj/{}/dimensions'.format(self.get_objects()[0]))) #TODO: only valid for 1 object
         min_length = min(rospy.get_param('obj/{}/dimensions'.format(self.get_objects()[0]))) #TODO: only valid for 1 object
         gel_length = 0.05
-        interval = max_length/2. + gel_length/2. - min_length/2.
+        # interval = max_length/2. + gel_length/2. - min_length/2.
+        interval = gel_length
         std_x = 0.0
         # std_y = 0.07 #
         std_ori = 0.
         std_width = 0.0
         noise_x = np.random.uniform(-std_x,std_x)
-        noise_y =  (np.random.randint(2)*2-1)*(min_length/2. - gel_length/4.+ np.random.uniform(0,interval)) #np.random.uniform(-std_y,std_y)
+        # noise_y =  (np.random.randint(2)*2-1)*(min_length/2. - gel_length/4.+ np.random.uniform(0,interval)) #np.random.uniform(-std_y,std_y)
+        noise_y =  0*(np.random.randint(2)*2-1)*(max_length/2. - gel_length/2.+ np.random.uniform(0,interval)) #np.random.uniform(-std_y,std_y)
         noise_ori = np.random.uniform(-std_ori,std_ori)
         noise_width = np.random.uniform(-std_width,std_width)
         self.grasp_std = [std_x,gel_length/2., std_ori, std_width]
@@ -498,9 +500,9 @@ class TaskPlanner(object):
         self.grasping_output = grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container,
                                  withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
-
-        # self.gdr.save_item(item_name='grasp_noise_std_dev', data=self.grasp_std)
-        # self.gdr.save_item(item_name='grasp_noise', data=self.grasp_noise)
+        if self.is_record==True:
+            self.gdr.save_item(item_name='grasp_noise_std_dev', data=self.grasp_std)
+            self.gdr.save_item(item_name='grasp_noise', data=self.grasp_noise)
 
         if self.is_control:
             if gripper.getGripperopening() > 0.017:
@@ -572,7 +574,6 @@ class TaskPlanner(object):
         #######################
         ## initialize system ##
         #######################
-
         #Get object list
         obj_list = self.get_objects()
         print(obj_list)
@@ -587,8 +588,9 @@ class TaskPlanner(object):
         objectList_msgs.data = '\n'.join(obj_list)
         #HACK
         self.objectList_pub.publish(objectList_msgs)
-
         goToHome.goToARC(slowDown=self.goHomeSlow) # 1. Initialize robot state
+        # calibrate_gelsight()
+        num_grasps=0
         if self.visionType == 'real': # 2. Passive vision update bins
             number_bins = 2
             im_passive_vision = []
@@ -608,6 +610,9 @@ class TaskPlanner(object):
         self.num_attempts = 0
         self.num_attempts_failed = 0
         while True:
+            if num_grasps==100:
+                calibrate_gelsight()
+                num_grasps=0
             self.num_attempts += 1
             print('-----------------------------\n       RUNNING GRASPING      \n-----------------------------')
             self.weightSensor.calibrateWeights(withSensor=self.withSensorWeight)
@@ -651,6 +656,7 @@ class TaskPlanner(object):
 
             print('-----------------------------\n Execution_possible = {} \n-----------------------------'.format(self.execution_possible) )
             if self.execution_possible: # 8. Placing
+                num_grasps+=1
                 self.fails_in_row = 0
                 self.bbox_info = fake_bbox_info_1(self.listener)#Give bounding box to the object
                 self.bbox_info[7:10] = [self.max_dimension, self.max_dimension, self.max_dimension]

@@ -19,6 +19,8 @@ import collision_detection.collision_projection
 #from suction_projection import suction_projection_func
 import sensor_msgs.msg
 from robot_comm.srv import robot_GetCartesian, robot_SetCartesian
+from cv_bridge import CvBridge, CvBridgeError
+import cv2
 
 obj_dim_data = []
 gripper_command_pub = rospy.Publisher('/hand_commands', sensor_msgs.msg.JointState, queue_size=10)
@@ -769,6 +771,22 @@ def get_object_properties(objId,objPose):
 
     return (obj_dim, obj_X, obj_Y, obj_Z, obj_pose_orient_norm)
 
+def capture_gelsight():
+    if rospy.get_param('have_robot'):
+        try:
+            bridge = CvBridge()
+            #read ros sensor
+            gel1 = rospy.wait_for_message("/rpi/gelsight/flip_raw_image", sensor_msgs.msg.Image, 1)
+            gel2 = rospy.wait_for_message("/rpi/gelsight/flip_raw_image2", sensor_msgs.msg.Image, 1)
+            #convert to cv2 image
+            cv2_gel1 = bridge.imgmsg_to_cv2(gel1, 'rgb8') # Convert your ROS Image message to OpenCV2
+            cv2_gel2 = bridge.imgmsg_to_cv2(gel2, 'rgb8') # Convert your ROS Image message to OpenCV2
+            #cv2.imwrite('messigray.png',img)
+            cv2.imwrite('/media/mcube/data/gelsight_calibration/calibrate_gelsight1'+str(rospy.get_time())+'.jpg',cv2_gel1)
+            cv2.imwrite('/media/mcube/data/gelsight_calibration/calibrate_gelsight2'+str(rospy.get_time())+'.jpg',cv2_gel2)
+        except:
+            pass
+    return
 
 def get_tcp_pose(listener, tcp_offset = 0.0):
     #~get robot tcp pose (both virtual and real)

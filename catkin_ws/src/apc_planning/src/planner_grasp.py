@@ -60,6 +60,7 @@ class TaskPlanner(object):
         self.is_hand = opt.is_hand
         self.is_record = opt.is_record
         self.is_control = opt.is_control
+        self.smirror = False
         if self.is_control:
             self.experiment_type = "is_control"
         else:
@@ -210,7 +211,7 @@ class TaskPlanner(object):
         if self.is_control:
             #find new and improved grasp points
             back_img_list = self.controller.capture_images()
-            best_grasp_dict = self.controller.control_policy(back_img_list)
+            best_grasp_dict = self.controller.control_policy(back_img_list, smirror=self.smirror)
             # self.controller.visualize_actions(with_CAM = False)
             # self.controller.visualize_best_action()
             print best_grasp_dict['delta_pos']
@@ -509,7 +510,7 @@ class TaskPlanner(object):
                 self.gdr.pause_recording()
 
                 #find new and improved grasp points
-                best_grasp_dict = self.controller.control_policy(back_img_list)
+                best_grasp_dict = self.controller.control_policy(back_img_list, smirror=self.smirror)
                 # self.controller.visualize_actions(with_CAM = False)
                 # self.controller.visualize_best_action(with_CAM = False)
                 #save network information action_dict and best_action_dict

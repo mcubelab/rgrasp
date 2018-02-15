@@ -37,7 +37,7 @@ heightMaps = {};
 missingHeightMaps = {};
 
 voxelSize = 0.002;
-% Read Seg HeightMap 
+% Read Seg HeightMap
 try
    heightSeg = ARCUnit.Curr.heightMapSegProjected';
    objNameList = ['NULL',{ARCUnit.Curr.objectList.objectName}];
@@ -45,7 +45,7 @@ try
 catch
    objNameList ={'NULL'};
    objConfList = [0];
-   heightSeg = zeros(200,300); 
+   heightSeg = zeros(200,300);
 end
 
 for camIdx = 0:1
@@ -58,7 +58,7 @@ for camIdx = 0:1
     camInfoFilePath = fullfile(cameraInfoPath,'bins.txt');
 
     binMiddleBottom = dlmread(camInfoFilePath,' ',[(binId*6+1),1,(binId*6+1),3]);
-    
+
     % Read RGB-D image files
     colorImg = double(imread(colorImgPath))./255;
     depthImg = double(imread(depthImgPath))./10000;
@@ -81,7 +81,7 @@ for camIdx = 0:1
 
     % Transform points to world coordinates
     worldPts = (camPose(1:3,1:3)*camPts' + repmat(camPose(1:3,4),1,size(camPts,1)))';
-    
+
     % Get height map
     heightMap = zeros(200,300);
     gridOrigin = [binMiddleBottom(1)-0.3,binMiddleBottom(2)-0.2,binMiddleBottom(3)];
@@ -89,7 +89,7 @@ for camIdx = 0:1
     validPix = gridMapping(:,1) > 0 & gridMapping(:,1) <= 300 & gridMapping(:,2) > 0 & gridMapping(:,2) <= 200 & gridMapping(:,3) > 0;
     gridMapping = gridMapping(validPix,:);
     heightMap(sub2ind(size(heightMap),gridMapping(:,2),gridMapping(:,1))) = gridMapping(:,3);
-    
+
     % Find missing depth and project background depth into camera space
     missingDepth = depthImg == 0 & bgDepthImg > 0;
     [pixX,pixY] = meshgrid(1:640,1:480);
@@ -98,7 +98,7 @@ for camIdx = 0:1
     camZ = bgDepthImg;
     missingCamPts = [camX(missingDepth),camY(missingDepth),camZ(missingDepth)];
     missingWorldPts = (camPose(1:3,1:3)*missingCamPts' + repmat(camPose(1:3,4),1,size(missingCamPts,1)))';
-    
+
     % Get missing depth height map
     missingHeightMap = zeros(200,300);
     gridOrigin = [binMiddleBottom(1)-0.3,binMiddleBottom(2)-0.2,binMiddleBottom(3)];
@@ -106,14 +106,14 @@ for camIdx = 0:1
     validPix = gridMapping(:,1) > 0 & gridMapping(:,1) <= 300 & gridMapping(:,2) > 0 & gridMapping(:,2) <= 200;
     gridMapping = gridMapping(validPix,:);
     missingHeightMap(sub2ind(size(missingHeightMap),gridMapping(:,2),gridMapping(:,1))) = 1;
-    
+
     noisePix = ~bwareaopen(missingHeightMap > 0,50);
     missingHeightMap(noisePix) = 0;
-    
+
     % Denoise height map
     noisePix = ~bwareaopen(heightMap > 0,50);
     heightMap(noisePix) = 0;
-    
+
     heightMaps{camIdx+1} = heightMap;
     missingHeightMaps{camIdx+1} = missingHeightMap;
 end
@@ -129,7 +129,7 @@ heightMap(heightMap == 0 & (missingHeightMaps{1} & missingHeightMaps{2})) = 0.03
 % % Save height map into binary file
 % heightMapOutput = heightMap';
 % fileID = fopen(heightMapOutputPath,'wb');
-% fwrite(fileID,heightMapOutput(:),'single');	
+% fwrite(fileID,heightMapOutput(:),'single');
 % fclose(fileID);
 
 % Load deep grasp prediction results
@@ -147,6 +147,7 @@ heightMap(heightMap == 0 & (missingHeightMaps{1} & missingHeightMaps{2})) = 0.03
 % end
 
 fingerWidth = 0.06;
+graspWidth = 0.08;
 fingerThickness = 0.036;
 
 % Use image filtering for grasp detection
@@ -172,7 +173,7 @@ for dx = 5:25
             x_coord = dx*10-5;
             y_coord = dy*10-5;
             xy_coord_rep = repmat([x_coord;y_coord],1,size(topFingerX_orig(:),1));
-            
+
             median_localHeightMap = median(localHeightMap(:));
             surfaceCentroid = [x_coord*voxelSize+gridOrigin(1),y_coord*voxelSize+gridOrigin(2),median_localHeightMap+gridOrigin(3)];
             %for theta = 0:(45/2):179
@@ -180,14 +181,14 @@ for dx = 5:25
                 rotMat = [cos(theta_rad),-sin(theta_rad);sin(theta_rad),cos(theta_rad)];
                 topFingerX = topFingerX_orig - (fingerWidth/voxelSize)/2;
                 botFingerX = botFingerX_orig - (fingerWidth/voxelSize)/2;
-                for graspSpace = 0.03:0.02:0.11
+                for graspSpace = 0.03:0.02:graspWidth
                     graspSpace_div_voxelSize_div_2 = (graspSpace/voxelSize)/2;
                     topFingerY = topFingerY_orig + graspSpace_div_voxelSize_div_2;
                     topFingerPix = [topFingerX(:),topFingerY(:)];
-                    
+
                     botFingerY = -botFingerY_orig - graspSpace_div_voxelSize_div_2;
                     botFingerPix = [botFingerX(:),botFingerY(:)];
-                    
+
                     % change coordinate
                     topFingerPix = round(rotMat * topFingerPix' + xy_coord_rep)';
                     botFingerPix = round(rotMat * botFingerPix' + xy_coord_rep)';
@@ -200,7 +201,7 @@ for dx = 5:25
 %                         topFingerHeight = mean(topFingerHeight(1:floor(size(topFingerHeight,1)/25)));
 
                         heightMap_fingerInd = heightMap(fingerInd);
-                        
+
                         if median_localHeightMap > median(heightMap_fingerInd) + 0.02 && ...  %% median 50% is O(n) so can filter quickly
                                  median_localHeightMap > prctile(heightMap_fingerInd,90) + 0.02 %% prctile is O(nlogn) because of sorting
                             % put the following 6 lines inside if to prevent
@@ -209,9 +210,9 @@ for dx = 5:25
                             midGraspX = midGraspX - (fingerWidth/voxelSize)/2;
                             midGraspY = midGraspY - (graspSpace/voxelSize)/2;
                             midGraspPix = [midGraspX(:),midGraspY(:)];
-                            midGraspPix = round(rotMat * midGraspPix' + repmat([x_coord;y_coord],1,size(midGraspPix,1)))';  
+                            midGraspPix = round(rotMat * midGraspPix' + repmat([x_coord;y_coord],1,size(midGraspPix,1)))';
                             graspInd = sub2ind2d(size(heightMap),midGraspPix(:,2),midGraspPix(:,1));
-                            
+
                             surfacePts = heightMap(graspInd) > median(heightMap(fingerInd));
 %                             graspConf = max((0.9*sum(surfacePts(:))./size(graspInd,1) + 0.1*deepGraspConf{(theta/(45/2))+1}(y_coord,x_coord))-0.2,0);
                             graspConf = max((sum(surfacePts(:))./size(graspInd,1))-0.2,0);
@@ -220,7 +221,7 @@ for dx = 5:25
 %                             plot([topFingerPix(150,1);botFingerPix(151,1)],[topFingerPix(150,2);botFingerPix(151,2)],'LineWidth',2,'Color',colorScale);
                             graspDirection = [0,0,-1];
                             graspDepth = min(0.15, median_localHeightMap - prctile(heightMap(fingerInd),10));
-                            graspJawWidth = min(0.11,graspSpace+0.03);
+                            graspJawWidth = min(graspWidth,graspSpace+0.03);
                             gripperAngleDirection = [0,1,0];
                             gripperAngleAxis = [0,0,1];
                             gripperRotm = vrrotvec2mat([gripperAngleAxis,theta_rad]);
@@ -228,7 +229,7 @@ for dx = 5:25
 %                             surfaceCentroid = surfaceCentroid + gripperAngleDirection*0.02; % Fix gripper shifting
                             graspPredictions = [graspPredictions;[surfaceCentroid,graspDirection,graspDepth,graspJawWidth,gripperAngleDirection,graspConf]];
                             graspVis = [graspVis;[topFingerPix(255,1),topFingerPix(255,2),botFingerPix(256,1),botFingerPix(256,2),graspConf,colorScale]];
-                            
+
                             graspObjId = [graspObjId;mode(heightSeg(sub2ind2d(size(heightSeg),midGraspPix(:,2),midGraspPix(:,1))))];
                             break;
                         end
@@ -242,7 +243,7 @@ end
 
 % Predict flush grasps
 for dx=5:25
-    
+
     % Flush grasps on one side
     for dy = [4,5]
         localHeightMap = heightMap((dy*10-9):(dy*10),(dx*10-9):(dx*10));
@@ -252,7 +253,7 @@ for dx=5:25
             y_coord = dy*10-5;
             median_localHeightMap = median(localHeightMap(:));
             surfaceCentroid = [x_coord*voxelSize+gridOrigin(1),y_coord*voxelSize+gridOrigin(2), median_localHeightMap+gridOrigin(3)];
-            for graspSpace = 0.03:0.02:0.11
+            for graspSpace = 0.03:0.02:graspWidth
                 [botFingerX,botFingerY] = meshgrid((x_coord-fingerWidth/(voxelSize*2)):(x_coord+fingerWidth/(voxelSize*2)),(21+(graspSpace/voxelSize)):(20+(graspSpace/voxelSize)+(fingerThickness/voxelSize)));
                 botFingerPix = [botFingerX(:),botFingerY(:)];
                 try
@@ -268,20 +269,20 @@ for dx=5:25
                         [midGraspX,midGraspY] = meshgrid((x_coord-fingerWidth/(voxelSize*2)):(x_coord+fingerWidth/(voxelSize*2)),20:(20+(graspSpace/voxelSize)));
                         midGraspPix = [midGraspX(:),midGraspY(:)];
                         graspInd = sub2ind(size(heightMap),midGraspPix(:,2),midGraspPix(:,1));
-                        
+
                         surfacePts = heightMap(graspInd) > median(heightMap(fingerInd));
-                        
+
 %                         graspConf = max((0.9*sum(surfacePts(:))./size(graspInd,1) + 0.1*deepGraspConf{1}(y_coord,x_coord))-0.2,0);
                         graspConf = max((sum(surfacePts(:))./size(graspInd,1))-0.2,0);
                         colorMapJet = jet;
                         colorScale = colorMapJet(floor(graspConf.*63)+1,:);
 %                         hold on; plot([x_coord;botFingerPix(151,1)],[20;botFingerPix(151,2)],'LineWidth',2,'Color',colorScale);
-                        graspJawWidth = min(0.11,graspSpace+0.01);
+                        graspJawWidth = min(graspWidth,graspSpace+0.01);
                         graspDepth = min(0.15, median_localHeightMap - prctile(heightMap(fingerInd),10));
                         flushGraspPredictions = [flushGraspPredictions;[surfaceCentroid,graspDepth,graspJawWidth,graspConf]];
                         flushGraspVis = [flushGraspVis;[x_coord,20,botFingerPix(256,1),botFingerPix(256,2),graspConf,colorScale]];
                         flushGraspObjId = [flushGraspObjId;mode(heightSeg(sub2ind(size(heightSeg),midGraspPix(:,2),midGraspPix(:,1))))];
-                            
+
                         break;
                     end
                 catch errorMsg
@@ -290,7 +291,7 @@ for dx=5:25
             end
         end
     end
-    
+
     % Flush grasps on other side
     for dy = [16,17]
         localHeightMap = heightMap((dy*10-9):(dy*10),(dx*10-9):(dx*10));
@@ -299,7 +300,7 @@ for dx=5:25
             x_coord = dx*10-5;
             y_coord = dy*10-5;
             surfaceCentroid = [x_coord*voxelSize+gridOrigin(1),y_coord*voxelSize+gridOrigin(2),heightMap(y_coord,x_coord)+gridOrigin(3)];
-            for graspSpace = 0.03:0.02:0.11
+            for graspSpace = 0.03:0.02:graspWidth
                 [midGraspX,midGraspY] = meshgrid((x_coord-fingerWidth/(voxelSize*2)):(x_coord+fingerWidth/(voxelSize*2)),(180-(graspSpace/voxelSize)):180);
                 midGraspPix = [midGraspX(:),midGraspY(:)];
                 [topFingerX,topFingerY] = meshgrid((x_coord+1-fingerWidth/(voxelSize*2)):(x_coord+fingerWidth/(voxelSize*2)),(180-(graspSpace/voxelSize)-(fingerThickness/voxelSize)):(181-(graspSpace/voxelSize)));
@@ -318,7 +319,7 @@ for dx=5:25
                         graspConf = max((sum(surfacePts(:))./size(graspInd,1))-0.2,0);
                         colorMapJet = jet;
                         colorScale = colorMapJet(floor(graspConf.*63)+1,:);
-                        graspJawWidth = min(0.11,graspSpace+0.01);
+                        graspJawWidth = min(graspWidth,graspSpace+0.01);
                         graspDepth = min(0.15,heightMap(y_coord,x_coord) - prctile(heightMap(fingerInd),10));
                         flushGraspPredictions = [flushGraspPredictions;[surfaceCentroid,graspDepth,graspJawWidth,graspConf]];
                         flushGraspVis = [flushGraspVis;[x_coord,180,topFingerPix(180,1),topFingerPix(180,2),graspConf,colorScale]]; % FIX THIS LATER
@@ -346,7 +347,7 @@ flushGraspPredictions = [flushGraspPredictions,flushObjectConf];
 if ~isempty(graspPredictions)
     % Remove grasp proposals with confidence < 10%
     graspPredictions = graspPredictions(find(graspPredictions(:,12) > 0.1),:);
-    
+
     % Sort grasp proposals based on confidence
     [~,graspSortInd] = sortrows(graspPredictions,-12);
     graspPredictions = graspPredictions(graspSortInd,:);
@@ -373,7 +374,7 @@ end
 % Save grasp proposals in row major order
 graspPredictions = graspPredictions';
 fileID = fopen(graspOutputPath,'wb');
-fwrite(fileID,[size(graspPredictions,2);graspPredictions(:)],'single');	
+fwrite(fileID,[size(graspPredictions,2);graspPredictions(:)],'single');
 fclose(fileID);
 
 % Save object names associated with grasp proposals
@@ -386,7 +387,7 @@ fclose(fileID);
 % Save flush grasp proposals in row major order
 flushGraspPredictions = flushGraspPredictions';
 fileID = fopen(flushGraspOutputPath,'wb');
-fwrite(fileID,[size(flushGraspPredictions,2);flushGraspPredictions(:)],'single');	
+fwrite(fileID,[size(flushGraspPredictions,2);flushGraspPredictions(:)],'single');
 fclose(fileID);
 
 % Save object names associated with flush grasp proposals
@@ -401,7 +402,7 @@ if showDebug
     colorMapJet = gray;
     colorScale = floor((heightMap./0.3).*63)+1;
     heightMapVis = permute(reshape(colorMapJet(colorScale(:),:)',3,200,300),[2,3,1]);
-    if ~isempty(graspPredictions) 
+    if ~isempty(graspPredictions)
         graspVis = sortrows(graspVis,5);
         heightMapVis = insertShape(heightMapVis, 'Line', graspVis(:,1:4), 'LineWidth', 2, 'Color', graspVis(:,6:8));
     end
@@ -412,7 +413,7 @@ if showDebug
     colorMapJet = gray;
     colorScale = floor((heightMap./0.3).*63)+1;
     heightMapVis = permute(reshape(colorMapJet(colorScale(:),:)',3,200,300),[2,3,1]);
-    if ~isempty(flushGraspPredictions) 
+    if ~isempty(flushGraspPredictions)
         flushGraspVis = sortrows(flushGraspVis,5);
         heightMapVis = insertShape(heightMapVis, 'Line', flushGraspVis(:,1:4), 'LineWidth', 2, 'Color', flushGraspVis(:,6:8));
     end

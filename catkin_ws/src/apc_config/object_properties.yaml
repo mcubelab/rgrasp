@@ -1,9 +1,24 @@
 /obj:
-  speed_stick:
-    dimensions: [0.144, 0.069, 0.061]
-    name: speed_stick
-    type: box
-    weight: 0.273
+  #post_its:
+  #    dimensions: [0.115,0.05,0.042]
+  #    name: barkely_hide_bones
+  #    type: box
+  #    weight: 0.1742
+  # barkely_hide_bones:
+  #     dimensions: [0.111,0.042,0.042]
+  #     name: barkely_hide_bones
+  #     type: box
+  #     weight: 0.0492
+  # conair_brush:
+  #   dimensions: [0.21, 0.055, 0.039]
+  #   name: speed_stick
+  #   type: box
+  #   weight: 0.0576
+  # speed_stick:
+  #   dimensions: [0.144, 0.069, 0.061]
+  #   name: speed_stick
+  #   type: box
+  #   weight: 0.273
   # poland_spring_water:
   #   dimensions: [0.201, 0.066, 0.065]
   #   name: poland_spring_water
@@ -24,11 +39,11 @@
   #   name: toilet_brush
   #   type: other
   #   weight: 0.130
-  # woods_extension_cord:
-  #   dimensions: [0.17, 0.075, 0.027]
-  #   name: woods_extension_cord
-  #   type: other
-  #   weight: 0.137
+#  woods_extension_cord:
+#    dimensions: [0.17, 0.075, 0.027]
+#    name: woods_extension_cord
+#    type: other
+#    weight: 0.137
   #~ scotch_sponges:
     #~ dimensions: [0.159, 0.083, 0.072]
     #~ name: scotch_sponges
@@ -44,11 +59,11 @@
   #   name: rawlings_baseball
   #   type: other
   #   weight: 0.1471
-  # elmers_washable_no_run_school_glue:
-  #   dimensions: [0.145, 0.065, 0.028]
-  #   name: elmers_washable_no_run_school_glue
-  #   type: other
-  #   weight: 0.1455
+   elmers_washable_no_run_school_glue:
+     dimensions: [0.145, 0.065, 0.028]
+     name: elmers_washable_no_run_school_glue
+     type: other
+     weight: 0.1455
   # up_glucose_bottle:
   #   dimensions: [0.136, 0.068, 0.068]
   #   name: up_glucose_bottle

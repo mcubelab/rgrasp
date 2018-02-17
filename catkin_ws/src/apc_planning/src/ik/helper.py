@@ -772,20 +772,25 @@ def get_object_properties(objId,objPose):
     return (obj_dim, obj_X, obj_Y, obj_Z, obj_pose_orient_norm)
 
 def capture_gelsight():
+    # rospy.init_node('capture_gelsigth', anonymous=True)
+
+    is_loop=True
     if rospy.get_param('have_robot'):
-        try:
-            bridge = CvBridge()
-            #read ros sensor
-            gel1 = rospy.wait_for_message("/rpi/gelsight/flip_raw_image", sensor_msgs.msg.Image, 1)
-            gel2 = rospy.wait_for_message("/rpi/gelsight/flip_raw_image2", sensor_msgs.msg.Image, 1)
-            #convert to cv2 image
-            cv2_gel1 = bridge.imgmsg_to_cv2(gel1, 'rgb8') # Convert your ROS Image message to OpenCV2
-            cv2_gel2 = bridge.imgmsg_to_cv2(gel2, 'rgb8') # Convert your ROS Image message to OpenCV2
-            #cv2.imwrite('messigray.png',img)
-            cv2.imwrite('/media/mcube/data/gelsight_calibration/calibrate_gelsight1'+str(rospy.get_time())+'.jpg',cv2_gel1)
-            cv2.imwrite('/media/mcube/data/gelsight_calibration/calibrate_gelsight2'+str(rospy.get_time())+'.jpg',cv2_gel2)
-        except:
-            pass
+        while is_loop == True:
+            try:
+                bridge = CvBridge()
+                #read ros sensor
+                gel1 = rospy.wait_for_message("/rpi/gelsight/flip_raw_image", sensor_msgs.msg.Image, 1)
+                gel2 = rospy.wait_for_message("/rpi/gelsight/flip_raw_image2", sensor_msgs.msg.Image, 1)
+                #convert to cv2 image
+                cv2_gel1 = bridge.imgmsg_to_cv2(gel1, 'rgb8') # Convert your ROS Image message to OpenCV2
+                cv2_gel2 = bridge.imgmsg_to_cv2(gel2, 'rgb8') # Convert your ROS Image message to OpenCV2
+                #cv2.imwrite('messigray.png',img)
+                cv2.imwrite('/media/mcube/data/gelsight_calibration/calibrate_gelsight1'+str(rospy.get_time())+'.jpg',cv2_gel1)
+                cv2.imwrite('/media/mcube/data/gelsight_calibration/calibrate_gelsight2'+str(rospy.get_time())+'.jpg',cv2_gel2)
+                is_loop=False
+            except:
+                pass
     return
 
 def get_tcp_pose(listener, tcp_offset = 0.0):

@@ -27,7 +27,6 @@ def flip_image2(data, topic):
     flip_image_pub = rospy.Publisher(topic,sensor_msgs.msg.Image, queue_size = 10)
     flip_image_pub.publish(bridge.cv2_to_imgmsg(flip_cv_image, "bgr8"))
 
-
 def listener():
     image_sub = rospy.Subscriber("rpi/gelsight/raw_image", sensor_msgs.msg.Image, flip_image, "rpi/gelsight/flip_raw_image")
     image_sub2 = rospy.Subscriber("rpi/gelsight/raw_image2", sensor_msgs.msg.Image, flip_image2, "rpi/gelsight/flip_raw_image2")

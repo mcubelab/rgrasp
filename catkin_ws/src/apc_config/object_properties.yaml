@@ -59,16 +59,16 @@
   #   name: rawlings_baseball
   #   type: other
   #   weight: 0.1471
-   elmers_washable_no_run_school_glue:
-     dimensions: [0.145, 0.065, 0.028]
-     name: elmers_washable_no_run_school_glue
-     type: other
-     weight: 0.1455
-  # up_glucose_bottle:
-  #   dimensions: [0.136, 0.068, 0.068]
-  #   name: up_glucose_bottle
-  #   type: cylinder
-  #   weight: 0.274
+   # elmers_washable_no_run_school_glue:
+   #   dimensions: [0.145, 0.065, 0.028]
+   #   name: elmers_washable_no_run_school_glue
+   #   type: other
+   #   weight: 0.1455
+  up_glucose_bottle:
+    dimensions: [0.136, 0.068, 0.068]
+    name: up_glucose_bottle
+    type: cylinder
+    weight: 0.274
   #~ reynolds_wrap:
     #~ dimensions: [0.319, 0.047, 0.047]
     #~ name: reynolds_wrap

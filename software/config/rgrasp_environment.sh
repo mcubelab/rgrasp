@@ -298,5 +298,5 @@ alias github_rgrasp='firefox https://github.com/mcubelab/rgrasp'
 alias openfile='xdg-open'
 alias gmail='firefox https://mail.google.com/mail/u/0/#inbox'
 alias clean_gpu="kill -9  $(nvidia-smi | grep python | sed -n 's/|\s*[0-9]*\s*\([0-9]*\)\s*.*/\1/p' | sort | uniq | sed '/^$/d')"
-
+alias cdlast='cd  "$(\ls -1dt ./*/ | head -n 1)"'
 . /usr/share/autojump/autojump.bash

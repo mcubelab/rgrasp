@@ -246,7 +246,7 @@ class controlPolicy():
                 combined_CAM = np.concatenate([CAM0, CAM1],axis=1)
                 combined_image = np.concatenate((combined_image, combined_CAM), axis=1)
             ax[num_img-1-np.mod(counter,5)].imshow(combined_image,  'gray')
-        plt.close('all')
+        #plt.close('all')
         return
 
     def visualize_best_action(self, with_CAM = True):
@@ -258,7 +258,7 @@ class controlPolicy():
         # plt.xticks([])
         # plt.yticks([])
         plt.show()
-        plt.close('all')
+        #plt.close('all')
         if with_CAM:
             conv_layer = -1
             softmax_layer = -1 #Last layer

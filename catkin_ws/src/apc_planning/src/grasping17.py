@@ -45,7 +45,7 @@ def check_collision(tcp_pose, delta_pos, listener, br, binId=0):
     is_collision = collisionFree(graspPos, binId=binId, listener=listener, br=br, finger_opening = grasp_width, safety_margin = 0.00, theta = theta, is_bool = True)
     return is_collision
 
-def grasp_correction(objInput,
+def grasp_correction(grasp_point,
                         delta_pos,
                         listener,
                         br,
@@ -76,7 +76,7 @@ def grasp_correction(objInput,
     # objInput_tmp[0:3] = targetPose[0:3] + delta_pos
     # objInput_tmp[3:7] = targetPose[3:7]
     #delta_pos is in hand_frame
-    objInput_arr = np.array(objInput)
+    objInput_arr = np.array(grasp_point)
     objInput_arr[0:3] = pose_world[0:3]
     #release grasp safely
     release_safe(listener)
@@ -89,7 +89,8 @@ def grasp_correction(objInput,
               binId=0,
               withPause = False,
               viz_pub = None,
-              recorder = None)
+              recorder = None,
+              is_regrasp = True)
 
 def release_safe(listener, isExecute=True, withPause=False):
     plans = []
@@ -135,7 +136,8 @@ def grasp(objInput,
           binId=0,
           withPause = False,
           viz_pub = None,
-          recorder = None):
+          recorder = None,
+          is_regrasp = False):
 
     #########################################################
     # fhogan and nikhilcd
@@ -199,7 +201,7 @@ def grasp(objInput,
     plans_guarded2 = []
     plans_placing = []
     plans_placing2 = []
-    graspPose=[]
+    graspPos=[]
     plan_possible = False
     execution_possible = False
     gripper_opening = 0.0
@@ -211,7 +213,7 @@ def grasp(objInput,
     rospy.set_param('is_contact', False)
 
     def compose_output():
-        return {'collision':collision,'grasp_possible':grasp_possible,'plan_possible':plan_possible,'execution_possible':execution_possible,'gripper_opening':gripper_opening,'graspPose':graspPose,'gelsight_data':gelsight_data,'final_object_pose':final_object_pose}
+        return {'collision':collision,'grasp_possible':grasp_possible,'plan_possible':plan_possible,'execution_possible':execution_possible,'gripper_opening':gripper_opening,'graspPos':graspPos,'gelsight_data':gelsight_data,'final_object_pose':final_object_pose}
 
     #########################
     ## Constant parameters ##
@@ -235,7 +237,10 @@ def grasp(objInput,
     #~get grasp pose and gripper opening from vision
     if len(objInput)==12:
         graspPos, hand_X, hand_Y, hand_Z, grasp_width = ik.helper.get_picking_params_from_12(objInput)
-        graspPos = graspPos  - hand_X*0.015*1
+        if not is_regrasp:
+            graspPos = graspPos - hand_X*0.015*1
+
+
     elif len(objInput)==7:
         graspPos, hand_X, hand_Y, hand_Z, grasp_width = ik.helper.get_picking_params_from_7(objInput, objId, listener, br)
 

@@ -60,7 +60,9 @@ class TaskPlanner(object):
         self.is_hand = opt.is_hand
         self.is_record = opt.is_record
         self.is_control = opt.is_control
-        self.smirror = False
+        self.smirror = True
+        self.use_COM = False
+        self.use_raw = False
         if self.is_control:
             self.experiment_type = "is_control"
         else:
@@ -211,7 +213,7 @@ class TaskPlanner(object):
         if self.is_control:
             #find new and improved grasp points
             back_img_list = self.controller.capture_images()
-            best_grasp_dict = self.controller.control_policy(back_img_list, smirror=self.smirror)
+            best_grasp_dict = self.controller.control_policy(back_img_list, smirror=self.smirror, use_COM=self.use_COM)
             # self.controller.visualize_actions(with_CAM = False)
             # self.controller.visualize_best_action()
             print best_grasp_dict['delta_pos']
@@ -498,9 +500,8 @@ class TaskPlanner(object):
         if self.is_control:
             back_img_list = self.controller.capture_images()
 
-        self.grasping_output = grasp(objInput=self.grasp_point, listener=self.listener, br=self.br,
-                                 isExecute=self.isExecute, binId=container,
-                                 withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
+        self.grasping_output = grasp(objInput=self.grasp_point, listener=self.listener, br=self.br, isExecute=self.isExecute, binId=container, withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
+
         if self.is_record==True:
             self.gdr.save_item(item_name='grasp_noise_std_dev', data=self.grasp_std)
             self.gdr.save_item(item_name='grasp_noise', data=self.grasp_noise)
@@ -512,20 +513,19 @@ class TaskPlanner(object):
                 self.gdr.pause_recording()
 
                 #find new and improved grasp points
-                best_grasp_dict = self.controller.control_policy(back_img_list, smirror=self.smirror)
+                best_grasp_dict = self.controller.control_policy(back_img_list, smirror=self.smirror, use_COM = self.use_COM, use_raw = self.use_raw)
                 # self.controller.visualize_actions(with_CAM = False)
-                # self.controller.visualize_best_action(with_CAM = False)
+                #self.controller.visualize_best_action(with_CAM = False)
                 #save network information action_dict and best_action_dict
                 self.gdr.save_item(item_name='action_dict', data=self.controller.action_dict)
                 self.gdr.save_item(item_name='best_action_dict', data=self.controller.best_action_dict)
                 #WE UNPAUSE THE RECORDER
                 self.gdr.replay_recording()
-                #go for new grasp Point
+                #go for new grasp PointgraspPose
                 self.grasping_output = grasp_correction(self.grasp_point, best_grasp_dict['delta_pos'], self.listener, self.br)
                 self.gdr.save_data_recorded = True
             else:
-                self.gdr.save_data_recorded = False
-
+                    self.gdr.save_data_recorded = False
         #frank hack for double grasping
         if self.experiment_type == 'is_data_collection':
             if gripper.getGripperopening() > 0.017:

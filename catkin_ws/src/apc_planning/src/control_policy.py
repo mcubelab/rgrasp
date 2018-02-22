@@ -59,12 +59,12 @@ class controlPolicy():
         image_sub_list.append(back_substraction(image_list[0], background_images[0]))
         image_sub_list.append(back_substraction(image_list[1], background_images[1]))
         #generate new iamges
-        self.action_dict = self.generate_new_images(image_sub_list, tcp_pose, binId, smirror = smirror)
+        self.action_dict, initial_score = self.generate_new_images(image_sub_list, tcp_pose, binId, smirror = smirror)
         self.best_action_dict = self.select_best_action()
-
+        
         # TODO: Save this 2 things
 
-        return self.best_action_dict
+        return self.best_action_dict, initial_score
 
     # def back_sub(self, image_list, back_list):
     #     for i in range(len(image_list)):
@@ -163,6 +163,7 @@ class controlPolicy():
         out_dict['images'] = []
         out_dict['images2'] = []
         out_dict['delta_pos'] = []
+        initial_score = 0
         if use_COM:
             out_dict = use_center_patch(model=self.model, image_list=back_image_list, out_dict = out_dict)
         else:
@@ -200,11 +201,14 @@ class controlPolicy():
                         out_dict['images2'].append(img1)
                         out_dict['delta_pos'].append(-delta_pos)
                         self.score_map[it_y][it_z] = self.model.predict([np.expand_dims(img0, axis=0), np.expand_dims(img1, axis=0)])[0][1]
+                        if y == 0 and z == 0
+                            initial_score = self.model.predict([np.expand_dims(img0, axis=0), np.expand_dims(img1, axis=0)])[0][1]
             # if visualize_score_map:
             #     plt.pcolor(self.score_map, extent=[y_range[0], y_range[-1], z_range[0], z_range[-1]])
             #     plt.colorbar()
             #     plt.show()
-        return out_dict
+        print('Initial score: {}'.format(initial_score))
+        return out_dict, initial_score
 
     def select_best_action(self):
         list_images = [np.array(self.action_dict['images']), np.array(self.action_dict['images2'])]

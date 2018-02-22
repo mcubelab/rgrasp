@@ -95,7 +95,7 @@ class controlPolicy():
             out_dict = self.use_center_patch(model=self.model, image_list=back_image_list, out_dict = out_dict)
         else:
             #search actions through y and z grid (in world frame)
-            y_range = np.linspace(-0.03, 0.03, 10)
+            y_range = np.linspace(-0.03, 0.03, 11)
             z_range = [0]#np.linspace(-0.01, 0.01, 5)
             self.score_map = np.zeros([len(y_range), len(z_range)])
             for it_y, y in enumerate(y_range):

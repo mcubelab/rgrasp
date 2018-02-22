@@ -63,12 +63,14 @@ class controlPolicy():
             image_sub_list.append(crop_contact(background_images[0], image_list[0], gel_id = 1))
             image_sub_list.append(crop_contact(background_images[1], image_list[1], gel_id = 2))
         #generate new iamges
-        self.action_dict = self.generate_new_images(image_sub_list, tcp_pose, binId, smirror = smirror, use_COM = use_COM, use_raw= use_raw)
+
+        self.action_dict, initial_score = self.generate_new_images(image_sub_list, tcp_pose, binId, smirror = smirror, use_COM = use_COM, use_raw= use_raw)
         self.best_action_dict = self.select_best_action()
         print(self.best_action_dict)
+
         # TODO: Save this 2 things
 
-        return self.best_action_dict
+        return self.best_action_dict, initial_score
 
     def capture_images(self):
         #capture images
@@ -88,6 +90,7 @@ class controlPolicy():
         out_dict['images'] = []
         out_dict['images2'] = []
         out_dict['delta_pos'] = []
+        initial_score = 0
         if use_COM:
             out_dict = self.use_center_patch(model=self.model, image_list=back_image_list, out_dict = out_dict)
         else:
@@ -129,13 +132,15 @@ class controlPolicy():
                         out_dict['images'].append(img0)
                         out_dict['images2'].append(img1)
                         out_dict['delta_pos'].append(-delta_pos)
-
                         #self.score_map[it_y][it_z] = self.model.predict([np.expand_dims(img0, axis=0), np.expand_dims(img1, axis=0)])[0][1]
+                        if y == 0 and z == 0
+                            initial_score = self.model.predict([np.expand_dims(img0, axis=0), np.expand_dims(img1, axis=0)])[0][1]
             # if visualize_score_map:
             #     plt.pcolor(self.score_map, extent=[y_range[0], y_range[-1], z_range[0], z_range[-1]])
             #     plt.colorbar()
             #     plt.show()
-        return out_dict
+        print('Initial score: {}'.format(initial_score))
+        return out_dict, initial_score
 
     def select_best_action(self):
         list_images = [np.array(self.action_dict['images']), np.array(self.action_dict['images2'])]
@@ -177,7 +182,7 @@ class controlPolicy():
                 combined_CAM = np.concatenate([CAM0, CAM1],axis=1)
                 combined_image = np.concatenate((combined_image, combined_CAM), axis=1)
             ax[num_img-1-np.mod(counter,5)].imshow(combined_image,  'gray')
-        plt.close('all')
+        #plt.close('all')
         return
 
     def visualize_best_action(self, with_CAM = True):
@@ -189,7 +194,7 @@ class controlPolicy():
         # plt.xticks([])
         # plt.yticks([])
         plt.show()
-        plt.close('all')
+        #plt.close('all')
         if with_CAM:
             conv_layer = -1
             softmax_layer = -1 #Last layer

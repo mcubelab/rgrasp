@@ -514,6 +514,8 @@ class TaskPlanner(object):
 
                 #find new and improved grasp points
                 best_grasp_dict, initial_score = self.controller.control_policy(back_img_list, smirror=self.smirror, use_COM = self.use_COM, use_raw = self.use_raw)
+                self.gdr.save_item(item_name='initial_score', data=initial_score)
+                self.gdr.save_item(item_name='best_grasp_dict', data=best_grasp_dict)
                 # self.controller.visualize_actions(with_CAM = False)
                 #self.controller.visualize_best_action(with_CAM = False)
                 #save network information action_dict and best_action_dict
@@ -524,6 +526,8 @@ class TaskPlanner(object):
                 #go for new grasp PointgraspPose
                 self.grasping_output = grasp_correction(self.grasp_point, best_grasp_dict['delta_pos'], self.listener, self.br)
                 second_best_grasp_dict, final_score = self.controller.control_policy(back_img_list, smirror=self.smirror, use_COM = self.use_COM, use_raw = self.use_raw)
+                self.gdr.save_item(item_name='final_score', data=final_score)
+                self.gdr.save_item(item_name='second_best_grasp_dict', data=second_best_grasp_dict)
                 self.gdr.save_data_recorded = True
             else:
                     self.gdr.save_data_recorded = False

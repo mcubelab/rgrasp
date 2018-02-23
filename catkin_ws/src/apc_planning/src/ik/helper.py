@@ -771,8 +771,9 @@ def get_object_properties(objId,objPose):
 
     return (obj_dim, obj_X, obj_Y, obj_Z, obj_pose_orient_norm)
 
-def capture_gelsight():
-    # rospy.init_node('capture_gelsigth', anonymous=True)
+def capture_gelsight(is_node=False):
+    if is_node:
+        rospy.init_node('capture_gelsigth', anonymous=True)
 
     is_loop=True
     if rospy.get_param('have_robot'):

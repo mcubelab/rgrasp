@@ -283,6 +283,7 @@ alias hg='history | grep'
 alias restartwifi='sudo service network-manager restart'
 alias pyfast='python -m pdb' # from Karpathy's twitter
 alias volume='pactl -- set-sink-volume 0 '
+alias pystart='ipython -i -c "run $CODE_BASE/software/config/pystart.py"'
 # ~/.bashrc
 if [[ $- == *i* ]]
 then

@@ -6,7 +6,7 @@ sys.path.append(mcube_learning_path)
 import matplotlib.cm as cm
 
 from models.models import resnet_w_dense_layers, image_combined
-from helper.image_helper import convert_world2image, convert_image2world, translate_image, crop_gelsight, back_substraction, preprocess_image, get_center_of_mass, crop_contact
+from helper.image_helper import convert_world2image, convert_image2world, translate_image, crop_gelsight, back_substraction, preprocess_image, get_center_of_mass, crop_contact, back_sub_process
 from helper.helper import load_file
 from grasping17 import check_collision
 from cv_bridge import CvBridge, CvBridgeError
@@ -56,17 +56,17 @@ class controlPolicy():
 
         #if raw background substraction
         if use_raw:
-            image_sub_list.append(back_substraction(image_list[0], background_images[0]))
-            image_sub_list.append(back_substraction(image_list[1], background_images[1]))
+            image_sub_list.append(back_sub_process(background_images[0],image_list[0], gel_id=1))
+            image_sub_list.append(back_sub_process(background_images[1],image_list[1], gel_id=2))
         #if contact patch
         else:
-            image_sub_list.append(crop_contact(background_images[0], image_list[0], gel_id = 1))
-            image_sub_list.append(crop_contact(background_images[1], image_list[1], gel_id = 2))
+            image_sub_list.append(crop_contact(background_images[0], image_list[0], gel_id = 1, is_zeros=use_COM))
+            image_sub_list.append(crop_contact(background_images[1], image_list[1], gel_id = 2, is_zeros=use_COM))
         #generate new iamges
 
         self.action_dict, initial_score = self.generate_new_images(image_sub_list, tcp_pose, binId, smirror = smirror, use_COM = use_COM, use_raw= use_raw)
         self.best_action_dict = self.select_best_action()
-        print(self.best_action_dict)
+        #print(self.best_action_dict)
 
         # TODO: Save this 2 things
 
@@ -89,10 +89,14 @@ class controlPolicy():
         out_dict = {}
         out_dict['images'] = []
         out_dict['images2'] = []
+        out_dict['images_before'] = []
+        out_dict['images2_before'] = []
+        out_dict['images_initial'] = []
+        out_dict['images2_initial'] = []
         out_dict['delta_pos'] = []
         initial_score = 0
         if use_COM:
-            out_dict = self.use_center_patch(model=self.model, image_list=back_image_list, out_dict = out_dict)
+            out_dict, initial_score = self.use_center_patch(model=self.model, image_list=back_image_list, out_dict = out_dict)
         else:
             #search actions through y and z grid (in world frame)
             y_range = np.linspace(-0.03, 0.03, 11)
@@ -114,10 +118,8 @@ class controlPolicy():
                         # img1 = img1.resize((224, 224))
                         img0=scipy.misc.imresize(back_image_list[0], (224,224,3))
                         img1=scipy.misc.imresize(back_image_list[1], (224,224,3))
-                        #2. crop and Resize
-                        if use_raw:
-                            img0 = scipy.misc.imresize(crop_gelsight(img0, bottom_edge = 40, top_edge = 0, left_edge = 15, right_edge = 18), (224,224,3))
-                            img1 = scipy.misc.imresize(crop_gelsight(img1,bottom_edge = 25, top_edge = 10, left_edge = 37, right_edge = 25), (224,224,3))
+                        out_dict['images_initial'].append(img0)
+                        out_dict['images2_initial'].append(img1)
                         #3. translate or use CoM
                         if smirror:
                             img0 = translate_image(img0, pos_pixel[1], pos_pixel[0], smirror=smirror)
@@ -125,6 +127,8 @@ class controlPolicy():
                         else:
                             img0 = translate_image(img0, pos_pixel[0], pos_pixel[1], smirror=smirror)
                             img1 = translate_image(img1, pos_pixel[0], pos_pixel[1], smirror=smirror)
+                        out_dict['images_before'].append(img0)
+                        out_dict['images2_before'].append(img1)
                         #4. preprocess
                         img0 =preprocess_image(img0)
                         img1 =preprocess_image(img1)
@@ -133,8 +137,10 @@ class controlPolicy():
                         out_dict['images2'].append(img1)
                         out_dict['delta_pos'].append(-delta_pos)
                         #self.score_map[it_y][it_z] = self.model.predict([np.expand_dims(img0, axis=0), np.expand_dims(img1, axis=0)])[0][1]
-                        if y == 0 and z == 0
-                            initial_score = self.model.predict([np.expand_dims(img0, axis=0), np.expand_dims(img1, axis=0)])[0][1]
+                        if y == 0 and z == 0:
+                            initial_score = self.model.predict([np.expand_dims(img0, axis=0), np.expand_dims(img1, axis=0)])[0]
+
+
             # if visualize_score_map:
             #     plt.pcolor(self.score_map, extent=[y_range[0], y_range[-1], z_range[0], z_range[-1]])
             #     plt.colorbar()
@@ -147,9 +153,15 @@ class controlPolicy():
         predictions = predict_successes(self.model, list_images)
         self.action_dict['predictions'] = predictions
         best_index = np.argmax(predictions[:,0])
+        if predictions[5,0] == 1: # 5 is the index of 0
+            best_index = 5
         out_dict = {}
         out_dict['image'] = self.action_dict['images'][best_index]
         out_dict['image2'] = self.action_dict['images2'][best_index]
+        out_dict['image_initial'] = self.action_dict['images_initial'][best_index]
+        out_dict['image2_initial'] = self.action_dict['images2_initial'][best_index]
+        out_dict['image_before'] = self.action_dict['images_before'][best_index]
+        out_dict['image2_before'] = self.action_dict['images2_before'][best_index]
         out_dict['delta_pos'] = self.action_dict['delta_pos'][best_index]
         out_dict['prediction'] = self.action_dict['predictions'][best_index]
         return out_dict
@@ -186,10 +198,12 @@ class controlPolicy():
         return
 
     def visualize_best_action(self, with_CAM = True):
-        f, ax = plt.subplots(1, 2)
-        ax[0].imshow(self.best_action_dict['image'], 'gray')
-        ax[1].imshow(self.best_action_dict['image2'], 'gray')
-        ax[0].set_title('Success: {} delta_pos:{}'.format(self.best_action_dict['prediction'], self.best_action_dict['delta_pos']))
+        f, ax = plt.subplots(2, 2)
+        ax[0][0].imshow(self.best_action_dict['image'], 'gray')
+        ax[1][0].imshow(self.best_action_dict['image2'], 'gray')
+        ax[0][1].imshow(self.best_action_dict['image_initial'], 'gray')
+        ax[1][1].imshow(self.best_action_dict['image2_initial'], 'gray')
+        #ax[0].set_title('Success: {} delta_pos:{}'.format(self.best_action_dict['prediction'], self.best_action_dict['delta_pos']))
         # ax[1].set_title('Success: {}'.format(self.action_dict['predictions'][counter][1]))
         # plt.xticks([])
         # plt.yticks([])
@@ -201,6 +215,7 @@ class controlPolicy():
             desired_class=1
             conv_layers = [-7, -8]
             img = [np.expand_dims(self.best_action_dict['image'], axis=0), np.expand_dims(self.best_action_dict['image2'], axis=0)]
+            img_initial = [np.expand_dims(self.best_action_dict['image_initial'], axis=0), np.expand_dims(self.best_action_dict['image2_initial'], axis=0)]
             CAM = plot_CAM(img, self.model, conv_layers, softmax_layer, desired_class)
         return
 
@@ -208,8 +223,8 @@ class controlPolicy():
         # Crop and Resize
         img0=scipy.misc.imresize(image_list[0], (224,224,3))
         img1=scipy.misc.imresize(image_list[1], (224,224,3))
-        img0 = scipy.misc.imresize(crop_gelsight(img0, bottom_edge = 40, top_edge = 0, left_edge = 15, right_edge = 18), (224,224,3))
-        img1 = scipy.misc.imresize(crop_gelsight(img1,bottom_edge = 25, top_edge = 10, left_edge = 37, right_edge = 25), (224,224,3))
+        # img0 = scipy.misc.imresize(crop_gelsight(img0, bottom_edge = 40, top_edge = 0, left_edge = 15, right_edge = 18), (224,224,3))
+        # img1 = scipy.misc.imresize(crop_gelsight(img1,bottom_edge = 25, top_edge = 10, left_edge = 37, right_edge = 25), (224,224,3))
         pos_pixel_img0 = get_center_of_mass(img0)
         pos_pixel_img1 = get_center_of_mass(img1)
         pos_pixel_avg = np.mean( np.array([pos_pixel_img0, pos_pixel_img1 ]), axis=0 )  #TODO: check axis
@@ -226,8 +241,15 @@ class controlPolicy():
 
         pos_world_avg = convert_image2world([225/2-pos_pixel_avg[1], 0]) #np.array([y,-z])
         delta_pos_avg = np.array([0,-pos_world_avg[0],0])
+        print('Pixel positions')
+        print(pos_pixel_img0)
+        print(pos_pixel_img1)
+        print(pos_pixel_avg)
+        print('World positions')
+        print(pos_world_avg)
 
-
+        out_dict['images_initial'].append(img0)
+        out_dict['images2_initial'].append(img1)
         # Translate in all the possible options
         img0_0 = translate_image(img0, 225/2-pos_pixel_img0[1], 0) #, borderValue=0#img0.mean(1).mean(0))
         img1_0 = translate_image(img1, 225/2-pos_pixel_img0[1], 0) #, borderValue=0#img1.mean(1).mean(0))
@@ -235,6 +257,10 @@ class controlPolicy():
         img1_1 = translate_image(img1, 225/2-pos_pixel_img1[1], 0) #, borderValue=0#img1.mean(1).mean(0))
         img0_avg = translate_image(img0, 225/2-pos_pixel_avg[1], 0) #, borderValue=0#img0.mean(1).mean(0))
         img1_avg = translate_image(img1, 225/2-pos_pixel_avg[1], 0) #, borderValue=0#img1.mean(1).mean(0))
+
+        out_dict['images_before'].append(img0_avg)
+        out_dict['images2_before'].append(img1_avg)
+
 
         # Preporcess all the images
         img0_0 =preprocess_image(img0_0)
@@ -246,6 +272,14 @@ class controlPolicy():
         img0 =preprocess_image(img0)
         img1 =preprocess_image(img1)
 
+        out_dict['images'].append(img0_avg)
+        out_dict['images2'].append(img1_avg)
+        out_dict['delta_pos'].append(delta_pos_avg)
+        print('Moving to the CoM of the average')
+
+        best_score = 0
+
+        '''
         # Evaluate the score of each image
         score_0 = model.predict([np.expand_dims(img0_0, axis=0), np.expand_dims(img1_0, axis=0)])[0][0]
         score_1 = model.predict([np.expand_dims(img0_1, axis=0), np.expand_dims(img1_1, axis=0)])[0][0]
@@ -276,7 +310,8 @@ class controlPolicy():
             out_dict['images'].append(img0)
             out_dict['images2'].append(img1)
             out_dict['delta_pos'].append([0,0,0])
-        return out_dict
+        '''
+        return out_dict, best_score
 # To test the function
 if __name__=='__main__':
     rospy.init_node('control_policy', anonymous=True)

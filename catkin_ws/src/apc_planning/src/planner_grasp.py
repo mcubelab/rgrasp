@@ -51,7 +51,7 @@ class TaskPlanner(object):
         self.fails_in_row = 0
         self.switch_dict = {0:1,1:0}
         self.version = 1.0
-        self.experiment_description = "Comments: Data collection. rawlings_baseball. Noise value: Borders of object."
+        self.experiment_description = "Comments: Data collection for tomato can with single raw policy."
         # Configuration
         self.withPause = opt.withPause
         self.experiment = opt.experiment
@@ -62,7 +62,7 @@ class TaskPlanner(object):
         self.is_control = opt.is_control
         self.smirror = True
         self.use_COM = False
-        self.use_raw = False
+        self.use_raw = True
         if self.is_control:
             self.experiment_type = "is_control"
         else:
@@ -514,6 +514,7 @@ class TaskPlanner(object):
 
                 #find new and improved grasp points
                 best_grasp_dict, initial_score = self.controller.control_policy(back_img_list, smirror=self.smirror, use_COM = self.use_COM, use_raw = self.use_raw)
+                #pdb.set_trace()
                 self.gdr.save_item(item_name='initial_score', data=initial_score)
                 self.gdr.save_item(item_name='best_grasp_dict', data=best_grasp_dict)
                 # self.controller.visualize_actions(with_CAM = False)

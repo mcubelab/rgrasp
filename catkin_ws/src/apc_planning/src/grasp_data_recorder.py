@@ -49,7 +49,6 @@ class GraspDataRecorder:
                     'joint_states':{'topic':'/joint_states', 'msg_format':JointState}, # Reformat
                     'grasp_all_proposals': {'topic':'/grasp_all_proposals', 'msg_format':Float32MultiArray},
                     'grasp_proposal': {'topic':'/grasp_proposal', 'msg_format':Float32MultiArray},
-                    'grasp_noise': {'topic':'/grasp_noise', 'msg_format':Float32MultiArray},
                     'im_input_color_0': {'topic':'/im_input_color_0', 'msg_format':Image},
                     'im_back_color_0': {'topic':'/im_back_color_0', 'msg_format':Image},
                     'im_input_depth_0': {'topic':'/im_input_depth_0', 'msg_format':Image},
@@ -73,6 +72,7 @@ class GraspDataRecorder:
                     'liftoff_time': {'topic':'/liftoff_time', 'msg_format':String},
                     'grasp_noise': {'topic':'/grasp_noise', 'msg_format':Float32MultiArray},
                     'grasp_noise_std_dev': {'topic':'/grasp_noise_std_dev', 'msg_format':Float32MultiArray},
+                    'initial_score': {'topic':'/initial_score', 'msg_format':Float32MultiArray},
                     'ws_drop_detect': {'topic':'/ws_drop_detect', 'msg_format':Int32}
                     }
 
@@ -213,6 +213,9 @@ class GraspDataRecorder:
       for key in self.topic_dict:
           if key == 'liftoff_time':
               print ('[RECORDER]: SAVING LIFTOFF TIME')
+              
+          if key == 'final_score':
+              print ('[RECORDER]: SAVING FINAL SCORE')
 
           values_filename = str(key) + '_values'
           timestamps_filename = str(key) + '_timestamps'
@@ -449,6 +452,8 @@ class GraspDataRecorder:
       return event_dict
 
   def save_item(self, item_name, data):
+      print('SAAAAAAVING:' +  item_name)
+      self.topic_dict[item_name] = 0
       self.data_recorded[item_name] = [(data, rospy.get_time())]
 
 

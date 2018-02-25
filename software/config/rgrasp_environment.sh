@@ -186,10 +186,10 @@ alias cdp='cd $HOME/arc/catkin_ws/src/apc_planning/src/ '
 
 alias arcgui='rosrun apc_planning arcgui.py'
 
-alias sshserver='sshpass -p "thecube" ssh mcube@192.168.0.235 -X'
+alias sshserver='sshpass -p "thecube" ssh mcube@192.168.0.191 -X'
 alias sshmain='sshpass -p "thecube" ssh mcube@192.168.0.15 -X'
 alias sshfrank='sshpass -p "thecube" ssh mcube@192.168.0.11 -X'
-alias sshmaria='sshpass -p "thecube" ssh mcube@192.168.0.10 -X'
+alias sshmaria='sshpass -p "thecube" ssh mcube@192.168.0.223 -X'
 
 
 ppms2mp4()
@@ -300,6 +300,9 @@ alias openfile='xdg-open'
 alias gmail='firefox https://mail.google.com/mail/u/0/#inbox'
 alias clean_gpu="kill -9  $(nvidia-smi | grep python | sed -n 's/|\s*[0-9]*\s*\([0-9]*\)\s*.*/\1/p' | sort | uniq | sed '/^$/d')"
 alias cdlast='cd  $(\ls -1dt ./*/ | head -n 1)'
+alias lfiles='ls -p | grep -v / '
+alias ldirectories="ls -d */ | cut -f1 -d'/'"
+
 . /usr/share/autojump/autojump.bash
 
 

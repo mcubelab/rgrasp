@@ -300,7 +300,7 @@ def grasp(objInput,
     plans.append(sleep_plan)
 
      #~5. perform guarded move down
-    grasp_targetPosition[2] = bin_pose[2] -  rospy.get_param('/tote/height') + 0.02  #~frank hack for safety
+    grasp_targetPosition[2] = bin_pose[2] -  rospy.get_param('/tote/height') + 0.015  #~frank hack for safety
 
     plan, qf, plan_possible = generatePlan(q_initial, grasp_targetPosition, hand_orient_quat, tip_hand_transform, 'faster', guard_on=WeightGuard(binId, threshold = 140), plan_name = 'guarded_pick')
     if plan_possible:

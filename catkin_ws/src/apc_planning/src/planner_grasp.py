@@ -51,7 +51,7 @@ class TaskPlanner(object):
         self.fails_in_row = 0
         self.switch_dict = {0:1,1:0}
         self.version = 1.0
-        self.experiment_description = "Comments: Data collection for tomato can with single raw policy."
+        self.experiment_description = "Comments: Data collection for water bottle with no policy."
         # Configuration
         self.withPause = opt.withPause
         self.experiment = opt.experiment
@@ -62,7 +62,7 @@ class TaskPlanner(object):
         self.is_control = opt.is_control
         self.smirror = True
         self.use_COM = False
-        self.use_raw = False
+        self.use_raw = True
         if self.is_control:
             self.experiment_type = "is_control"
         else:
@@ -513,10 +513,11 @@ class TaskPlanner(object):
                 #self.gdr.pause_recording()
                 #find new and improved grasp points
                 best_grasp_dict, initial_score = self.controller.control_policy(back_img_list, smirror=self.smirror, use_COM = self.use_COM, use_raw = self.use_raw)
-                pdb.set_trace()
+
 
                 # self.controller.visualize_actions(with_CAM = False)
-                self.controller.visualize_best_action(with_CAM = False)
+                #self.controller.visualize_best_action(with_CAM = False)
+                #pdb.set_trace()
                 #save network information action_dict and best_action_dict
                 #WE UNPAUSE THE RECORDER
                 #self.gdr.replay_recording()
@@ -533,7 +534,7 @@ class TaskPlanner(object):
 
 
             else:
-                    self.gdr.save_data_recorded = False
+                self.gdr.save_data_recorded = False
         #frank hack for double grasping
         if self.experiment_type == 'is_data_collection':
             if gripper.getGripperopening() > 0.017:

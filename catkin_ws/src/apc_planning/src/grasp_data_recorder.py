@@ -72,7 +72,6 @@ class GraspDataRecorder:
                     'liftoff_time': {'topic':'/liftoff_time', 'msg_format':String},
                     'grasp_noise': {'topic':'/grasp_noise', 'msg_format':Float32MultiArray},
                     'grasp_noise_std_dev': {'topic':'/grasp_noise_std_dev', 'msg_format':Float32MultiArray},
-                    'initial_score': {'topic':'/initial_score', 'msg_format':Float32MultiArray},
                     'ws_drop_detect': {'topic':'/ws_drop_detect', 'msg_format':Int32}
                     }
 
@@ -213,7 +212,7 @@ class GraspDataRecorder:
       for key in self.topic_dict:
           if key == 'liftoff_time':
               print ('[RECORDER]: SAVING LIFTOFF TIME')
-              
+
           if key == 'final_score':
               print ('[RECORDER]: SAVING FINAL SCORE')
 
@@ -452,7 +451,7 @@ class GraspDataRecorder:
       return event_dict
 
   def save_item(self, item_name, data):
-      print('SAAAAAAVING:' +  item_name)
+      #print('SAAAAAAVING:' +  item_name)
       self.topic_dict[item_name] = 0
       self.data_recorded[item_name] = [(data, rospy.get_time())]
 

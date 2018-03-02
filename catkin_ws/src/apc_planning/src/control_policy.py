@@ -116,6 +116,7 @@ class controlPolicy():
                         # img1 =  Image.fromarray(back_image_list[1])
                         # img0 = img0.resize((224, 224))
                         # img1 = img1.resize((224, 224))
+
                         img0=scipy.misc.imresize(back_image_list[0], (224,224,3))
                         img1=scipy.misc.imresize(back_image_list[1], (224,224,3))
                         out_dict['images_initial'].append(img0)
@@ -125,8 +126,8 @@ class controlPolicy():
                             img0 = translate_image(img0, pos_pixel[1], pos_pixel[0], smirror=smirror)
                             img1 = translate_image(img1, pos_pixel[1], pos_pixel[0], smirror=smirror)
                         else:
-                            img0 = translate_image(img0, pos_pixel[0], pos_pixel[1], smirror=smirror)
-                            img1 = translate_image(img1, pos_pixel[0], pos_pixel[1], smirror=smirror)
+                            img0 = translate_image(img0, pos_pixel[0], pos_pixel[1], smirror=smirror, borderValue=back_image_list[0].mean(1).mean(0))
+                            img1 = translate_image(img1, pos_pixel[0], pos_pixel[1], smirror=smirror, borderValue=back_image_list[1].mean(1).mean(0))
                         out_dict['images_before'].append(img0)
                         out_dict['images2_before'].append(img1)
                         #4. preprocess
@@ -153,8 +154,9 @@ class controlPolicy():
         predictions = predict_successes(self.model, list_images)
         self.action_dict['predictions'] = predictions
         best_index = np.argmax(predictions[:,0])
-        if predictions[5,0] == 1: # 5 is the index of 0
-            best_index = 5
+
+        #if predictions[5,0] == 1: # 5 is the index of 0
+        #    best_index = 5
         out_dict = {}
         out_dict['image'] = self.action_dict['images'][best_index]
         out_dict['image2'] = self.action_dict['images2'][best_index]

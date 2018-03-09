@@ -137,7 +137,8 @@ def grasp(objInput,
           withPause = False,
           viz_pub = None,
           recorder = None,
-          is_regrasp = False):
+          is_regrasp = False,
+          open_hand = True):
 
     #########################################################
     # fhogan and nikhilcd
@@ -284,13 +285,15 @@ def grasp(objInput,
     else:
         return compose_output()
 
-   #~2. Open gripper
-    grasp_plan = EvalPlan('helper.moveGripper(%f, 200)' % grasp_width)
-    plans.append(grasp_plan)
+    if open_hand:
+        #~2. Open gripper
+       
+        grasp_plan = EvalPlan('helper.moveGripper(%f, 200)' % grasp_width)
+        plans.append(grasp_plan)
 
-    #~ 3. Open spatula
-    grasp_plan = EvalPlan('spatula.open()')
-    plans.append(grasp_plan)
+        #~ 3. Open spatula
+        grasp_plan = EvalPlan('spatula.open()')
+        plans.append(grasp_plan)
 
     grasp_targetPosition=deepcopy(graspPos)
 #        rospy.loginfo('[Picking] Grasp Target %s', grasp_targetPosition)

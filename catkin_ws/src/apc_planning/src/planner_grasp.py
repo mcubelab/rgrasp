@@ -306,7 +306,7 @@ class TaskPlanner(object):
         noise_ori = np.random.uniform(-std_ori,std_ori)
         noise_width = np.random.uniform(-std_width,std_width)
         self.grasp_std = [std_x,gel_length/2., std_ori, std_width]
-        self.grasp_noise = [noise_x,noise_y, noise_ori, noise_width]
+        self.grasp_noise = [0,0,0, 0]#[noise_x,noise_y, noise_ori, noise_width]
         # self.grasp_noise_std_dev_pub.publish(np.asarray(self.grasp_std))
         # self.grasp_noise_pub.publish(np.asarray(self.grasp_noise))
         return
@@ -499,6 +499,8 @@ class TaskPlanner(object):
         #execute for grasp. Stop when the gripper is closed
         if self.is_control:
             back_img_list = self.controller.capture_images()
+
+        #self.grasp_point=[0.92737001180648804, -0.391, -0.12441360205411911, 0.0, 0.0, -1.0, 0.067681394517421722, 0.059999998658895493, 0.0, 1.0, 0.0, 0.74888890981674194]
 
         self.grasping_output = grasp(objInput=self.grasp_point, listener=self.listener, br=self.br, isExecute=self.isExecute, binId=container, withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
 

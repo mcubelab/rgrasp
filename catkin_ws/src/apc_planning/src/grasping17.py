@@ -101,7 +101,7 @@ def release_safe(listener, isExecute=True, withPause=False):
     l3 = spatula_tip_to_tcp_dist
     tip_hand_transform = [l1, l2, l3, 0,0,0]
     bin_pose = ik.helper.get_params_yaml('bin'+str(0)+'_pose')
-    UpdistFromBinFast = 0.15
+    UpdistFromBinFast = 0.15 - 0.1
     #Initial configuration of robot
     q_initial = ik.helper.get_joints()
     targetPose = ik.helper.get_tcp_pose(listener, tcp_offset = spatula_tip_to_tcp_dist)
@@ -267,7 +267,7 @@ def grasp(objInput,
 
     #~0. Move to a location above the bin, Rotate gripper to grasp orientation
     pregrasp_targetPosition = graspPos
-    pregrasp_targetPosition[2] = bin_pose[2] + UpdistFromBinFast
+    pregrasp_targetPosition[2] = bin_pose[2] + UpdistFromBinFast - 0.1
     plan, qf, plan_possible = generatePlan(q_initial, pregrasp_targetPosition, hand_orient_quat, tip_hand_transform, 'superSaiyan', plan_name = 'go_safe_bin')
     if plan_possible:
         plans.append(plan)
@@ -276,7 +276,7 @@ def grasp(objInput,
         return compose_output()
 
     #~1. Move to to surface of bin
-    pregrasp_targetPosition[2] = bin_pose[2] + UpdistFromBinGuarded
+    pregrasp_targetPosition[2] = bin_pose[2] + UpdistFromBinGuarded - 0.1
     plan, qf, plan_possible = generatePlan(q_initial, pregrasp_targetPosition, hand_orient_quat, tip_hand_transform, 'superSaiyan', plan_name = 'go_top_bin')
     if plan_possible:
         plans.append(plan)
@@ -380,7 +380,7 @@ def retrieve(listener,
     delta_vision_pose = ik.helper.get_params_yaml('vision_pose_picking')
     delta_vision_pose[3:7] = np.array([0,1,0,0])
     vision_pos=np.array(bin_pose[0:3])+np.array(delta_vision_pose[0:3])
-    vision_pos[2] = 0.17786528
+    vision_pos[2] = 0.17786528 - 0.1
     plans = []
     plans_grasping = []
     graspPose=[]

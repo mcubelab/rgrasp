@@ -33,6 +33,9 @@ import sensor_msgs.msg
 from sensor_msgs.msg import Image
 from std_msgs.msg import Float32MultiArray, String
 import pdb
+from control_policy import capture_images
+from helper.image_helper import convert_world2image, convert_image2world, translate_image, crop_gelsight, back_substraction, preprocess_image, get_center_of_mass, crop_contact, back_sub_process
+import scipy
 
 class TaskPlanner(object):
     def __init__(self, opt):
@@ -501,13 +504,22 @@ class TaskPlanner(object):
             back_img_list = self.controller.capture_images()
 
         #self.grasp_point=[0.92737001180648804, -0.391, -0.12441360205411911, 0.0, 0.0, -1.0, 0.067681394517421722, 0.059999998658895493, 0.0, 1.0, 0.0, 0.74888890981674194]
+        self.background_images = self.capture_images()
 
         self.grasping_output = grasp(objInput=self.grasp_point, listener=self.listener, br=self.br, isExecute=self.isExecute, binId=container, withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
 
         if self.is_record==True:
             self.gdr.save_item(item_name='grasp_noise_std_dev', data=self.grasp_std)
             self.gdr.save_item(item_name='grasp_noise', data=self.grasp_noise)
-
+        is_in_wrong_pose = (gripper.getGripperopening() < 0.03) #raw_input()
+        if is_in_wrong_pose:
+            self.retrieve_output = retrieve(listener=self.listener, br=self.br,
+                                     isExecute=self.isExecute, binId=container,
+                                     withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr, ws_object=self.weightSensor)
+            gripper.open()
+            gripper.close()                         
+            self.grasping_output = grasp(objInput=self.grasp_point, listener=self.listener, br=self.br, isExecute=self.isExecute, binId=container, withPause=self.withPause, viz_pub=self.proposal_viz_array_pub, recorder=self.gdr)
+            
         if self.is_control:
             if gripper.getGripperopening() > 0.017:
                 print ('[Planner]: ', gripper.getGripperopening())
@@ -575,7 +587,28 @@ class TaskPlanner(object):
         drop_pose = get_params_yaml('bin'+str(fixed_container[0])+'_pose')
         drop_pose[1] = drop_pose[1] + 0.03
 
-        # Place object using grasping
+        ## TODO add here a correction depending on the com of the contact patch of the object?
+        image_list = self.capture_images()
+        image_list[0] = crop_contact(self.background_images[0], image_list[0], gel_id = 1, is_zeros=use_COM)
+        image_list[1] = crop_contact(self.background_images[1], image_list[1], gel_id = 2, is_zeros=use_COM)
+        img0=scipy.misc.imresize(image_list[0], (224,224,3))
+        img1=scipy.misc.imresize(image_list[1], (224,224,3))
+        
+        pos_pixel_img0 = get_center_of_mass(img0)
+        pos_pixel_img1 = get_center_of_mass(img1)
+        pos_pixel_avg = np.mean( np.array([pos_pixel_img0, pos_pixel_img1 ]), axis=0 )  #TODO: check axis
+
+
+        #x in pixel frame -> y in hand frame
+        #y in pixel frame -> -z in hand frame
+        # Compute actual motion for the robot and check if there is collision
+        
+        pos_world_avg = convert_image2world([225/2-pos_pixel_avg[1], 0]) #np.array([y,-z])
+        delta_pos_avg = np.array([0,-pos_world_avg[0],0])
+        print('Pixel positions: ', pos_pixel_avg, '. World positions: ', pos_world_avg)
+        drop_pose[1] = drop_pose[1] + pos_world_avg[0]
+        
+        # Place object using graspingc
         self.rel_pose, self.BoxBody=vision_transform_precise_placing_with_visualization(self.bbox_info,viz_pub=self.viz_array_pub,listener=self.listener)
         place(listener=self.listener, br=self.br,
                          isExecute=self.isExecute, binId=fixed_container[0],  withPause=self.withPause,

@@ -287,7 +287,7 @@ def grasp(objInput,
 
     if open_hand:
         #~2. Open gripper
-       
+
         grasp_plan = EvalPlan('helper.moveGripper(%f, 200)' % grasp_width)
         plans.append(grasp_plan)
 
@@ -366,7 +366,8 @@ def retrieve(listener,
               withPause = False,
               viz_pub = None,
               recorder = None,
-              ws_object = None):
+              ws_object = None,
+              isShake = True):
 
     liftoff_pub = rospy.Publisher('/liftoff_time', std_msgs.msg.String, queue_size = 10, latch=False)
 
@@ -422,9 +423,9 @@ def retrieve(listener,
     if gripper.getGripperopening()>high_threshold and isExecute:
         # We initialize drop listener
         ws_object.start_listening_for_drop(bin_num=binId)
-
-        ik.ik.shake()
-        rospy.sleep(2.)
+        if isShake:
+            ik.ik.shake()
+            rospy.sleep(2.)
 
         # We stop drop listener
         ws_object.stop_listening_for_drop()

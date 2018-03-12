@@ -33,7 +33,7 @@ import sensor_msgs.msg
 from sensor_msgs.msg import Image
 from std_msgs.msg import Float32MultiArray, String
 import pdb
-from control_policy import capture_images
+#from control_policy import capture_images
 from helper.image_helper import convert_world2image, convert_image2world, translate_image, crop_gelsight, back_substraction, preprocess_image, get_center_of_mass, crop_contact, back_sub_process
 import scipy
 

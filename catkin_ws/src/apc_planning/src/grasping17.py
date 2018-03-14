@@ -420,12 +420,12 @@ def retrieve(listener,
     high_threshold = 0.027
     #shake robot
     rospy.sleep(1.5)
-    if gripper.getGripperopening()>high_threshold and isExecute:
+    if isShake and gripper.getGripperopening()>high_threshold and isExecute:
         # We initialize drop listener
         ws_object.start_listening_for_drop(bin_num=binId)
-        if isShake:
-            ik.ik.shake()
-            rospy.sleep(2.)
+        
+        ik.ik.shake()
+        rospy.sleep(2.)
 
         # We stop drop listener
         ws_object.stop_listening_for_drop()

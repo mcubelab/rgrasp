@@ -45,7 +45,7 @@ class GraspDataRecorder:
                     'gs_deflection': {'topic':'rpi/gelsight/deflection', 'msg_format':Int32},
                     'gs_contactarea': {'topic':'rpi/gelsight/contactarea', 'msg_format':gelsight_contactarea}, # Reformat DONE
                     'hand_commands': {'topic':'/hand_commands', 'msg_format':JointState}, # Reformat
-                    'grasp_status': {'topic':'/grasp_status', 'msg_format':JointState}, # Reformat
+                    #'grasp_status': {'topic':'/grasp_status', 'msg_format':JointState}, # Reformat
                     'joint_states':{'topic':'/joint_states', 'msg_format':JointState}, # Reformat
                     'grasp_all_proposals': {'topic':'/grasp_all_proposals', 'msg_format':Float32MultiArray},
                     'grasp_proposal': {'topic':'/grasp_proposal', 'msg_format':Float32MultiArray},

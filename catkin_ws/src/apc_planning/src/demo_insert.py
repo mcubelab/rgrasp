@@ -2,7 +2,7 @@
 
 
 from placing_grasp import PlacingPlanner
-import random, time, datetime, json, optparse, rospy, copy, yaml, cv2, math
+import random, time, datetime, json, optparse, rospy, copy, yaml, cv2, math, subprocess
 import tf
 import ik.visualize_helper
 import numpy as np
@@ -676,6 +676,7 @@ class TaskPlanner(object):
 
             if self.grasp_point is not None and rospy.get_param('have_robot'):
                 print(grasp_status_msgs)
+                
                 self.grasp_status_pub.publish(grasp_status_msgs)
                 self.objectType_pub.publish(object_ID_msgs)
                 self.gdr.update_topic(key='grasp_status')
@@ -723,12 +724,13 @@ class TaskPlanner(object):
         signal.signal(signal.SIGINT, self.stop_running)
 
 if __name__ == '__main__':
-    import re
+    import re, subprocess
     out_process = subprocess.check_output(["echo  $(nvidia-smi | grep python )"], shell=True)
     list_int = map(int, re.findall(r'\d+', out_process))
     kill_process = [i for i in list_int if i >= 1000]
     for i in kill_process:
         os.system("kill -9 {}".format(i))
+    
     rospy.init_node('Planner')
     #from subprocess import call
     #call(["kill", "-9", "$(nvidia-smi", "|", "grep", "python", "|", "sed", "-n", "'s/|\s*[0-9]*\s*\([0-9]*\)\s*.*/\1/p'", "|", "sort", "|", "uniq", "|", "sed", "'/^$/d')"])

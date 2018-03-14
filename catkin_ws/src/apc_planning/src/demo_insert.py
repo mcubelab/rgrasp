@@ -515,7 +515,7 @@ class TaskPlanner(object):
 
         is_in_wrong_pose = (gripper.getGripperopening() < 0.03) #raw_input()
         if self.is_control and is_in_wrong_pose:
-            
+
             self.retrieve_output = retrieve(listener=self.listener, br=self.br,
                                        isExecute=self.isExecute, binId=container,
                                        withPause=self.withPause, viz_pub=self.proposal_viz_array_pub,
@@ -675,6 +675,7 @@ class TaskPlanner(object):
             object_ID_msgs.data = self.obj_ID #, self.obj_weight]
 
             if self.grasp_point is not None and rospy.get_param('have_robot'):
+                print(grasp_status_msgs)
                 self.grasp_status_pub.publish(grasp_status_msgs)
                 self.objectType_pub.publish(object_ID_msgs)
                 self.gdr.update_topic(key='grasp_status')

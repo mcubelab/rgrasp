@@ -37,6 +37,7 @@
 
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" />
   <node name="gelsight_flip" pkg="apc_planning" type="gs_flip_publisher.py" respawn="true" />
+  <node name="gelsight_background" pkg="apc_planning" type="gs_background_capture.py" respawn="true" />
 
   <node if="$(arg do_fitting)" pkg="manual_fit" type="manual_fit_obj_interactive.py" name="manual_fit_obj_interactive" output="screen" />
 

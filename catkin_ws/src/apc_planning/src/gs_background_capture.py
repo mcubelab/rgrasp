@@ -32,7 +32,7 @@ if __name__ == '__main__':
             flip_cv_image = bridge_cv.imgmsg_to_cv2(image_ros, 'rgb8')
             if it == 0:
                 flip_cv_image = cv2.flip(flip_cv_image,1)
-            flip_cv_image = cv2.flip(cv_image,0)
+            flip_cv_image = cv2.flip(flip_cv_image,0)
             cv2.imwrite('/home/mcube/background_{}.png'.format(it),flip_cv_image)
         else:
             image_path = '/media/mcube/data/Dropbox (MIT)/images/gelsight_fingerprint.png'

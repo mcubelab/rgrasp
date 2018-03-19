@@ -1,7 +1,5 @@
 #!/usr/bin/python
 
-
-from placing_grasp import PlacingPlanner
 import random, time, datetime, json, optparse, rospy, copy, yaml, cv2, math, subprocess
 import tf
 import ik.visualize_helper
@@ -33,7 +31,6 @@ import sensor_msgs.msg
 from sensor_msgs.msg import Image
 from std_msgs.msg import Float32MultiArray, String
 import pdb
-#from control_policy import capture_images
 from helper.image_helper import convert_world2image, convert_image2world, translate_image, crop_gelsight, back_substraction, preprocess_image, get_center_of_mass, crop_contact, back_sub_process
 import scipy
 
@@ -41,10 +38,6 @@ class TaskPlanner(object):
     def __init__(self, opt):
         self.original_sigint = signal.getsignal(signal.SIGINT)
         signal.signal(signal.SIGINT, self.stop_running)
-
-        self.passiveVisionTypes = {'real' : self.call_passive_vision,
-                                   'file' : self.call_passive_vision,
-                                   'virtual' : self.callFakePassiveVision}
         # Class constants
         self.param_grasping = 12
         self.infinite_looping = True
@@ -52,58 +45,33 @@ class TaskPlanner(object):
         self.goHomeSlow = False
         self.tote_ID = 0
         self.fails_in_row = 0
-        self.switch_dict = {0:1,1:0}
         self.version = 1.0
-        self.experiment_description = "Comments: Data collection for water bottle with no policy."
         # Configuration
-        self.withPause = opt.withPause
-        self.experiment = opt.experiment
+        self.withPause = opt.withPause        
         self.isExecute = opt.isExecute
-        self.add_noise = opt.add_noise
-        self.is_hand = opt.is_hand
-        self.is_record = opt.is_record
-        self.is_control = opt.is_control
-        self.smirror = True
-        self.use_COM = False
-        self.use_raw = True
-        if self.is_control:
-            self.experiment_type = "is_control"
-        else:
-            self.experiment_type = "is_data_collection"
+        self.is_record = opt.is_record        
+        self.experiment_type = "is_demo"
+        self.experiment_description = "Comments: Demo for object insertion."
         # ROS setup
         self.listener = tf.TransformListener()
         self.br = tf.TransformBroadcaster()
         #Vision
-        self.haverobot = rospy.get_param('/have_robot', True)
-        self.visionType = opt.visionType
         self.getPassiveVisionEstimate = rospy.ServiceProxy('/passive_vision/estimate', passive_vision.srv.state)
-        self.passive_vision_file_id = opt.passive_vision_file_id
         self.all_grasp_proposals = None
-        self.grasp_noise = [0,0,0,0]
-        self.grasp_std = [0,0,0,0]
         self.grasp_point = None
+        self.image_topic_list = ["rpi/gelsight/flip_raw_image",  "rpi/gelsight/flip_raw_image2"]
         #Bad points
         self.bad_grasping_points = []
-        self.bad_grasping_times = []
-        #Placing
-        self.PlacingPlanner = PlacingPlanner(visionType = self.visionType)
-        #Control policy
-        if self.is_control:
-            self.model = two_gelsight_model()
-            self.controller = controlPolicy(self.model, ["rpi/gelsight/flip_raw_image",  "rpi/gelsight/flip_raw_image2"], self.listener, self.br)
+        self.bad_grasping_times = []        
         #Weights
         self.weightSensor = ws_prob.WeightSensor()
         self.withSensorWeight = True
-        if self.visionType != 'real':
-            self.withSensorWeight = False
-        self.weight_info = [None for _ in range(9)]  #Adding the boxes
         #Class Publishers
         self.viz_array_pub = rospy.Publisher('/visualization_marker_array', MarkerArray, queue_size=10)
         self.proposal_viz_array_pub = rospy.Publisher('/proposal_visualization_marker_array', MarkerArray, queue_size=10)
         self.grasp_status_pub = rospy.Publisher('/grasp_status', sensor_msgs.msg.JointState, queue_size=10, latch=True)
         self.grasp_all_proposals_pub=rospy.Publisher('/grasp_all_proposals',Float32MultiArray,queue_size = 10, latch=True)
         self.grasp_proposal_pub=rospy.Publisher('/grasp_proposal',Float32MultiArray,queue_size = 10, latch=True)
-        self.grasp_noise_pub=rospy.Publisher('/grasp_noise',Float32MultiArray,queue_size = 10, latch=True)
         self.grasp_proposal2_pub=rospy.Publisher('/grasp_proposal2',Float32MultiArray,queue_size = 10, latch=True)
         self.im_input_color_0_pub=rospy.Publisher('/im_input_color_0',Image,queue_size = 10, latch=True)
         self.im_back_color_0_pub=rospy.Publisher('/im_back_color_0',Image,queue_size = 10, latch=True)
@@ -115,8 +83,6 @@ class TaskPlanner(object):
         self.im_back_depth_1_pub=rospy.Publisher('/im_back_depth_1',Image,queue_size = 10, latch=True)
         self.experiment_comments_pub=rospy.Publisher('/exp_comments',String,queue_size = 10, latch=True)
         self.experiment_type_pub=rospy.Publisher('/exp_type',String,queue_size = 10, latch=True)
-        # self.grasp_noise_pub=rospy.Publisher('/grasp_noise',Float32MultiArray,queue_size = 10, latch=True)
-        # self.grasp_noise_std_dev_pub=rospy.Publisher('/grasp_noise_std_dev',Float32MultiArray,queue_size = 10, latch=True)
         self.objectList_pub=rospy.Publisher('/objectList',String,queue_size = 10, latch=True)
         self.objectType_pub=rospy.Publisher('/objectType',String,queue_size = 10, latch=True)
         rospy.sleep(0.5)
@@ -124,6 +90,20 @@ class TaskPlanner(object):
     ###############################
     ### GLOBAL FUNCTIONS ###
     ###############################
+
+    def capture_images(self):
+        #capture images
+        image_ros_list = []
+        image_list = []
+        for topic in self.image_topic_list:
+            if rospy.get_param('have_robot'):
+                image_ros = rospy.wait_for_message(topic, sensor_msgs.msg.Image)
+                image_list.append(self.bridge.imgmsg_to_cv2(image_ros, 'rgb8'))
+            else:
+                image_path = '/media/mcube/data/Dropbox (MIT)/images/gelsight_fingerprint.png'
+                image_list.append(cv2.imread(image_path, 1))
+        return image_list
+
 
     def request_passive_vision_wait(self, bin_id):
         while True:
@@ -196,11 +176,12 @@ class TaskPlanner(object):
     def GetGraspPoints(self, num_points, container):
         if self.all_grasp_proposals is None:
             print('I am trying to get proposals')
-            self.passiveVisionTypes[self.visionType](container)
+            self.call_passive_vision(container)
         #Add grasp proposals if possible
         print('There are {} grasp proposals'.format(len(self.all_grasp_proposals)))
-        print('There are ', len(self.bad_grasping_points), ' bad_grasping_points ',': ', self.bad_grasping_points)
+        
         ## Filter out outdated bad_grasping_point
+        print('There are ', len(self.bad_grasping_points), ' bad_grasping_points ',': ', self.bad_grasping_points)
         self.bad_grasping_points, self.bad_grasping_times = self.remove_old_points(self.bad_grasping_points, self.bad_grasping_times, 60*3)
         if len(self.all_grasp_proposals) > 0:
             not_bad_grasp_points_indices = [] ## Remove grasp points that are repeated:
@@ -258,7 +239,7 @@ class TaskPlanner(object):
             if grasp_output['execution_possible'] and retrieve_output['execution_possible']:
                 self.grasp_score = copy.deepcopy(self.all_pick_scores[num_it-1])
                 self.grasp_point = copy.deepcopy(grasp_point)
-                #Visualize before adding noise
+                #Visualize grasp
                 markers_msg = MarkerArray()
                 m0 = createDeleteAllMarker('pick_proposals')
                 markers_msg.markers.append(m0)
@@ -285,12 +266,8 @@ class TaskPlanner(object):
         #~Publish grasp proposal information
         grasp_proposal_msgs = Float32MultiArray()
         grasp_proposal_msgs.data = self.grasp_point
-        grasp_noise_msgs = Float32MultiArray()
-        grasp_noise_msgs.data = self.grasp_noise
-
         if self.grasp_point is not None:
             self.grasp_proposal_pub.publish(grasp_proposal_msgs)
-            self.grasp_noise_pub.publish(grasp_noise_msgs)
         comments_msgs = String()
         comments_msgs.data = self.experiment_description
         experiment_type_msgs = String()
@@ -312,8 +289,7 @@ class TaskPlanner(object):
         ik.visualize_helper.visualize_grasping_proposals(self.proposal_viz_array_pub, np.asarray([self.grasp_point]),  self.listener, self.br, True)
 
         #execute for grasp. Stop when the gripper is closed
-        if self.is_control:
-            self.back_img_list = self.controller.capture_images()
+        self.back_img_list = self.capture_images()
 
         #self.grasp_point=[0.92737001180648804, -0.391, -0.12441360205411911, 0.0, 0.0, -1.0, 0.067681394517421722, 0.059999998658895493, 0.0, 1.0, 0.0, 0.74888890981674194]
 
@@ -322,7 +298,7 @@ class TaskPlanner(object):
                 recorder=self.gdr)
         num_it = 0
         is_in_wrong_pose = (gripper.getGripperopening() < 0.03) 
-        while self.is_control and is_in_wrong_pose:
+        while is_in_wrong_pose:
             '''
             self.retrieve_output = retrieve(listener=self.listener, br=self.br,
                                        isExecute=self.isExecute, binId=container,
@@ -350,12 +326,6 @@ class TaskPlanner(object):
             num_it +=1
             is_in_wrong_pose = (gripper.getGripperopening() < 0.03) 
         
-        if self.experiment_type == 'is_data_collection':
-            if gripper.getGripperopening() > 0.017:
-                self.gdr.save_data_recorded = True
-            else:
-                self.gdr.save_data_recorded = False
-
         self.retrieve_output = retrieve(listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container,
                                  withPause=self.withPause, viz_pub=self.proposal_viz_array_pub,
@@ -370,7 +340,7 @@ class TaskPlanner(object):
         drop_pose[1] = drop_pose[1] + 0.03
 
         # Place depending on the position of the COM of the contact patch
-        image_list = self.controller.capture_images()
+        image_list = self.capture_images()
         img0 = scipy.misc.imresize(crop_contact(self.back_img_list[0], image_list[0], gel_id = 1, is_zeros=True), (224,224,3))
         img1 = scipy.misc.imresize(crop_contact(self.back_img_list[1], image_list[1], gel_id = 2, is_zeros=True), (224,224,3))
         
@@ -431,14 +401,14 @@ class TaskPlanner(object):
             self.obj_weight = 0
             print('-----------------------------\n Execution_possible according to primitive = {} \n-----------------------------'.format(self.execution_possible) )
             if self.execution_possible != False: # 5. Check the weight
-                self.weight_info[self.tote_ID] = self.weightSensor.readWeightSensor(item_list = obj_list, 
+                self.weight_info = self.weightSensor.readWeightSensor(item_list = obj_list, 
                                                     withSensor=self.withSensorWeight, binNum=self.tote_ID, givenWeights=-11)
-                self.obj_weight = self.weight_info[self.tote_ID]['weights']
+                self.obj_weight = self.weight_info['weights']
                 print('Detected weight:',  self.obj_weight)
                 if self.obj_weight > 10: # Weight need to be higher than 10g
                     self.execution_possible = True
                 #Identify object
-                max_prob_index = (self.weight_info[self.tote_ID]['probs']).tolist().index(max(self.weight_info[self.tote_ID]['probs']))
+                max_prob_index = (self.weight_info['probs']).tolist().index(max(self.weight_info['probs']))
                 self.obj_ID = obj_list[max_prob_index]
                 if self.obj_ID == 'no_item' or self.execution_possible == None:
                     self.execution_possible = False
@@ -484,7 +454,7 @@ class TaskPlanner(object):
                 if not self.infinite_looping:
                     break
         # Finished stowing
-        goToHome.goToARC(slowDown = self.goHomeSlow)
+        goToHome.goToARC(slowDown=self.goHomeSlow)
         print("Planner is done")
 
     def stop_running(self, signum, frame):
@@ -508,28 +478,13 @@ if __name__ == '__main__':
     rospy.init_node('Planner')
     
     parser = optparse.OptionParser()
-    parser.add_option('-v', '--vision', action='store', dest='visionType',
-        help='real or virtual', default='real')
-    parser.add_option('--pvfile', action='store', dest='passive_vision_file_id',
-        help='Path of the passive vision file to use', default='full_bin')
     parser.add_option('-p', '--pause', action='store_true', dest='withPause',
         help='To pause or not', default=False)
     parser.add_option('-n', '--noexe', action='store_false', dest='isExecute',
         help='To execute or not', default=True)
-    parser.add_option('-e', '--experiment', action='store_true', dest='experiment',
-        help='Whether to run passive vision experiments', default=False)
-    parser.add_option('-i', '--item', action='store', dest='objectType',
-        help='Name object considered', default='None')
-    parser.add_option('-r', '--random_noise', action='store', dest='add_noise',
-        help='Add random noise to grasp proposal?', default=False)
-    parser.add_option('-f', '--hand_frame', action='store', dest='is_hand',
-        help='Hand frame vs. world frame', default=False)
     parser.add_option('-b', '--record_data', action='store', dest='is_record',
         help='Turn data recording on/off?', default=True)
-    parser.add_option('-c', '--control', action='store', dest='is_control',
-        help='Turn control policy on/off?', default=False)
     (opt, args) = parser.parse_args()
 
     p = TaskPlanner(opt)
-
     p.run_experiments()

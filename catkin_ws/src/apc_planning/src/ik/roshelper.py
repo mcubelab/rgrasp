@@ -8,7 +8,8 @@ import tf.transformations as tfm
 import tf
 import traceback
 import numpy as np
-
+from wsg_50_common.srv import *
+import wsg_50_common.msg
 import subprocess, os, signal
 
 from marker_helper import createMoveControls, createMeshMarker, createCubeMarker, createPointMarker2
@@ -268,23 +269,26 @@ def checkGraspStatus(drop_thick=0.000001 ): # finger gap =0.002m = .5 mm
 fastvirtual = rospy.get_param('/fast_virtual', False)
 
 def getGripperopening():
-    joint_topic = '/joint_states'
-    if not fastvirtual:
-        rospy.sleep(0.5)   # this should be reduced
-    while True:
-        APCrobotjoints = rospy.wait_for_message(joint_topic, sensor_msgs.msg.JointState, timeout=5)
-        q0 = APCrobotjoints.position
-        if not rospy.get_param('/have_robot'):
-            q0 = q0[6:8]    # first 6 are the robot visualizeObjectsjoints, then 7 and 8 are the fingers, used for virtual
-            break
-        else:
-            if 'wsg_50_gripper_base_joint_gripper_left' in APCrobotjoints.name:
-                q0 = q0[0:2]    # just the first 2 for fingers, used for real robot
+    if rospy.get_param('have_robot')==False:
+        while True:
+            joint_topic = '/joint_states'
+            APCrobotjoints = rospy.wait_for_message(joint_topic, sensor_msgs.msg.JointState, timeout=5)
+            q0 = APCrobotjoints.position
+            if not rospy.get_param('/have_robot'):
+                q0 = q0[6:8]    # first 6 are the robot visualizeObjectsjoints, then 7 and 8 are the fingers, used for virtual
                 break
-        
-    gripper_q0=np.fabs(q0)
-    print 'gripper_q0',gripper_q0
-    full_grasp_opening=2*gripper_q0[0]
+            else:
+                if 'wsg_50_gripper_base_joint_gripper_left' in APCrobotjoints.name:
+                    q0 = q0[0:2]    # just the first 2 for fingers, used for real robot
+                    break
+        gripper_q0=np.fabs(q0)
+        print 'gripper_q0',gripper_q0
+        full_grasp_opening=2*gripper_q0[0]
+    else:
+        gripper_topic = '/wsg_50_driver/status'
+        gripper_status = rospy.wait_for_message(gripper_topic, wsg_50_common.msg.Status)
+        full_grasp_opening = gripper_status.width/1000.
+    
     return full_grasp_opening
     
 

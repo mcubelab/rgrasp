@@ -70,8 +70,8 @@ class GraspDataRecorder:
                     'objectList': {'topic':'/objectList', 'msg_format':String},
                     'objectType': {'topic':'/objectType', 'msg_format':String},
                     'liftoff_time': {'topic':'/liftoff_time', 'msg_format':String},
-                    'grasp_noise': {'topic':'/grasp_noise', 'msg_format':Float32MultiArray},
-                    'grasp_noise_std_dev': {'topic':'/grasp_noise_std_dev', 'msg_format':Float32MultiArray},
+                    #'grasp_noise': {'topic':'/grasp_noise', 'msg_format':Float32MultiArray},
+                    #'grasp_noise_std_dev': {'topic':'/grasp_noise_std_dev', 'msg_format':Float32MultiArray},
                     'ws_drop_detect': {'topic':'/ws_drop_detect', 'msg_format':Int32}
                     }
 

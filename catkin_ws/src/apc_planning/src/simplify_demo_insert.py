@@ -33,11 +33,13 @@ from std_msgs.msg import Float32MultiArray, String
 import pdb
 from helper.image_helper import convert_world2image, convert_image2world, translate_image, crop_gelsight, back_substraction, preprocess_image, get_center_of_mass, crop_contact, back_sub_process
 import scipy
+from cv_bridge import CvBridge, CvBridgeError
+from matplotlib import pyplot as plt
 
 class TaskPlanner(object):
     def __init__(self, opt):
-        self.original_sigint = signal.getsignal(signal.SIGINT)
-        signal.signal(signal.SIGINT, self.stop_running)
+#        self.original_sigint = signal.getsignal(signal.SIGINT)
+#        signal.signal(signal.SIGINT, self.stop_running)
         # Class constants
         self.param_grasping = 12
         self.infinite_looping = True
@@ -59,6 +61,7 @@ class TaskPlanner(object):
         self.getPassiveVisionEstimate = rospy.ServiceProxy('/passive_vision/estimate', passive_vision.srv.state)
         self.all_grasp_proposals = None
         self.grasp_point = None
+        self.bridge = CvBridge()
         self.image_topic_list = ["rpi/gelsight/flip_raw_image",  "rpi/gelsight/flip_raw_image2"]
         #Bad points
         self.bad_grasping_points = []
@@ -268,12 +271,12 @@ class TaskPlanner(object):
         grasp_proposal_msgs.data = self.grasp_point
         if self.grasp_point is not None:
             self.grasp_proposal_pub.publish(grasp_proposal_msgs)
-        comments_msgs = String()
-        comments_msgs.data = self.experiment_description
-        experiment_type_msgs = String()
-        experiment_type_msgs.data = self.experiment_type
-        self.experiment_comments_pub.publish(comments_msgs)
-        self.experiment_type_pub.publish(experiment_type_msgs)
+            comments_msgs = String()
+            comments_msgs.data = self.experiment_description
+            experiment_type_msgs = String()
+            experiment_type_msgs.data = self.experiment_type
+            self.experiment_comments_pub.publish(comments_msgs)
+            self.experiment_type_pub.publish(experiment_type_msgs)
         else: 
             print('There are no grasp proposal')
             self.execution_possible = False
@@ -297,7 +300,7 @@ class TaskPlanner(object):
                 isExecute=self.isExecute, binId=container, withPause=self.withPause, viz_pub=self.proposal_viz_array_pub,
                 recorder=self.gdr)
         num_it = 0
-        is_in_wrong_pose = (gripper.getGripperopening() < 0.03) 
+        is_in_wrong_pose = (gripper.getGripperopening() < 0.02) 
         while is_in_wrong_pose:
             '''
             self.retrieve_output = retrieve(listener=self.listener, br=self.br,
@@ -310,21 +313,25 @@ class TaskPlanner(object):
             '''
             # Motion heuristic
             initial_dz = 0.1
-            dz = .02  #should be related to object length
-            ik.helper.move_cart(dz=initial_dz);
-            ik.helper.move_cart(dz=-initial_dz);
+            dz = .015  #should be related to object length
+            ik.helper.move_cart(dz=initial_dz); rospy.sleep(0.5)
+            ik.helper.move_cart(dz=-initial_dz);rospy.sleep(0.5)
             gripper.open()
-            ik.helper.move_cart(dz=dz);
+            ik.helper.move_cart(dz=dz); rospy.sleep(0.5)
             #should be done in the direction of the gripper plane
             dx = .01*num_it
-            ik.helper.move_cart(dx=dx); ik.helper.move_cart(dx=-2*dx); ik.helper.move_cart(dx=dx)
+            ik.helper.move_cart(dx=dx); rospy.sleep(0.5) 
+            ik.helper.move_cart(dx=-2*dx); rospy.sleep(0.5)
+            ik.helper.move_cart(dx=dx) ; rospy.sleep(0.5)
             dy = .01*num_it
-            ik.helper.move_cart(dy=dy); ik.helper.move_cart(dy=-2*dy); ik.helper.move_cart(dy=dy)
+            ik.helper.move_cart(dy=dy); rospy.sleep(0.5)
+            ik.helper.move_cart(dy=-2*dy); rospy.sleep(0.5)
+            ik.helper.move_cart(dy=dy); rospy.sleep(0.5)            
             ik.helper.move_cart(dz=-dz);
             gripper.close()
             self.gdr.save_data_recorded = False
             num_it +=1
-            is_in_wrong_pose = (gripper.getGripperopening() < 0.03) 
+            is_in_wrong_pose = (gripper.getGripperopening() < 0.02) 
         
         self.retrieve_output = retrieve(listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container,
@@ -333,7 +340,6 @@ class TaskPlanner(object):
         self.execution_possible = self.retrieve_output['execution_possible']
 
     def planned_place(self):
-        
         # Place approx. at the center bin
         binId = 0
         drop_pose = get_params_yaml('bin{}_pose'.format(binId))
@@ -341,8 +347,11 @@ class TaskPlanner(object):
 
         # Place depending on the position of the COM of the contact patch
         image_list = self.capture_images()
-        img0 = scipy.misc.imresize(crop_contact(self.back_img_list[0], image_list[0], gel_id = 1, is_zeros=True), (224,224,3))
-        img1 = scipy.misc.imresize(crop_contact(self.back_img_list[1], image_list[1], gel_id = 2, is_zeros=True), (224,224,3))
+        img0, aux = crop_contact(self.back_img_list[0], image_list[0], gel_id = 1, is_zeros=True)
+        img1, aux = crop_contact(self.back_img_list[1], image_list[1], gel_id = 2, is_zeros=True)
+        
+        img0 = scipy.misc.imresize(img0, (224,224,3))
+        img1 = scipy.misc.imresize(img1, (224,224,3))
         
         pos_pixel_img0 = get_center_of_mass(img0)
         pos_pixel_img1 = get_center_of_mass(img1)
@@ -351,7 +360,7 @@ class TaskPlanner(object):
         pos_world_avg = np.nan_to_num(convert_image2world([225/2-pos_pixel_avg[1], 0])) #np.array([y,-z])
         print('Pixel positions: ', pos_pixel_avg, '. World positions: ', pos_world_avg)
         drop_pose[1] = drop_pose[1] + pos_world_avg[0]
-
+        print(drop_pose)
         # Place object using graspingc
         self.rel_pose, self.BoxBody=vision_transform_precise_placing_with_visualization(self.bbox_info,viz_pub=self.viz_array_pub,listener=self.listener)
         place(listener=self.listener, br=self.br,

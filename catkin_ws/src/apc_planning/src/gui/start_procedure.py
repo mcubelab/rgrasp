@@ -53,6 +53,9 @@ def go_up_arc():
     ik.helper.move_cart(dz=.3)
     goToHome.goToARC()
     
+def gripper_close():
+    ik.helper.graspinGripper(800,30)
+    
     
 
 A1 = Tkinter.Button(top, text = 'start lasers 0', command = start_lasers0)
@@ -63,7 +66,7 @@ A3 = Tkinter.Button(top, text = 'start lasers 1', command = start_lasers1)
 A3.pack()  
 A4 = Tkinter.Button(top, text = 'stop lasers 1', command = stop_lasers1)
 A4.pack()  
-B1 = Tkinter.Button(top, text = 'gripper close', command = gripper.close)
+B1 = Tkinter.Button(top, text = 'gripper close', command = gripper_close)
 B1.pack()
 B2 = Tkinter.Button(top, text = 'gripper open', command = gripper.open)
 B2.pack()

@@ -300,7 +300,8 @@ class TaskPlanner(object):
                 isExecute=self.isExecute, binId=container, withPause=self.withPause, viz_pub=self.proposal_viz_array_pub,
                 recorder=self.gdr)
         num_it = 0
-        is_in_wrong_pose = (gripper.getGripperopening() < 0.02) 
+        print('gripper open: ', gripper.getGripperopening())
+        is_in_wrong_pose = (gripper.getGripperopening() < 0.025) 
         while is_in_wrong_pose:
             '''
             self.retrieve_output = retrieve(listener=self.listener, br=self.br,
@@ -319,19 +320,15 @@ class TaskPlanner(object):
             gripper.open()
             ik.helper.move_cart(dz=dz); rospy.sleep(0.5)
             #should be done in the direction of the gripper plane
-            dx = .01*num_it
-            ik.helper.move_cart(dx=dx); rospy.sleep(0.5) 
-            ik.helper.move_cart(dx=-2*dx); rospy.sleep(0.5)
-            ik.helper.move_cart(dx=dx) ; rospy.sleep(0.5)
-            dy = .01*num_it
-            ik.helper.move_cart(dy=dy); rospy.sleep(0.5)
-            ik.helper.move_cart(dy=-2*dy); rospy.sleep(0.5)
-            ik.helper.move_cart(dy=dy); rospy.sleep(0.5)            
+            dx = .02*num_it
+            ik.helper.move_cart_hand(self.listener, dx=dx, dy=0, dz=0);rospy.sleep(0.5)
+            ik.helper.move_cart_hand(self.listener, dx=-2*dx, dy=0, dz=0);rospy.sleep(0.5)
+            ik.helper.move_cart_hand(self.listener, dx=dx, dy=0, dz=0);rospy.sleep(0.5)
             ik.helper.move_cart(dz=-dz);
             gripper.close()
             self.gdr.save_data_recorded = False
             num_it +=1
-            is_in_wrong_pose = (gripper.getGripperopening() < 0.02) 
+            is_in_wrong_pose = (gripper.getGripperopening() < 0.025) #and (gripper.getGripperopening() > 0.015) 
         
         self.retrieve_output = retrieve(listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container,
@@ -347,8 +344,8 @@ class TaskPlanner(object):
 
         # Place depending on the position of the COM of the contact patch
         image_list = self.capture_images()
-        img0, aux = crop_contact(self.back_img_list[0], image_list[0], gel_id = 1, is_zeros=True)
-        img1, aux = crop_contact(self.back_img_list[1], image_list[1], gel_id = 2, is_zeros=True)
+        img0, aux, contact = crop_contact(self.back_img_list[0], image_list[0], gel_id = 1, is_zeros=True)
+        img1, aux, contact = crop_contact(self.back_img_list[1], image_list[1], gel_id = 2, is_zeros=True)
         
         img0 = scipy.misc.imresize(img0, (224,224,3))
         img1 = scipy.misc.imresize(img1, (224,224,3))
@@ -494,6 +491,5 @@ if __name__ == '__main__':
     parser.add_option('-b', '--record_data', action='store', dest='is_record',
         help='Turn data recording on/off?', default=True)
     (opt, args) = parser.parse_args()
-
     p = TaskPlanner(opt)
     p.run_experiments()

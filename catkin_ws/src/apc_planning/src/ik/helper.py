@@ -827,6 +827,27 @@ def move_cart(dx=0, dy=0, dz=0):
     #move robot to new pose
     setCartRos(c.x+dx, c.y+dy, c.z+dz, c.q0, c.qx, c.qy, c.qz)
 
+def move_cart_hand(listener, dx=0, dy=0, dz=0):
+    #Define ros services
+    getCartRos = rospy.ServiceProxy('/robot1_GetCartesian', robot_GetCartesian)
+    setCartRos = rospy.ServiceProxy('/robot1_SetCartesian', robot_SetCartesian)
+    #read current robot pose in world frame
+    c = getCartRos()
+    #build current pose
+    pose_world = np.array([c.x/1000., c.y/1000., c.z/1000., c.q0, c.qx, c.qy, c.qz])
+    #convert to hand frame
+    pose_hand = poseTransform(pose_world, "map", "link_6", listener)
+    pose_hand[0] += dx 
+    pose_hand[1] += dy
+    pose_hand[2] += dz
+    #convert back to world frame
+    pose_world_new = poseTransform(pose_hand, "link_6", "map", listener)
+    #move robot to new pose
+    setCartRos(pose_world_new[0]*1000, pose_world_new[1]*1000, pose_world_new[2]*1000, 
+            pose_world_new[3], pose_world_new[4], pose_world_new[5], pose_world_new[6])
+    return
+
+
 def unwrap(angle):
     #~unwrap an angle to the range [-pi,pi]
     if angle>np.pi:

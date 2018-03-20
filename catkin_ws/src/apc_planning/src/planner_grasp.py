@@ -361,6 +361,7 @@ class TaskPlanner(object):
         #ori
         #TODO
         return
+        
 
     def getBestGraspingPoint(self, container):
         self.GetGraspPoints(num_points=100,container = container)

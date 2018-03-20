@@ -62,7 +62,7 @@ class TaskPlanner(object):
         self.all_grasp_proposals = None
         self.grasp_point = None
         self.bridge = CvBridge()
-        self.image_topic_list = ["rpi/gelsight/flip_raw_image",  "rpi/gelsight/flip_raw_image2"]
+        self.image_topic_list = ["rpi/gelsight/flip_raw_image_basic",  "rpi/gelsight/flip_raw_image2_basic"]
         #Bad points
         self.bad_grasping_points = []
         self.bad_grasping_times = []        

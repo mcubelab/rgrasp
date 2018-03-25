@@ -301,7 +301,7 @@ class TaskPlanner(object):
                 recorder=self.gdr)
         num_it = 0
         print('gripper open: ', gripper.getGripperopening())
-        is_in_wrong_pose = (gripper.getGripperopening() < 0.025) 
+        is_in_wrong_pose = (gripper.getGripperopening() < 0.04) 
         while is_in_wrong_pose:
             '''
             self.retrieve_output = retrieve(listener=self.listener, br=self.br,
@@ -314,29 +314,31 @@ class TaskPlanner(object):
             '''
             # Motion heuristic
             initial_dz = 0.05
-            dz = .01  #should be related to object length
+            dz = .025  #should be related to object length
             ik.helper.move_cart(dz=initial_dz); rospy.sleep(0.5)
             ik.helper.move_cart(dz=-initial_dz);rospy.sleep(0.5)
-            gripper.move(60)
+            gripper.move(90)
             ik.helper.move_cart(dz=dz); rospy.sleep(0.5)
             #should be done in the direction of the gripper plane
-            dx = 0.04#.02*num_it
-            ik.helper.move_cart_hand(self.listener, dx=dx, dy=0, dz=0, speedName = 'faster');rospy.sleep(0.5)
+            dx = 0.03#.02*num_it
+            ik.helper.move_cart_hand(self.listener, dx=dx, dy=0, dz=0, speedName = 'fastest');rospy.sleep(0.5)
             ik.helper.move_cart(dz=-dz); rospy.sleep(0.5)
-            ik.helper.move_cart_hand(self.listener, dx=-dx, dy=0, dz=0, speedName = 'faster');rospy.sleep(0.5)
-            gripper.close()
-            is_in_wrong_pose = (gripper.getGripperopening() < 0.025) 
+            ik.helper.move_cart_hand(self.listener, dx=-dx, dy=0, dz=0, speedName = 'fastest');rospy.sleep(0.5)
+            gripper.close();  rospy.sleep(0.5)
+            print('gripper_open', gripper.getGripperopening())
+            
+            is_in_wrong_pose = (gripper.getGripperopening() < 0.04) 
             if is_in_wrong_pose:
-                gripper.move(60); rospy.sleep(0.5)
+                gripper.move(90); rospy.sleep(0.5)
                 ik.helper.move_cart(dz=dz); rospy.sleep(0.5)
-                ik.helper.move_cart_hand(self.listener, dx=-dx, dy=0, dz=0, speedName = 'faster');rospy.sleep(0.5)
+                ik.helper.move_cart_hand(self.listener, dx=-dx, dy=0, dz=0, speedName = 'fastest');rospy.sleep(0.5)
                 ik.helper.move_cart(dz=-dz); rospy.sleep(0.5)
-                ik.helper.move_cart_hand(self.listener, dx=dx, dy=0, dz=0, speedName = 'fast');rospy.sleep(0.5)
+                ik.helper.move_cart_hand(self.listener, dx=dx, dy=0, dz=0, speedName = 'fastest');rospy.sleep(0.5)
                 
-                gripper.close()
+                gripper.close(); rospy.sleep(0.5)
                 self.gdr.save_data_recorded = False
                 num_it +=1
-                is_in_wrong_pose = (gripper.getGripperopening() < 0.025) #and (gripper.getGripperopening() > 0.015) 
+                is_in_wrong_pose = (gripper.getGripperopening() < 0.04) #and (gripper.getGripperopening() > 0.015) 
         
         self.retrieve_output = retrieve(listener=self.listener, br=self.br,
                                  isExecute=self.isExecute, binId=container,

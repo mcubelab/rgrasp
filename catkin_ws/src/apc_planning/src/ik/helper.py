@@ -9,7 +9,7 @@ import tf.transformations as tfm
 import time
 from visualization_msgs.msg import MarkerArray, Marker
 from marker_helper import createCubeMarker2, createSphereMarker
-#~ from ik import setSpeedByName
+#from ik import setSpeedByName
 #~ from ik.ik import*
 from numpy import linalg as la
 from roshelper import lookupTransform, poseTransform
@@ -827,7 +827,7 @@ def move_cart(dx=0, dy=0, dz=0):
     #move robot to new pose
     setCartRos(c.x+dx, c.y+dy, c.z+dz, c.q0, c.qx, c.qy, c.qz)
 
-def move_cart_hand(listener, dx=0, dy=0, dz=0):
+def move_cart_hand(listener, dx=0, dy=0, dz=0, speedName = 'faster'):
     #Define ros services
     getCartRos = rospy.ServiceProxy('/robot1_GetCartesian', robot_GetCartesian)
     setCartRos = rospy.ServiceProxy('/robot1_SetCartesian', robot_SetCartesian)
@@ -843,6 +843,7 @@ def move_cart_hand(listener, dx=0, dy=0, dz=0):
     #convert back to world frame
     pose_world_new = poseTransform(pose_hand, "link_6", "map", listener)
     #move robot to new pose
+    setSpeedByName(speedName = speedName)
     setCartRos(pose_world_new[0]*1000, pose_world_new[1]*1000, pose_world_new[2]*1000, 
             pose_world_new[3], pose_world_new[4], pose_world_new[5], pose_world_new[6])
     return

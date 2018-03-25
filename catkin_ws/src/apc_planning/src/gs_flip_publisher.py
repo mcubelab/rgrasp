@@ -137,7 +137,7 @@ def flip_image2(data, topic):
             
             #rotation angle in degree
             
-            if (gripper.getGripperopening() > 0.0025):
+            if (gripper.getGripperopening() > 0.03):
                 rotated = cv2.pyrDown(cv2.imread('/home/mcube/vertical_nut.png', cv2.IMREAD_UNCHANGED))
                 if biggest_rect[1][0] > biggest_rect[1][1]:
                     rotated = ndimage.rotate(rotated, -biggest_rect[2]+90)

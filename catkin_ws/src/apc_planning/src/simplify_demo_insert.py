@@ -314,13 +314,13 @@ class TaskPlanner(object):
             '''
             # Motion heuristic
             initial_dz = 0.05
-            dz = .025  #should be related to object length
+            dz = .022  #should be related to object length
             ik.helper.move_cart(dz=initial_dz); rospy.sleep(0.5)
             ik.helper.move_cart(dz=-initial_dz);rospy.sleep(0.5)
             gripper.move(90)
             ik.helper.move_cart(dz=dz); rospy.sleep(0.5)
             #should be done in the direction of the gripper plane
-            dx = 0.03#.02*num_it
+            dx = 0.038#.02*num_it
             ik.helper.move_cart_hand(self.listener, dx=dx, dy=0, dz=0, speedName = 'fastest');rospy.sleep(0.5)
             ik.helper.move_cart(dz=-dz); rospy.sleep(0.5)
             ik.helper.move_cart_hand(self.listener, dx=-dx, dy=0, dz=0, speedName = 'fastest');rospy.sleep(0.5)

@@ -12,6 +12,7 @@ from helper.image_helper import get_center_of_mass, crop_contact
 from scipy import ndimage
 import gripper
 import rospy
+import copy
 
 def flip_image(data, topic):
     #flip image using opencv
@@ -136,17 +137,22 @@ def flip_image2(data, topic):
             outImage = cv2.addWeighted(foreground,alpha,img,1-alpha,0)
             
             #rotation angle in degree
+            rotated = cv2.pyrDown(cv2.imread('/home/mcube/vertical_nut.png', cv2.IMREAD_UNCHANGED))
+            rows = rotated.shape[1]
+            cols = rotated.shape[1]
             
             if (gripper.getGripperopening() > 0.03):
-                rotated = cv2.pyrDown(cv2.imread('/home/mcube/vertical_nut.png', cv2.IMREAD_UNCHANGED))
                 if biggest_rect[1][0] > biggest_rect[1][1]:
-                    rotated = ndimage.rotate(rotated, -biggest_rect[2]+90)
+                    M = cv2.getRotationMatrix2D((cols/2,rows/2),rect[2]+90,1)
                 else:
-                    rotated = ndimage.rotate(rotated, -biggest_rect[2])
+                    M = cv2.getRotationMatrix2D((cols/2,rows/2),rect[2],1)
+                rotated = cv2.warpAffine(rotated,M,(cols,rows))
             else:
                 rotated = cv2.imread('/home/mcube/hor2_nut.png', cv2.IMREAD_UNCHANGED)
+            
             rotated = cv2.resize(rotated, (outImage.shape[1], outImage.shape[0]))
             outImage = np.concatenate([outImage, rotated], axis=1)
+            
         else:
             outImage = foreground
 

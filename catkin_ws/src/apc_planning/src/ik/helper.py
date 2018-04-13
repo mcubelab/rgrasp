@@ -9,7 +9,7 @@ import tf.transformations as tfm
 import time
 from visualization_msgs.msg import MarkerArray, Marker
 from marker_helper import createCubeMarker2, createSphereMarker
-#from ik import setSpeedByName
+from ik import setSpeedByName
 #~ from ik.ik import*
 from numpy import linalg as la
 from roshelper import lookupTransform, poseTransform

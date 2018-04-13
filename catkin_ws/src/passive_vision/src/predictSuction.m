@@ -20,7 +20,7 @@ suctionSideOutputPath = fullfile(dataPath,sprintf('passive-vision-suctionside.%d
 suctionSideOutputObjectsPath =  fullfile(dataPath,sprintf('passive-vision-suctionside-objects.%d.output.txt',binId));
 
  
-
+%{
 suctionVisImgPath = cell(1,2);
 suctionVisImg = cell(1,2);
 
@@ -260,6 +260,7 @@ if showDebug
         end
     end
 end
+%}
 % Save prediction data in row major order
 predictions = predictions';
 fileID = fopen(suctionOutputPath,'wb');

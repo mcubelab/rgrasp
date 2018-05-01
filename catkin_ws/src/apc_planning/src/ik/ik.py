@@ -588,13 +588,15 @@ class SuctionGuard(): #Hall Effect sensor
             return abs(self.value - self.init_msg) > self.threshold
 
 class WeightGuard(): #Loadstar Weight
-    def __init__(self, binNum, threshold = None):
+    def __init__(self, binNum, threshold = None, isHack = False, guard_speed = None):
         from multiprocessing import Lock
         self.mutex = Lock()
         self.value = [None, None, None]
         self.init_msg = [None, None, None]
         self.guard_stream_name = ['ws_stream'+str(binNum - 1), 'ws_stream'+str(binNum), 'ws_stream'+str(binNum + 1)]
         self.sub = [None, None, None]
+        self.isHack = isHack
+        self.speed = guard_speed
         if binNum > 0 and binNum <= 3:
             self.sub[0] = rospy.Subscriber(self.guard_stream_name[0], Float64, self.callback0)
         self.sub[1] = rospy.Subscriber(self.guard_stream_name[1], Float64, self.callback1)
@@ -648,6 +650,8 @@ class GuardedPlan(Plan):
         self.j_stopped = 0 # where it stopped because of touch
         self.guard_obj = guard_obj
         self.guarded_speed = (40,40)
+        if self.guard_obj.speed is not None:
+                self.guarded_speed = self.guard_obj.speed
 
     def setExecPoints(self, n):
         print "setExecPoints is not supported for GuardedPlan."
@@ -686,8 +690,11 @@ class GuardedPlan(Plan):
             if self.guard_obj is not None:
                 self.guard_obj.prep()
             if not backward:  #move forward
+                count_steps = 0
                 for j in getrng(len(q_traj), self.numExecPoints, False):
-                    if self.guard_obj is None or self.guard_obj.test() == False:
+                    if self.guard_obj.isHack:
+                        count_steps +=1
+                    if count_steps < 100 and (self.guard_obj is None or self.guard_obj.test() == False):
                         ret = setJoints(q_traj[j][0]*R2D, q_traj[j][1]*R2D, q_traj[j][2]*R2D,
                               q_traj[j][3]*R2D, q_traj[j][4]*R2D, q_traj[j][5]*R2D)
 
@@ -698,6 +705,8 @@ class GuardedPlan(Plan):
                             return False
                         self.j_stopped = j
                     else:
+                        getCartRos = rospy.ServiceProxy('/robot1_GetCartesian', robot_GetCartesian)
+                        print(getCartRos())
                         self.j_stopped = j - 1
                         if self.j_stopped < 0: self.j_stopped = 0
                         print '[Guarded Move] Contact detected!'

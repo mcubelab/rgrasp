@@ -20,6 +20,7 @@ import std_msgs.msg
 import goToHome
 from visualization_msgs.msg import MarkerArray
 from cv_bridge import CvBridge, CvBridgeError
+from robot_comm.srv import robot_GetCartesian, robot_SetCartesian
 import cv2
 #from grasp_data_recorder import GraspDataRecorder
 import datetime
@@ -465,7 +466,9 @@ def place(listener,
           place_pose = None,
           viz_pub = None,
           is_drop = True,
-          recorder = None):
+          recorder = None,
+          isHack = False, 
+          guard_speed = None):
 
     #########################################################
     # fhogan and nikhilcd
@@ -622,7 +625,7 @@ def place(listener,
         return compose_output()
 
     #~2. Guarded move down slow
-    plan, qf, plan_possible = generatePlan(q_initial, drop_pose[0:3], drop_pose[3:7], tip_hand_transform, 'fast',   guard_on=WeightGuard(binId, threshold = 100), backwards_speed = 'superSaiyan', plan_name = 'guarded_drop')
+    plan, qf, plan_possible = generatePlan(q_initial, drop_pose[0:3], drop_pose[3:7], tip_hand_transform, 'fast',   guard_on=WeightGuard(binId, threshold = 100, isHack = isHack, guard_speed = guard_speed), backwards_speed = 'superSaiyan', plan_name = 'guarded_drop')
     if plan_possible:
         plans_placing.append(plan)
         q_initial = qf
@@ -668,6 +671,9 @@ def place(listener,
             rospy.set_param('is_record', True)
             executePlanForward(plans_placing, withPause)
             if rospy.get_param('is_contact'):
+                rospy.sleep(1)
+                getCartRos = rospy.ServiceProxy('/robot1_GetCartesian', robot_GetCartesian)
+                print(getCartRos())
                 ik.helper.move_cart(dz=0.015)
             executePlanForward(plans_placing2, withPause)
             rospy.set_param('is_record', False)

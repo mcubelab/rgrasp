@@ -21,6 +21,7 @@ def flip_image(data, topic):
     flip_cv_image = cv2.flip(cv_image,1)
     flip_cv_image = cv2.flip(flip_cv_image,0)
     outImage = flip_cv_image
+#    cv2.imwrite('/home/mcube/background_0.png',outImage)
     if rospy.get_param('/is_high_viz', True):
         back_cv_image = cv2.imread('/home/mcube/background_0.png', 1)
         patch_cv_image, initial_img, contact_img = crop_contact(back_cv_image, flip_cv_image, gel_id = 1, is_zeros=True)
@@ -84,6 +85,7 @@ def flip_image2(data, topic):
     # flip_cv_image = cv2.flip(cv_image,1)
     flip_cv_image = cv2.flip(cv_image,0)
     outImage = flip_cv_image
+   # cv2.imwrite('/home/mcube/background_1.png',outImage)
     if rospy.get_param('/is_high_viz', True):
         back_cv_image = cv2.imread('/home/mcube/background_1.png', 1)
         patch_cv_image, initial_img, contact_img = crop_contact(back_cv_image, flip_cv_image, gel_id = 2, is_zeros=True)
@@ -130,7 +132,7 @@ def flip_image2(data, topic):
             
             outimg = cv2.drawContours(img, contours, -1, (255, 255, 0), 2)
             # Normalize the alpha mask to keep intensity between 0 and 1
-            alpha = 0.4
+            alpha = 0.8
             
             #img = cv2.resize(img, (foreground.shape[1], foreground.shape[0]))
             # Add the masked foreground and background.

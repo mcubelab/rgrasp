@@ -521,6 +521,8 @@ def place(listener,
     ########################
     ## Initialize values ##
     ########################
+    import pdb
+    
     q_initial = ik.helper.get_joints()
     bin_pose = ik.helper.get_params_yaml('bin'+str(binId)+'_pose')
     spatula_tip_to_tcp_dist=rospy.get_param("/gripper/spatula_tip_to_tcp_dist")
@@ -565,7 +567,6 @@ def place(listener,
     #############
     ## Placing ##
     #############
-
     #if primitive called without placing arguments, go to center of bin
     if rel_pose==None:
         drop_pose = ik.helper.get_params_yaml('bin'+str(binId)+'_pose')
@@ -579,11 +580,11 @@ def place(listener,
     else:
         drop_offset = 0.025
     #~set drop pose target z position to be bottom of bin
-    drop_pose[2] = bin_pose[2] - rospy.get_param('tote/height') + drop_offset
+    drop_pose[2] = bin_pose[2] - rospy.get_param('tote/height') + drop_offset -0.2
 
     #~Predrop: go to top middle bin surface fast without guarded move
     predrop_pos=np.array(drop_pose[0:3])
-    predrop_pos[2] = bin_pose[2] + 0.05
+    predrop_pos[2] = bin_pose[2] + 0.05 -0.2
 
     ######################
     ##  Generate plans ##
@@ -631,7 +632,7 @@ def place(listener,
         q_initial = qf
     else:
         return compose_output()
-
+    '''
     #~3. open gripper
     grasp_plan = EvalPlan('helper.moveGripper(0.110, 200)')
     plans_placing2.append(grasp_plan)
@@ -639,7 +640,7 @@ def place(listener,
     #~4. open spatula
     grasp_plan = EvalPlan('spatula.open()')
     plans_placing2.append(grasp_plan)
-
+    '''
     #~5. go to predrop_pos
     plan, qf, plan_possible = generatePlan(q_initial, predrop_pos[0:3], drop_pose[3:7], tip_hand_transform, 'superSaiyan', plan_name = 'predrop_pos')
     if plan_possible:

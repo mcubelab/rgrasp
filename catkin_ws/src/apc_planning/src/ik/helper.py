@@ -970,7 +970,7 @@ def drop_pose_transform(binId,rel_pose, BoxBody, place_pose, viz_pub, listener, 
     matrix_base_pose= tfm.quaternion_matrix(base_pose[3:7])
     hand_orient_norm = matrix_base_pose[0:3,0:3]
     #~initialize arguments for placing functions
-    finger_opening = gripper.getGripperopening()
+    finger_opening = 0#gripper.getGripperopening()
     safety_margin=.035
     #~ get 3d bin and finger points
     finger_pts_3d = collision_detection.collisionHelper.getFingerPoints(finger_opening, [0,0,0], hand_orient_norm, False)

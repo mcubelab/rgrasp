@@ -61,8 +61,9 @@ class TaskPlanner(object):
         # Place object using grasping
         
         self.rel_pose, self.BoxBody=vision_transform_precise_placing_with_visualization(self.bbox_info,viz_pub=self.viz_array_pub,listener=self.listener)
+        
         place(listener=self.listener, br=self.br,isExecute=True, binId=binId,  withPause=False,rel_pose=self.rel_pose, BoxBody=self.BoxBody, place_pose=drop_pose, viz_pub=self.viz_array_pub, is_drop = False,
-                         isHack = True, guard_speed = (100,100))
+                         isHack = False, guard_speed = (40,40)) # guard_speed = (mm/s, degree/s)
 
         
 

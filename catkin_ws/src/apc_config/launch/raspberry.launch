@@ -4,14 +4,15 @@
     <machine name="raspberry_machine" address="$(arg raspberry_machine)" user="raspi" timeout="5.0" env-loader="/home/raspi/suction_env.sh" />
     <!-- <node name="spatula" pkg="suction" type="spatula_publisher.py" machine="raspberry_machine" respawn="true" respawn_delay="0.1"/> -->
     <node name="suction_server" pkg="suction" type="suction_server.py" machine="raspberry_machine" respawn="true" respawn_delay="0.1"/>
+    
   <arg name="image_set_width" default="640"/>
   <arg name="image_set_height" default="480"/>
 
   <arg name="camera_set_saveimage_folder" default="/home/raspi/suction_ws/data"/>
-  <arg name="camera_set_capture_hz" default="20.0"/>
+  <arg name="camera_set_capture_hz" default="30.0"/>
 
   <arg name="image_set_gain" default="3"/>
-  <arg name="image_set_exposure" default="0"/>
+  <arg name="image_set_exposure" default="3"/>
 
   <arg name="camera_set_saveimage" default="false"/>
   <arg name="camera_set_showimage" default="false"/>

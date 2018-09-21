@@ -2,13 +2,13 @@
 /gripper/width: 0.146
 /gripper/x_width: 0.05
 /gripper/opening_limit_in: 0.11
-/gripper/spatula_tip_to_tcp_dist: 0.420773
+/gripper/spatula_tip_to_tcp_dist: 0.4
 /gripper/calibration_to_tcp_dist: 0.465
 /finger/thickness_top:  0.03
 /finger/thickness_bot:  0.015
 /finger/width: 0.06
-/finger/length: 0.155
-/finger/spatula_length: 0.047
+/finger/length: 0.185
+/finger/spatula_length: 0
 /wrist/length: 0.2119
 /tote/length: 0.61
 /tote/width: 0.37

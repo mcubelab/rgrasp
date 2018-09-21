@@ -232,7 +232,7 @@ class IKGuarded:
 
     # q0 = 6 joint angles in rad
     def __init__(self, joint_topic = '/joint_states', target_tip_pos = None, target_tip_ori = None, q0 = None,
-                 tip_hand_transform = [0,0,0, 0,0,0], step = 0.001, guarded_obj = None, useWarp = False, binId = 0, weight = [1,1,1,2,1,1]):
+                 tip_hand_transform = [0,0,0, 0,0,0], step = 0.01, guarded_obj = None, useWarp = False, binId = 0, weight = [1,1,1,2,1,1]):
         self.q0 = q0
 
         if useWarp and haverobot:

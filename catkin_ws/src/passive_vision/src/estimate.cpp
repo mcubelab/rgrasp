@@ -32,14 +32,9 @@
 
 
 #include <map>
-
 #include <Eigen/Geometry>
-
 #include <stdio.h>
 #include <time.h>
-
-
-
 
 namespace pt = boost::property_tree;
 

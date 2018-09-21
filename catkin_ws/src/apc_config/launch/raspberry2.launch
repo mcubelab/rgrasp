@@ -18,8 +18,6 @@
   <arg name="camera_set_showimage" default="false"/>
   <arg name="camera_set_publishimage" default="true"/>
   <arg name="camera_set_processimage" default="true"/>
-
-
     <node name="raspberry_camera2" pkg="raspberry_camera" type="raspberry_camera" machine="raspberry_machine2" output="screen">
     <param name="image_set_width" type="int" value="$(arg image_set_width)"/>
     <param name="image_set_height" type="int" value="$(arg image_set_height)"/>

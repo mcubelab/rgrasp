@@ -22,7 +22,7 @@ import ik.ik
 
 def goToHome(isExecute = True, withPause = False, slowDown = False):
 
-    ik.ik.setAcc(4,4)
+    ik.ik.setAcc(24,24)
     if slowDown:
         ik.ik.setSpeedByName(speedName = 'fastest')
     else:
@@ -43,7 +43,7 @@ def goToHome(isExecute = True, withPause = False, slowDown = False):
     
 def goToARC(isExecute = True, withPause = False, slowDown = False):
     
-    ik.ik.setAcc(4,4)
+    ik.ik.setAcc(24,24)
     if slowDown:
         ik.ik.setSpeedByName(speedName = 'fastest')
     else:
